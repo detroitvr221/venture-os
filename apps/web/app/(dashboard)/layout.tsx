@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  Funnel,
+  Filter,
   Users,
   FolderKanban,
   Bot,
@@ -21,7 +21,7 @@ import {
 
 const navigation = [
   { name: "Overview", href: "/overview", icon: LayoutDashboard },
-  { name: "Leads", href: "/leads", icon: Funnel },
+  { name: "Leads", href: "/leads", icon: Filter },
   { name: "Clients", href: "/clients", icon: Users },
   { name: "Projects", href: "/projects", icon: FolderKanban },
   { name: "Agents", href: "/agents", icon: Bot },

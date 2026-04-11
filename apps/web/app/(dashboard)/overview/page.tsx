@@ -6,7 +6,7 @@ import {
   CheckCircle2,
   DollarSign,
   Bot,
-  Funnel,
+  Filter,
 } from "lucide-react";
 
 const stats = [
@@ -15,7 +15,7 @@ const stats = [
     value: "247",
     change: "+12.5%",
     trend: "up" as const,
-    icon: Funnel,
+    icon: Filter,
     color: "#3b82f6",
   },
   {
