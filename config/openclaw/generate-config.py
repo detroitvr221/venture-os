@@ -25,7 +25,8 @@ mcp = {
     "sequential-thinking":{"command":"npx","args":["-y","@modelcontextprotocol/server-sequential-thinking"]},
     "playwright":{"command":"npx","args":["-y","@playwright/mcp","--headless"]},
     "memory":{"command":"npx","args":["-y","@modelcontextprotocol/server-memory"]},
-    "context7":{"command":"npx","args":["-y","@upstash/context7-mcp"]}
+    "context7":{"command":"npx","args":["-y","@upstash/context7-mcp"]},
+    "vapi":{"command":"npx","args":["-y","@vapi-ai/mcp-server"],"env":{"VAPI_TOKEN":env("VAPI_TOKEN")}}
 }
 
 # Conditional: only add if API key is set
