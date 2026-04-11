@@ -440,7 +440,7 @@ export default function LandingPage() {
               className="flex-1 rounded-xl border border-[#333] bg-[#0a0a0a] px-5 py-3 text-sm text-white placeholder-[#666] outline-none transition-colors focus:border-[#3b82f6]"
             />
             <Link
-              href="/login"
+              href={email ? `/signup?email=${encodeURIComponent(email)}` : "/signup"}
               className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
             >
               Get Started
