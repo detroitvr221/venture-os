@@ -41,7 +41,11 @@ export async function middleware(request: NextRequest) {
     pathname === "/" ||
     pathname === "/login" ||
     pathname === "/signup" ||
-    pathname.startsWith("/api/");
+    pathname === "/sitemap.xml" ||
+    pathname === "/robots.txt" ||
+    pathname === "/favicon.ico" ||
+    pathname.startsWith("/api/") ||
+    pathname.startsWith("/_next/");
 
   // If not authenticated and trying to access a protected route, redirect to login
   if (!user && !isPublicRoute) {
