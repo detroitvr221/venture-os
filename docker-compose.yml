@@ -1,0 +1,61 @@
+version: "3.8"
+
+# VentureOS — Local Development Services
+# Start with: docker compose up -d
+# Stop with:  docker compose down
+
+services:
+  # ── PostgreSQL (Supabase-compatible with pgvector) ─────────────────────────
+  postgres:
+    image: supabase/postgres:15.6.1.143
+    container_name: ventureos-postgres
+    restart: unless-stopped
+    ports:
+      - "54322:5432"
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: ventureos
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ventureos"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ── Redis (for Trigger.dev and caching) ────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: ventureos-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── MailHog (local email testing — catches all outbound email) ─────────────
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: ventureos-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # Web UI
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8025"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local

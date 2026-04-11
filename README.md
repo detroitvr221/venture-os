@@ -2,6 +2,18 @@
 
 An AI-powered venture operating system for building and managing multiple businesses. VentureOS deploys a roster of 11 specialized AI agents -- from CEO to Compliance -- coordinated by a central orchestrator to automate sales pipelines, SEO audits, web presence management, billing, and more.
 
+## Project Stats
+
+| Metric | Count |
+|--------|-------|
+| Total files | 103 |
+| Lines of code | 19,000+ |
+| Dashboard pages | 19 |
+| Database tables | 41 (all with RLS) |
+| AI agents | 11 |
+| Workflows | 6 |
+| Build phases | 4/4 complete |
+
 ## Quick Start
 
 ```bash
@@ -10,14 +22,19 @@ pnpm install
 
 # 2. Copy environment variables
 cp .env.example .env
-# Fill in your API keys (Supabase, Stripe, OpenAI, etc.)
+# Fill in your API keys (see docs/env-reference.md for the full list)
 
-# 3. Run database migrations (requires Supabase project)
+# 3. Start local services (Postgres, Redis, MailHog)
+docker compose up -d
+
+# 4. Run database migrations (requires Supabase project)
 pnpm db:migrate
 
-# 4. Start development
+# 5. Start development
 pnpm dev
 ```
+
+The dashboard is at `http://localhost:3000`. MailHog UI for captured emails is at `http://localhost:8025`.
 
 ## Tech Stack
 

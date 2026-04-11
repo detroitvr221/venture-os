@@ -354,7 +354,6 @@ export default function LeadDetailPage() {
                       ? `${s.color}15`
                       : "transparent",
                   borderColor: isActive ? s.color : "transparent",
-                  ringColor: isActive ? s.color : undefined,
                   ...(isActive ? { boxShadow: `0 0 0 2px ${s.color}40` } : {}),
                 }}
               >
