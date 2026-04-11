@@ -6,7 +6,7 @@ import { Settings, Key, Globe, Bot, Mail, Bell, Shield, Save, CheckCircle2 } fro
 
 export default function SettingsPage() {
   const [userEmail, setUserEmail] = useState("");
-  const [orgName, setOrgName] = useState("North Bridge Digital");
+  const [orgName, setOrgName] = useState("Northbridge Digital");
   const [saved, setSaved] = useState(false);
   const [activeTab, setActiveTab] = useState("general");
 

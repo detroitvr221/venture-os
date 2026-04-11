@@ -8,14 +8,16 @@ import { ClipboardList, ArrowRight, ArrowLeft, CheckCircle2, Send, Building2 } f
 // ─── Service definitions ────────────────────────────────────────────────────
 
 const SERVICES = [
-  { id: "seo", label: "SEO & Search Optimization", icon: "🔍" },
-  { id: "web", label: "Website Design & Development", icon: "🌐" },
-  { id: "ai", label: "AI Integration & Automation", icon: "🤖" },
-  { id: "content", label: "Content Marketing", icon: "📝" },
-  { id: "social", label: "Social Media Management", icon: "📱" },
-  { id: "ppc", label: "Paid Advertising (PPC)", icon: "💰" },
-  { id: "brand", label: "Brand Strategy & Identity", icon: "🎨" },
-  { id: "analytics", label: "Analytics & Reporting", icon: "📊" },
+  // Build Track
+  { id: "web", label: "Website Design & Development", icon: "🌐", track: "build" },
+  { id: "landing", label: "Landing Pages", icon: "📄", track: "build" },
+  { id: "platform", label: "App / Platform Build", icon: "🖥️", track: "build" },
+  { id: "systems", label: "Digital Systems & Automation", icon: "⚙️", track: "build" },
+  // Growth Track
+  { id: "seo", label: "SEO & Search Optimization", icon: "🔍", track: "growth" },
+  { id: "social", label: "Social Media Management", icon: "📱", track: "growth" },
+  { id: "content", label: "Content Marketing", icon: "📝", track: "growth" },
+  { id: "visibility", label: "Visibility & Lead Generation", icon: "📊", track: "growth" },
 ];
 
 // ─── Dynamic questions per service ──────────────────────────────────────────
@@ -38,7 +40,7 @@ const QUESTIONS: Question[] = [
   { id: "contact_phone", label: "Phone Number", type: "text", placeholder: "+1 555 0123", services: ["*"] },
   { id: "website_url", label: "Current Website URL", type: "url", placeholder: "https://acme.com", services: ["*"] },
   { id: "industry", label: "Industry", type: "select", options: ["Technology", "Healthcare", "Finance", "E-commerce", "Real Estate", "Education", "Manufacturing", "Professional Services", "Hospitality", "Other"], services: ["*"] },
-  { id: "budget_range", label: "Monthly Budget Range", type: "select", options: ["Under $1,000", "$1,000 - $2,500", "$2,500 - $5,000", "$5,000 - $10,000", "$10,000+", "Not sure yet"], required: true, services: ["*"] },
+  { id: "budget_range", label: "Which package range fits best?", type: "select", options: ["$99/mo (Launch / Visibility)", "$199/mo (Build / Growth)", "$299/mo (Platform / Momentum)", "Multiple packages", "Not sure yet"], required: true, services: ["*"] },
   { id: "timeline", label: "When do you want to start?", type: "select", options: ["Immediately", "Within 2 weeks", "Within a month", "Within 3 months", "Just exploring"], services: ["*"] },
 
   // SEO-specific
@@ -51,10 +53,10 @@ const QUESTIONS: Question[] = [
   { id: "web_pages", label: "Estimated number of pages", type: "select", options: ["1-5 pages", "5-15 pages", "15-30 pages", "30+ pages"], services: ["web"] },
   { id: "web_features", label: "Key features needed", type: "textarea", placeholder: "Contact forms, booking system, payment processing, member area...", services: ["web"] },
 
-  // AI-specific
-  { id: "ai_current", label: "Current AI tools in use", type: "textarea", placeholder: "ChatGPT, Zapier, custom bots, none...", services: ["ai"] },
-  { id: "ai_goals", label: "What would you like AI to automate?", type: "textarea", placeholder: "Customer support, lead qualification, content creation, data entry...", services: ["ai"] },
-  { id: "ai_data", label: "Do you have data/documents to train on?", type: "select", options: ["Yes, lots of data", "Some data", "Not sure", "Starting from scratch"], services: ["ai"] },
+  // Systems-specific
+  { id: "systems_current", label: "What tools do you currently use?", type: "textarea", placeholder: "CRM, email marketing, project management, spreadsheets, none...", services: ["systems"] },
+  { id: "systems_goals", label: "What would you like to automate or streamline?", type: "textarea", placeholder: "Lead follow-up, invoicing, scheduling, reporting...", services: ["systems"] },
+  { id: "systems_data", label: "How organized is your current data?", type: "select", options: ["Well organized", "Somewhat organized", "Scattered everywhere", "Starting from scratch"], services: ["systems"] },
 
   // Content-specific
   { id: "content_types", label: "Content types needed", type: "select", options: ["Blog posts", "Case studies", "Whitepapers", "Email newsletters", "Video scripts", "All of the above"], services: ["content"] },
@@ -341,8 +343,8 @@ export default function IntakePage() {
       </div>
       <h1 className="text-2xl font-bold text-white">Intake Submitted</h1>
       <p className="mt-2 text-sm text-[#888]">
-        Thank you! Your information has been received. Our AI agents are already analyzing your needs.
-        We'll reach out within 24 hours with a tailored proposal.
+        Thank you! Your information has been received. Our team is reviewing your needs
+        and will reach out within 24 hours with a tailored proposal.
       </p>
       <div className="mt-8 flex justify-center gap-3">
         <button

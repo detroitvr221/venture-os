@@ -33,9 +33,9 @@ const navigation = [
   { name: "Clients", href: "/clients", icon: Users },
   { name: "Projects", href: "/projects", icon: FolderKanban },
   { name: "SEO Audits", href: "/seo", icon: Search },
-  { name: "Agents", href: "/agents", icon: Bot },
+  { name: "Operations", href: "/agents", icon: Bot },
   { name: "Workflows", href: "/workflows", icon: GitBranch },
-  { name: "Memory", href: "/memory", icon: Brain },
+  { name: "Knowledge", href: "/memory", icon: Brain },
   { name: "Approvals", href: "/approvals", icon: CheckCircle2 },
   { name: "Email", href: "/email", icon: Mail },
   { name: "Campaigns", href: "/campaigns", icon: Send },
@@ -84,7 +84,7 @@ export default function DashboardLayout({
           </div>
           {!collapsed && (
             <span className="bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] bg-clip-text text-lg font-bold text-transparent">
-              NB Digital
+              Northbridge
             </span>
           )}
         </div>

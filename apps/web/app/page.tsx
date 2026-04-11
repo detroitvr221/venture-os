@@ -3,131 +3,169 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  Search,
   Globe,
-  Bot,
   FileText,
   Rocket,
-  Cog,
-  ScanSearch,
-  Hammer,
-  Radio,
-  Users,
+  Search,
   TrendingUp,
+  Users,
   Shield,
-  Code2,
-  Briefcase,
-  DollarSign,
-  BookOpen,
-  Database,
-  GitBranch,
-  Clock,
+  Zap,
   ArrowRight,
   ChevronRight,
   CheckCircle2,
-  Zap,
-  UserCheck,
+  BarChart3,
+  Megaphone,
+  Palette,
+  Code2,
+  MessageSquare,
+  Eye,
+  Layers,
+  Building2,
 } from "lucide-react";
 
 // ─── Data ───────────────────────────────────────────────────────────────────
 
-const services = [
+const buildPackages = [
   {
-    icon: Search,
-    title: "SEO & Growth",
-    description:
-      "Our SEO agent crawls your site, identifies technical issues, and builds a prioritized action plan. A human strategist reviews every recommendation before it ships.",
+    name: "Launch",
+    price: "$99",
+    period: "/month",
+    description: "Perfect for getting online fast",
+    features: [
+      "1 landing page",
+      "Mobile optimization",
+      "Contact form setup",
+      "Basic analytics",
+      "Minor monthly edits",
+    ],
+    cta: "Start with Launch",
+    popular: false,
   },
   {
-    icon: Globe,
-    title: "Website & Presence",
-    description:
-      "AI audits your site for trust, speed, and conversions. Our team builds or rebuilds it to convert. You own the code, the design, and the results.",
+    name: "Build",
+    price: "$199",
+    period: "/month",
+    description: "For businesses ready to grow",
+    features: [
+      "Up to 5 pages",
+      "Lead capture forms",
+      "Light integrations",
+      "Hosting & domain guidance",
+      "Monthly updates",
+    ],
+    cta: "Start with Build",
+    popular: true,
   },
   {
-    icon: Bot,
-    title: "AI Integration",
-    description:
-      "We map your workflows, identify automation opportunities, and deploy AI agents inside your business. Human operators manage the rollout and monitor performance.",
+    name: "Platform",
+    price: "$299",
+    period: "/month",
+    description: "Advanced web experiences",
+    features: [
+      "Website + app layer",
+      "Ongoing design/dev improvements",
+      "Customer journey optimization",
+      "Dashboard/admin support",
+      "Priority support",
+    ],
+    cta: "Start with Platform",
+    popular: false,
+  },
+];
+
+const growthPackages = [
+  {
+    name: "Visibility",
+    price: "$99",
+    period: "/month",
+    description: "Get found online",
+    features: [
+      "Basic SEO setup",
+      "Google Business optimization",
+      "Title & meta updates",
+      "Profile consistency audit",
+      "1 monthly check-in",
+    ],
+    cta: "Start with Visibility",
+    popular: false,
   },
   {
-    icon: FileText,
-    title: "Content Operations",
-    description:
-      "AI writers draft blog posts, social content, and email sequences at scale. Human editors review every piece before it goes live. Quality at volume.",
+    name: "Growth",
+    price: "$199",
+    period: "/month",
+    description: "Accelerate your presence",
+    features: [
+      "SEO improvements",
+      "Social media support",
+      "2-4 content pieces/month",
+      "Analytics reporting",
+      "Monthly optimization",
+    ],
+    cta: "Start with Growth",
+    popular: true,
   },
   {
-    icon: Rocket,
-    title: "Venture Building",
-    description:
-      "From napkin idea to running company in 30 days. AI agents scaffold the brand, website, and operations. Humans approve every strategic decision.",
+    name: "Momentum",
+    price: "$299",
+    period: "/month",
+    description: "Full growth engine",
+    features: [
+      "SEO + social + visibility",
+      "Content planning",
+      "Lead generation optimization",
+      "Monthly strategy touchpoint",
+      "Priority execution",
+    ],
+    cta: "Start with Momentum",
+    popular: false,
   },
-  {
-    icon: Cog,
-    title: "Automation & CRM",
-    description:
-      "Automated lead intake, consent-checked follow-up sequences, and billing workflows. Every outbound message is logged. Every financial action is human-approved.",
-  },
+];
+
+const capabilities = [
+  { icon: Globe, title: "Website Design & Development", description: "From landing pages to full platforms. Built to convert, designed to impress." },
+  { icon: Search, title: "SEO & Search Optimization", description: "Get found by the people searching for what you offer. Technical SEO, content, and rankings." },
+  { icon: Megaphone, title: "Social Media Support", description: "Consistent branded content, community management, and social strategy that builds presence." },
+  { icon: FileText, title: "Content Marketing", description: "Blog posts, case studies, and branded content that positions you as the authority." },
+  { icon: Palette, title: "Brand Strategy & Identity", description: "Logos, colors, voice, and visual identity that makes your brand unforgettable." },
+  { icon: Code2, title: "Digital Systems & Automation", description: "Modern tools, workflows, and systems that make your operations faster and smoother." },
 ];
 
 const steps = [
-  {
-    icon: ScanSearch,
-    step: "01",
-    title: "We Audit",
-    description:
-      "AI agents analyze your website, SEO, content, and operations. Human strategists review the findings and build your action plan.",
-  },
-  {
-    icon: Hammer,
-    step: "02",
-    title: "We Build",
-    description:
-      "AI agents write the code, draft the content, and configure the systems. Human operators review, approve, and deploy.",
-  },
-  {
-    icon: Radio,
-    step: "03",
-    title: "We Operate",
-    description:
-      "11 AI agents run your operations 24/7. Human oversight on every sensitive action — outreach, billing, deployments, and client communications.",
-  },
-];
-
-const agents = [
-  { name: "CEO / Operator", role: "Strategy & Routing", description: "Routes work across the team, reviews KPIs, and makes priority calls. Human approval required for high-risk decisions." },
-  { name: "Sales Agent", role: "Pipeline & Proposals", description: "Qualifies leads, drafts proposals, and suggests outreach. Never sends first-contact without human approval." },
-  { name: "SEO Agent", role: "Audits & Rankings", description: "Crawls sites, analyzes indexing and content gaps, generates action plans. Human strategist reviews every audit." },
-  { name: "Web Presence", role: "Sites & Conversion", description: "Audits trust signals, brand consistency, local presence, and conversion clarity. Recommends fixes humans implement." },
-  { name: "AI Integration", role: "Automation & Workflows", description: "Maps client workflows, identifies automation opportunities, drafts integration plans with ROI estimates." },
-  { name: "Venture Builder", role: "New Companies", description: "Scaffolds new businesses — brand, website, KPIs, workflows. Every company launch requires human approval gate." },
-  { name: "Developer", role: "Code & Deploys", description: "Writes code in a sandbox, opens PRs, updates docs. Never deploys to production without human review." },
-  { name: "Ops Agent", role: "Monitoring & Health", description: "Monitors workflows, retries, queue health, and incidents. Escalates to humans when intervention is needed." },
-  { name: "Finance Agent", role: "Billing & Revenue", description: "Tracks subscriptions, invoices, and usage. Drafts recommendations. No autonomous money movement — ever." },
-  { name: "Research Agent", role: "Intel & Analysis", description: "Fetches market data, competitor summaries, and tech references. Attaches source provenance to every output." },
-  { name: "Compliance", role: "Safety & Guardrails", description: "Validates consent, communication legality, and financial action gating. The agent that keeps every other agent honest." },
+  { step: "01", title: "We Learn", description: "We start with a consultation to understand your business, goals, and challenges. No cookie-cutter plans.", icon: MessageSquare },
+  { step: "02", title: "We Build", description: "Our team designs, develops, and optimizes your digital presence. Real work, real progress, every month.", icon: Layers },
+  { step: "03", title: "We Grow", description: "Ongoing SEO, content, and visibility improvements that compound over time. Monthly reporting so you see the results.", icon: TrendingUp },
 ];
 
 const stats = [
-  { value: "11", label: "AI Agents", sublabel: "working alongside human operators", icon: Bot },
-  { value: "24/7", label: "Operations", sublabel: "with human oversight on sensitive actions", icon: Clock },
-  { value: "48hr", label: "Proposals", sublabel: "from first contact to delivery", icon: Zap },
-  { value: "100%", label: "Auditable", sublabel: "every action logged, every approval tracked", icon: Shield },
+  { value: "2", label: "Service Tracks", sublabel: "Build + Growth", icon: Layers },
+  { value: "6", label: "Packages", sublabel: "starting at $99/mo", icon: Zap },
+  { value: "48hr", label: "Proposals", sublabel: "from consult to delivery", icon: FileText },
+  { value: "100%", label: "Transparent", sublabel: "monthly reports included", icon: Shield },
 ];
 
 const trustPoints = [
-  "Human approval on all outbound communications",
-  "Consent checks before every email and SMS",
-  "No autonomous money movement",
-  "Complete audit trail on every action",
-  "Code runs in sandboxes, never on production without review",
-  "Compliance agent validates every sensitive decision",
+  "Monthly reporting on all deliverables",
+  "Dedicated point of contact for every client",
+  "Clear pricing with no hidden fees",
+  "12-month partnership commitment",
+  "Real human strategy behind every decision",
+  "Modern systems that accelerate execution",
+];
+
+const faqs = [
+  { q: "What do you actually do?", a: "We help businesses build websites, improve their online visibility, and grow through SEO, social media, and digital systems. Think of us as your digital growth team, without the overhead of hiring in-house." },
+  { q: "How is this different from other agencies?", a: "Most agencies sell projects. We sell partnerships. You get ongoing monthly support, real execution, and a team invested in your growth, not just a one-time deliverable." },
+  { q: "What's included in the monthly price?", a: "Everything in your selected package. No surprise fees, no hourly billing. You pick a track (Build or Growth), choose a tier, and we get to work." },
+  { q: "Do I need both Build and Growth?", a: "Not necessarily. Many clients start with one track and add the other as they grow. We'll recommend what makes sense for your stage." },
+  { q: "Is there a contract?", a: "Yes, all packages include a 12-month commitment. This allows us to plan long-term strategy and deliver compounding results." },
 ];
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function LandingPage() {
   const [email, setEmail] = useState("");
+  const [pricingTrack, setPricingTrack] = useState<"build" | "growth">("build");
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -143,38 +181,15 @@ export default function LandingPage() {
               <span className="text-sm font-bold text-white">NB</span>
             </div>
             <span className="bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] bg-clip-text text-lg font-bold text-transparent">
-              North Bridge Digital
+              Northbridge Digital
             </span>
           </div>
           <div className="hidden items-center gap-8 md:flex">
-            <button
-              onClick={() => scrollTo("services")}
-              className="text-sm text-[#888] transition-colors hover:text-white"
-            >
-              Services
-            </button>
-            <button
-              onClick={() => scrollTo("how-it-works")}
-              className="text-sm text-[#888] transition-colors hover:text-white"
-            >
-              How It Works
-            </button>
-            <button
-              onClick={() => scrollTo("agents")}
-              className="text-sm text-[#888] transition-colors hover:text-white"
-            >
-              Our Team
-            </button>
-            <button
-              onClick={() => scrollTo("trust")}
-              className="text-sm text-[#888] transition-colors hover:text-white"
-            >
-              Trust
-            </button>
-            <Link
-              href="/login"
-              className="rounded-lg bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
-            >
+            <button onClick={() => scrollTo("services")} className="text-sm text-[#888] transition-colors hover:text-white">Services</button>
+            <button onClick={() => scrollTo("pricing")} className="text-sm text-[#888] transition-colors hover:text-white">Pricing</button>
+            <button onClick={() => scrollTo("how-it-works")} className="text-sm text-[#888] transition-colors hover:text-white">How It Works</button>
+            <button onClick={() => scrollTo("ventures")} className="text-sm text-[#888] transition-colors hover:text-white">Ventures</button>
+            <Link href="/login" className="rounded-lg bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90">
               Sign In
             </Link>
           </div>
@@ -189,51 +204,42 @@ export default function LandingPage() {
         <div className="relative z-10 mx-auto max-w-4xl">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#222] bg-[#111] px-4 py-1.5">
             <div className="h-2 w-2 rounded-full bg-[#22c55e] animate-pulse" />
-            <span className="text-xs text-[#888]">
-              11 AI Agents + Human Operators Online
-            </span>
+            <span className="text-xs text-[#888]">Now accepting new clients &middot; Packages from $99/mo</span>
           </div>
 
           <h1 className="text-5xl font-extrabold leading-tight tracking-tight sm:text-6xl lg:text-7xl">
-            <span className="text-white">
-              AI Agents That Run
-            </span>
+            <span className="text-white">Build. Launch.</span>
             <br />
             <span className="bg-gradient-to-r from-[#3b82f6] via-[#6366f1] to-[#8b5cf6] bg-clip-text text-transparent">
-              Your Business.
-            </span>
-            <br />
-            <span className="text-white text-4xl sm:text-5xl lg:text-5xl font-bold">
-              Humans That Keep It Honest.
+              Grow Online.
             </span>
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-lg text-[#888] leading-relaxed">
-            North Bridge Digital deploys 11 specialist AI agents alongside human
-            operators to run your marketing, SEO, website, and operations. The AI
-            does the heavy lifting. Humans provide the strategy, judgment, and
-            approval on everything that matters.
+            Northbridge Digital helps businesses show up stronger online through
+            websites, SEO, social media, and modern digital systems. Real people.
+            Real execution. Real results.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-[#666]">
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-[#22c55e]" /> Human-approved outreach</span>
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-[#22c55e]" /> 48-hour proposals</span>
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-[#22c55e]" /> Full audit trail</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-[#22c55e]" /> Websites & landing pages</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-[#22c55e]" /> SEO & visibility</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-[#22c55e]" /> From $99/month</span>
           </div>
 
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link
-              href="/login"
+              href="/signup"
               className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-[#3b82f620] transition-all hover:shadow-[#3b82f640] hover:scale-[1.02]"
             >
-              Get Started
+              Start Growing
               <ArrowRight className="h-4 w-4" />
             </Link>
             <button
-              onClick={() => scrollTo("how-it-works")}
+              onClick={() => scrollTo("pricing")}
               className="flex items-center gap-2 rounded-xl border border-[#333] bg-[#111] px-8 py-3.5 text-sm font-semibold text-[#ccc] transition-all hover:border-[#444] hover:text-white"
             >
-              See How It Works
+              See Packages
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
@@ -249,73 +255,218 @@ export default function LandingPage() {
       {/* ── Services ───────────────────────────────────────────────────── */}
       <section id="services" className="mx-auto max-w-6xl px-6 py-24">
         <div className="text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest text-[#3b82f6]">
-            What We Deliver
-          </p>
-          <h2 className="mt-3 text-3xl font-bold sm:text-4xl">
-            AI Execution. Human Judgment.
-          </h2>
+          <p className="text-sm font-semibold uppercase tracking-widest text-[#3b82f6]">What We Do</p>
+          <h2 className="mt-3 text-3xl font-bold sm:text-4xl">Everything You Need to Grow Online</h2>
           <p className="mx-auto mt-4 max-w-xl text-[#888]">
-            Six service lines, each powered by specialist AI agents and guided by
-            human operators who approve every critical action.
+            Strategy, design, development, and growth — all from one team. No juggling vendors. No gaps.
           </p>
         </div>
 
         <div className="mt-16 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {services.map((service) => {
-            const Icon = service.icon;
+          {capabilities.map((cap) => {
+            const Icon = cap.icon;
             return (
-              <div
-                key={service.title}
-                className="group rounded-2xl border border-[#1a1a1a] bg-[#111] p-7 transition-all hover:border-[#333] hover:bg-[#141414]"
-              >
+              <div key={cap.title} className="group rounded-2xl border border-[#1a1a1a] bg-[#111] p-7 transition-all hover:border-[#333] hover:bg-[#141414]">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#3b82f610] transition-colors group-hover:bg-[#3b82f620]">
                   <Icon className="h-6 w-6 text-[#3b82f6]" />
                 </div>
-                <h3 className="mt-5 text-lg font-semibold text-white">
-                  {service.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-[#888]">
-                  {service.description}
-                </p>
+                <h3 className="mt-5 text-lg font-semibold text-white">{cap.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[#888]">{cap.description}</p>
               </div>
             );
           })}
         </div>
       </section>
 
-      {/* ── How It Works ───────────────────────────────────────────────── */}
-      <section id="how-it-works" className="border-y border-[#1a1a1a] bg-[#0d0d0d]">
+      {/* ── Pricing ───────────────────────────────────────────────────── */}
+      <section id="pricing" className="border-y border-[#1a1a1a] bg-[#0d0d0d]">
         <div className="mx-auto max-w-6xl px-6 py-24">
           <div className="text-center">
-            <p className="text-sm font-semibold uppercase tracking-widest text-[#8b5cf6]">
-              Our Process
-            </p>
-            <h2 className="mt-3 text-3xl font-bold sm:text-4xl">
-              Audit. Build. Operate.
-            </h2>
+            <p className="text-sm font-semibold uppercase tracking-widest text-[#8b5cf6]">Pricing</p>
+            <h2 className="mt-3 text-3xl font-bold sm:text-4xl">Simple, Transparent Packages</h2>
             <p className="mx-auto mt-4 max-w-xl text-[#888]">
-              Three phases. AI handles the volume. Humans handle the decisions.
+              Two tracks. Three tiers each. Pick what fits. All plans include a 12-month commitment.
             </p>
           </div>
 
-          <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-3">
-            {steps.map((item) => {
-              const Icon = item.icon;
-              return (
-                <div key={item.step} className="relative text-center">
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6]">
-                    <Icon className="h-7 w-7 text-white" />
+          {/* Track Toggle */}
+          <div className="mt-10 flex justify-center">
+            <div className="inline-flex rounded-xl border border-[#222] bg-[#0a0a0a] p-1">
+              <button
+                onClick={() => setPricingTrack("build")}
+                className={`rounded-lg px-6 py-2.5 text-sm font-medium transition ${
+                  pricingTrack === "build" ? "bg-gradient-to-r from-[#3b82f6] to-[#6366f1] text-white" : "text-[#888] hover:text-white"
+                }`}
+              >
+                <Globe className="mr-2 inline h-4 w-4" />
+                Build Track
+              </button>
+              <button
+                onClick={() => setPricingTrack("growth")}
+                className={`rounded-lg px-6 py-2.5 text-sm font-medium transition ${
+                  pricingTrack === "growth" ? "bg-gradient-to-r from-[#8b5cf6] to-[#a855f7] text-white" : "text-[#888] hover:text-white"
+                }`}
+              >
+                <TrendingUp className="mr-2 inline h-4 w-4" />
+                Growth Track
+              </button>
+            </div>
+          </div>
+
+          <p className="mt-4 text-center text-xs text-[#666]">
+            {pricingTrack === "build" ? "Websites, landing pages, and platform builds" : "SEO, social media, and online visibility"}
+          </p>
+
+          {/* Pricing Cards */}
+          <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
+            {(pricingTrack === "build" ? buildPackages : growthPackages).map((pkg) => (
+              <div
+                key={pkg.name}
+                className={`relative rounded-2xl border p-7 transition-all ${
+                  pkg.popular
+                    ? "border-[#3b82f6] bg-[#111] shadow-lg shadow-[#3b82f610]"
+                    : "border-[#1a1a1a] bg-[#111] hover:border-[#333]"
+                }`}
+              >
+                {pkg.popular && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-4 py-1 text-xs font-medium text-white">
+                    Most Popular
                   </div>
-                  <span className="mt-5 block text-xs font-bold uppercase tracking-widest text-[#3b82f6]">
-                    Step {item.step}
-                  </span>
-                  <h3 className="mt-2 text-xl font-bold text-white">
-                    {item.title}
-                  </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-[#888]">
-                    {item.description}
-                  </p>
+                )}
+                <h3 className="text-lg font-bold text-white">{pkg.name}</h3>
+                <p className="mt-1 text-xs text-[#888]">{pkg.description}</p>
+                <div className="mt-4">
+                  <span className="text-4xl font-extrabold text-white">{pkg.price}</span>
+                  <span className="text-sm text-[#666]">{pkg.period}</span>
+                </div>
+                <ul className="mt-6 space-y-3">
+                  {pkg.features.map((f) => (
+                    <li key={f} className="flex items-start gap-2 text-sm text-[#ccc]">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#22c55e]" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href="/signup"
+                  className={`mt-8 block w-full rounded-xl py-3 text-center text-sm font-semibold transition ${
+                    pkg.popular
+                      ? "bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] text-white hover:opacity-90"
+                      : "border border-[#333] text-[#ccc] hover:bg-[#1a1a1a] hover:text-white"
+                  }`}
+                >
+                  {pkg.cta}
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── How It Works ───────────────────────────────────────────────── */}
+      <section id="how-it-works" className="mx-auto max-w-6xl px-6 py-24">
+        <div className="text-center">
+          <p className="text-sm font-semibold uppercase tracking-widest text-[#3b82f6]">Our Process</p>
+          <h2 className="mt-3 text-3xl font-bold sm:text-4xl">How It Works</h2>
+          <p className="mx-auto mt-4 max-w-xl text-[#888]">
+            Three steps to a stronger online presence. We handle the execution so you can focus on your business.
+          </p>
+        </div>
+
+        <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-3">
+          {steps.map((item) => {
+            const Icon = item.icon;
+            return (
+              <div key={item.step} className="relative text-center">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6]">
+                  <Icon className="h-7 w-7 text-white" />
+                </div>
+                <span className="mt-5 block text-xs font-bold uppercase tracking-widest text-[#3b82f6]">Step {item.step}</span>
+                <h3 className="mt-2 text-xl font-bold text-white">{item.title}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-[#888]">{item.description}</p>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ── Ventures ──────────────────────────────────────────────────── */}
+      <section id="ventures" className="border-y border-[#1a1a1a] bg-[#0d0d0d]">
+        <div className="mx-auto max-w-6xl px-6 py-24">
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-widest text-[#8b5cf6]">Beyond Client Work</p>
+              <h2 className="mt-3 text-3xl font-bold sm:text-4xl">
+                We Build Businesses Too.
+              </h2>
+              <p className="mt-4 text-[#888] leading-relaxed">
+                Northbridge Digital is both a service company and a venture builder. We help outside
+                businesses grow, and we launch and operate our own brands — from lead generation companies
+                to e-commerce ventures and local service brands.
+              </p>
+              <div className="mt-6 space-y-3">
+                {[
+                  "Launch and operate in-house digital ventures",
+                  "Incubate brands in lead gen, e-commerce, and local services",
+                  "Help partners modernize and vertically integrate",
+                  "Build long-term digital assets under one umbrella",
+                ].map((point) => (
+                  <div key={point} className="flex items-start gap-2">
+                    <Building2 className="mt-0.5 h-4 w-4 shrink-0 text-[#8b5cf6]" />
+                    <span className="text-sm text-[#ccc]">{point}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-2xl border border-[#1a1a1a] bg-[#111] p-8">
+              <h3 className="text-lg font-semibold text-white">The Northbridge Model</h3>
+              <div className="mt-6 space-y-4">
+                <div className="rounded-lg border border-[#222] bg-[#0d0d0d] p-4">
+                  <p className="text-sm font-medium text-[#3b82f6]">Client Services</p>
+                  <p className="mt-1 text-xs text-[#888]">Web, SEO, social, content, and digital systems for outside businesses</p>
+                </div>
+                <div className="rounded-lg border border-[#222] bg-[#0d0d0d] p-4">
+                  <p className="text-sm font-medium text-[#8b5cf6]">Internal Ventures</p>
+                  <p className="mt-1 text-xs text-[#888]">Our own brands designed for long-term digital growth</p>
+                </div>
+                <div className="rounded-lg border border-[#222] bg-[#0d0d0d] p-4">
+                  <p className="text-sm font-medium text-[#10b981]">Partner Support</p>
+                  <p className="mt-1 text-xs text-[#888]">Modernizing operations for business owners who want to scale</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Trust ─────────────────────────────────────────────────────── */}
+      <section className="mx-auto max-w-6xl px-6 py-24">
+        <div className="text-center">
+          <p className="text-sm font-semibold uppercase tracking-widest text-[#22c55e]">Why Northbridge</p>
+          <h2 className="mt-3 text-3xl font-bold sm:text-4xl">Built on Trust and Transparency</h2>
+        </div>
+        <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {trustPoints.map((point) => (
+            <div key={point} className="flex items-start gap-3 rounded-xl border border-[#1a1a1a] bg-[#111] p-5">
+              <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#22c55e]" />
+              <span className="text-sm text-[#ccc]">{point}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Stats ──────────────────────────────────────────────────────── */}
+      <section className="border-y border-[#1a1a1a] bg-[#0d0d0d]">
+        <div className="mx-auto max-w-6xl px-6 py-16">
+          <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+            {stats.map((stat) => {
+              const Icon = stat.icon;
+              return (
+                <div key={stat.label} className="text-center">
+                  <Icon className="mx-auto h-6 w-6 text-[#3b82f6]" />
+                  <p className="mt-3 text-4xl font-extrabold bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] bg-clip-text text-transparent">{stat.value}</p>
+                  <p className="mt-1 text-sm font-medium text-white">{stat.label}</p>
+                  <p className="mt-0.5 text-xs text-[#666]">{stat.sublabel}</p>
                 </div>
               );
             })}
@@ -323,113 +474,28 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Agent Roster ───────────────────────────────────────────────── */}
-      <section id="agents" className="mx-auto max-w-6xl px-6 py-24">
+      {/* ── FAQ ────────────────────────────────────────────────────────── */}
+      <section className="mx-auto max-w-3xl px-6 py-24">
         <div className="text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest text-[#3b82f6]">
-            The Team
-          </p>
-          <h2 className="mt-3 text-3xl font-bold sm:text-4xl">
-            11 AI Agents. Human Operators. One Mission.
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-[#888]">
-            Every agent has a defined role, clear boundaries, and a human operator
-            who approves anything sensitive. No agent acts alone on decisions that matter.
-          </p>
+          <p className="text-sm font-semibold uppercase tracking-widest text-[#3b82f6]">FAQ</p>
+          <h2 className="mt-3 text-3xl font-bold">Common Questions</h2>
         </div>
-
-        <div className="mt-16 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {agents.map((agent, i) => {
-            const roleIcons = [
-              Briefcase, TrendingUp, Search, Globe, Bot, Rocket, Code2,
-              Cog, DollarSign, BookOpen, Shield,
-            ];
-            const Icon = roleIcons[i] ?? Bot;
-            return (
-              <div
-                key={agent.name}
-                className="rounded-xl border border-[#1a1a1a] bg-[#111] p-5 transition-all hover:border-[#333]"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6]">
-                    <Icon className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-white">
-                      {agent.name}
-                    </h4>
-                    <p className="text-xs text-[#3b82f6]">{agent.role}</p>
-                  </div>
-                </div>
-                <p className="mt-3 text-xs leading-relaxed text-[#888]">
-                  {agent.description}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* ── Trust & Safety ─────────────────────────────────────────────── */}
-      <section id="trust" className="border-y border-[#1a1a1a] bg-[#0d0d0d]">
-        <div className="mx-auto max-w-6xl px-6 py-24">
-          <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-widest text-[#22c55e]">
-                Built Responsibly
-              </p>
-              <h2 className="mt-3 text-3xl font-bold sm:text-4xl">
-                AI That You Can Trust.
-                <br />
-                <span className="text-[#888]">Because Humans Are Always In The Loop.</span>
-              </h2>
-              <p className="mt-4 text-[#888] leading-relaxed">
-                We built compliance into the architecture, not the fine print. Every
-                outbound message is consent-checked. Every financial action requires
-                human approval. Every agent action is logged with a complete audit trail.
-                This is not an afterthought — it is how the system works.
-              </p>
+        <div className="mt-12 space-y-4">
+          {faqs.map((faq) => (
+            <div key={faq.q} className="rounded-xl border border-[#1a1a1a] bg-[#111] p-5">
+              <h3 className="text-sm font-semibold text-white">{faq.q}</h3>
+              <p className="mt-2 text-sm text-[#888] leading-relaxed">{faq.a}</p>
             </div>
-            <div className="space-y-4">
-              {trustPoints.map((point) => (
-                <div key={point} className="flex items-start gap-3 rounded-lg border border-[#1a1a1a] bg-[#111] p-4">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#22c55e]" />
-                  <span className="text-sm text-[#ccc]">{point}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Stats ──────────────────────────────────────────────────────── */}
-      <section className="mx-auto max-w-6xl px-6 py-20">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-          {stats.map((stat) => {
-            const Icon = stat.icon;
-            return (
-              <div key={stat.label} className="text-center">
-                <Icon className="mx-auto h-6 w-6 text-[#3b82f6]" />
-                <p className="mt-3 text-4xl font-extrabold bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] bg-clip-text text-transparent">
-                  {stat.value}
-                </p>
-                <p className="mt-1 text-sm font-medium text-white">{stat.label}</p>
-                <p className="mt-0.5 text-xs text-[#666]">{stat.sublabel}</p>
-              </div>
-            );
-          })}
+          ))}
         </div>
       </section>
 
       {/* ── CTA ────────────────────────────────────────────────────────── */}
       <section className="mx-auto max-w-6xl px-6 py-24">
         <div className="rounded-3xl border border-[#1a1a1a] bg-gradient-to-br from-[#111] to-[#0d0d0d] p-12 text-center lg:p-16">
-          <h2 className="text-3xl font-bold sm:text-4xl">
-            Ready to put 11 agents to work?
-          </h2>
+          <h2 className="text-3xl font-bold sm:text-4xl">Ready to Grow Your Business Online?</h2>
           <p className="mx-auto mt-4 max-w-lg text-[#888]">
-            AI handles the execution. Humans handle the judgment. Together,
-            they run your business better than either could alone.
+            Websites, SEO, social media, and digital systems. One team, one monthly price, real results.
           </p>
           <div className="mx-auto mt-8 flex max-w-md flex-col gap-3 sm:flex-row">
             <input
@@ -443,7 +509,7 @@ export default function LandingPage() {
               href={email ? `/signup?email=${encodeURIComponent(email)}` : "/signup"}
               className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
             >
-              Get Started
+              Start Growing
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -458,22 +524,12 @@ export default function LandingPage() {
               <span className="text-[10px] font-bold text-white">NB</span>
             </div>
             <span className="text-sm text-[#888]">
-              North Bridge Digital &copy; 2026. AI-powered, human-guided.
+              Northbridge Digital &copy; 2026. Build. Launch. Grow.
             </span>
           </div>
           <div className="flex items-center gap-6">
-            <Link
-              href="/overview"
-              className="text-sm text-[#666] transition-colors hover:text-white"
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/login"
-              className="text-sm text-[#666] transition-colors hover:text-white"
-            >
-              Sign In
-            </Link>
+            <Link href="/overview" className="text-sm text-[#666] transition-colors hover:text-white">Dashboard</Link>
+            <Link href="/login" className="text-sm text-[#666] transition-colors hover:text-white">Sign In</Link>
           </div>
         </div>
       </footer>

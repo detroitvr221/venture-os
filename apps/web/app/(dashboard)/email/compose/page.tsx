@@ -6,8 +6,8 @@ import Link from "next/link";
 import { ArrowLeft, Send, Paperclip, X } from "lucide-react";
 
 const FROM_OPTIONS = [
-  "atlas@thenorthbridgemi.org",
   "hello@thenorthbridgemi.org",
+  "team@thenorthbridgemi.org",
   "support@thenorthbridgemi.org",
   "noreply@thenorthbridgemi.org",
 ];
