@@ -17,17 +17,23 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  FileText,
+  Search,
+  Send,
 } from "lucide-react";
 
 const navigation = [
   { name: "Overview", href: "/overview", icon: LayoutDashboard },
   { name: "Leads", href: "/leads", icon: Filter },
+  { name: "Proposals", href: "/proposals", icon: FileText },
   { name: "Clients", href: "/clients", icon: Users },
   { name: "Projects", href: "/projects", icon: FolderKanban },
+  { name: "SEO Audits", href: "/seo", icon: Search },
   { name: "Agents", href: "/agents", icon: Bot },
   { name: "Workflows", href: "/workflows", icon: GitBranch },
   { name: "Memory", href: "/memory", icon: Brain },
   { name: "Approvals", href: "/approvals", icon: CheckCircle2 },
+  { name: "Campaigns", href: "/campaigns", icon: Send },
   { name: "Billing", href: "/billing", icon: CreditCard },
   { name: "Companies", href: "/companies", icon: Building2 },
   { name: "Settings", href: "/settings", icon: Settings },

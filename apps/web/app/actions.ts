@@ -426,3 +426,605 @@ export async function triggerSeoAudit(
     },
   };
 }
+
+// ─── generateProposal ──────────────────────────────────────────────────────
+
+export async function generateProposal(
+  leadId: string,
+): Promise<ActionResult<{ id: string }>> {
+  const db = getServiceSupabase();
+
+  if (!leadId) {
+    return { success: false, error: 'Lead ID is required' };
+  }
+
+  // Fetch lead data
+  const { data: lead, error: leadError } = await db
+    .from('leads')
+    .select('organization_id, contact_name, contact_email, company_id, expected_value, notes')
+    .eq('id', leadId)
+    .single();
+
+  if (leadError || !lead) {
+    return { success: false, error: 'Lead not found' };
+  }
+
+  const orgId = lead.organization_id ?? DEFAULT_ORG_ID;
+
+  const { data, error } = await db
+    .from('proposals')
+    .insert({
+      organization_id: orgId,
+      lead_id: leadId,
+      title: `Proposal for ${lead.contact_name}`,
+      status: 'draft',
+      amount: lead.expected_value ?? null,
+      content: null,
+      metadata: {
+        generated_from: 'dashboard',
+        lead_email: lead.contact_email,
+        company_id: lead.company_id,
+      },
+    })
+    .select('id')
+    .single();
+
+  if (error) {
+    return { success: false, error: `Failed to create proposal: ${error.message}` };
+  }
+
+  await audit(db, orgId, 'create', 'proposal', data.id, {
+    lead_id: leadId,
+    contact_name: lead.contact_name,
+  });
+
+  revalidatePath('/proposals');
+  revalidatePath('/leads');
+
+  return { success: true, data: { id: data.id } };
+}
+
+// ─── sendProposal ──────────────────────────────────────────────────────────
+
+export async function sendProposal(
+  proposalId: string,
+): Promise<ActionResult<{ id: string }>> {
+  const db = getServiceSupabase();
+
+  if (!proposalId) {
+    return { success: false, error: 'Proposal ID is required' };
+  }
+
+  const { data: proposal, error: fetchError } = await db
+    .from('proposals')
+    .select('organization_id, status')
+    .eq('id', proposalId)
+    .single();
+
+  if (fetchError || !proposal) {
+    return { success: false, error: 'Proposal not found' };
+  }
+
+  if (proposal.status !== 'draft') {
+    return { success: false, error: `Cannot send a proposal with status "${proposal.status}"` };
+  }
+
+  const now = new Date().toISOString();
+
+  const { error } = await db
+    .from('proposals')
+    .update({ status: 'sent', sent_at: now })
+    .eq('id', proposalId)
+    .eq('organization_id', proposal.organization_id);
+
+  if (error) {
+    return { success: false, error: `Failed to send proposal: ${error.message}` };
+  }
+
+  await audit(db, proposal.organization_id, 'update', 'proposal', proposalId, {
+    status: { from: 'draft', to: 'sent' },
+    sent_at: now,
+  });
+
+  revalidatePath('/proposals');
+
+  return { success: true, data: { id: proposalId } };
+}
+
+// ─── acceptProposal ────────────────────────────────────────────────────────
+
+export async function acceptProposal(
+  proposalId: string,
+): Promise<ActionResult<{ id: string; project_id?: string }>> {
+  const db = getServiceSupabase();
+
+  if (!proposalId) {
+    return { success: false, error: 'Proposal ID is required' };
+  }
+
+  const { data: proposal, error: fetchError } = await db
+    .from('proposals')
+    .select('organization_id, status, lead_id, client_id, title, amount')
+    .eq('id', proposalId)
+    .single();
+
+  if (fetchError || !proposal) {
+    return { success: false, error: 'Proposal not found' };
+  }
+
+  if (proposal.status !== 'sent' && proposal.status !== 'viewed') {
+    return { success: false, error: `Cannot accept a proposal with status "${proposal.status}"` };
+  }
+
+  const orgId = proposal.organization_id;
+  const now = new Date().toISOString();
+
+  // Update proposal status
+  const { error } = await db
+    .from('proposals')
+    .update({ status: 'accepted' })
+    .eq('id', proposalId)
+    .eq('organization_id', orgId);
+
+  if (error) {
+    return { success: false, error: `Failed to accept proposal: ${error.message}` };
+  }
+
+  // Create client from lead if lead exists and no client yet
+  let clientId = proposal.client_id;
+  if (!clientId && proposal.lead_id) {
+    const { data: lead } = await db
+      .from('leads')
+      .select('contact_name, contact_email, company_id')
+      .eq('id', proposal.lead_id)
+      .single();
+
+    if (lead) {
+      const { data: newClient } = await db
+        .from('clients')
+        .insert({
+          organization_id: orgId,
+          name: lead.contact_name,
+          email: lead.contact_email,
+          company_id: lead.company_id,
+          status: 'active',
+        })
+        .select('id')
+        .single();
+
+      if (newClient) {
+        clientId = newClient.id;
+
+        // Update lead with converted client id
+        await db
+          .from('leads')
+          .update({ converted_client_id: clientId, stage: 'won' })
+          .eq('id', proposal.lead_id)
+          .eq('organization_id', orgId);
+
+        // Link proposal to client
+        await db
+          .from('proposals')
+          .update({ client_id: clientId })
+          .eq('id', proposalId)
+          .eq('organization_id', orgId);
+      }
+    }
+  }
+
+  // Create project from proposal
+  let projectId: string | undefined;
+  if (clientId) {
+    const { data: project } = await db
+      .from('projects')
+      .insert({
+        organization_id: orgId,
+        client_id: clientId,
+        name: proposal.title ?? 'New Project',
+        status: 'active',
+        budget: proposal.amount ?? 0,
+      })
+      .select('id')
+      .single();
+
+    if (project) {
+      projectId = project.id;
+    }
+  }
+
+  await audit(db, orgId, 'accept', 'proposal', proposalId, {
+    status: { from: proposal.status, to: 'accepted' },
+    client_id: clientId,
+    project_id: projectId,
+  });
+
+  revalidatePath('/proposals');
+  revalidatePath('/leads');
+  revalidatePath('/clients');
+  revalidatePath('/projects');
+
+  return { success: true, data: { id: proposalId, project_id: projectId } };
+}
+
+// ─── startFollowUp ─────────────────────────────────────────────────────────
+
+export async function startFollowUp(
+  contactId: string,
+  leadId: string,
+): Promise<ActionResult<{ campaign_id: string }>> {
+  const db = getServiceSupabase();
+
+  if (!contactId || !leadId) {
+    return { success: false, error: 'Contact ID and Lead ID are required' };
+  }
+
+  const orgId = DEFAULT_ORG_ID;
+
+  // Create follow-up campaign
+  const { data: campaign, error: campaignError } = await db
+    .from('campaigns')
+    .insert({
+      organization_id: orgId,
+      name: `Follow-up: ${leadId.slice(0, 8)}`,
+      campaign_type: 'email',
+      status: 'active',
+      stats: { contacts: 1, sent: 0, opened: 0, replied: 0 },
+      template: { subject: 'Following up on our conversation' },
+      schedule: { frequency: 'manual' },
+    })
+    .select('id')
+    .single();
+
+  if (campaignError || !campaign) {
+    return { success: false, error: `Failed to create campaign: ${campaignError?.message ?? 'Unknown error'}` };
+  }
+
+  // Create first outreach event
+  await db.from('outreach_events').insert({
+    organization_id: orgId,
+    campaign_id: campaign.id,
+    contact_id: contactId,
+    channel: 'email',
+    status: 'scheduled',
+    content: null,
+  });
+
+  await audit(db, orgId, 'create', 'campaign', campaign.id, {
+    type: 'follow_up',
+    lead_id: leadId,
+    contact_id: contactId,
+  });
+
+  revalidatePath('/campaigns');
+
+  return { success: true, data: { campaign_id: campaign.id } };
+}
+
+// ─── runSeoAudit ───────────────────────────────────────────────────────────
+
+export async function runSeoAudit(
+  url: string,
+  clientId?: string,
+): Promise<ActionResult<{ message: string }>> {
+  const db = getServiceSupabase();
+  const orgId = DEFAULT_ORG_ID;
+
+  if (!url) {
+    return { success: false, error: 'URL is required' };
+  }
+
+  try {
+    new URL(url);
+  } catch {
+    return { success: false, error: 'Invalid URL format' };
+  }
+
+  // Create or find website
+  let websiteId: string | null = null;
+
+  const { data: existingWebsite } = await db
+    .from('websites')
+    .select('id')
+    .eq('organization_id', orgId)
+    .eq('url', url)
+    .single();
+
+  if (existingWebsite) {
+    websiteId = existingWebsite.id;
+  } else {
+    const hostname = new URL(url).hostname;
+    const { data: newWebsite } = await db
+      .from('websites')
+      .insert({
+        organization_id: orgId,
+        client_id: clientId ?? null,
+        url,
+        name: hostname,
+      })
+      .select('id')
+      .single();
+
+    if (newWebsite) {
+      websiteId = newWebsite.id;
+    }
+  }
+
+  if (!websiteId) {
+    return { success: false, error: 'Failed to create or find website record' };
+  }
+
+  // Create audit record with pending status
+  const { data: auditRecord, error: auditError } = await db
+    .from('website_audits')
+    .insert({
+      organization_id: orgId,
+      website_id: websiteId,
+      audit_type: 'seo',
+      status: 'pending',
+      score: null,
+      findings_count: 0,
+      summary: null,
+    })
+    .select('id')
+    .single();
+
+  if (auditError) {
+    return { success: false, error: `Failed to create audit: ${auditError.message}` };
+  }
+
+  await audit(db, orgId, 'create', 'website_audit', auditRecord?.id ?? 'unknown', {
+    website_url: url,
+    client_id: clientId,
+    status: 'pending',
+  });
+
+  revalidatePath('/seo');
+  revalidatePath('/overview');
+
+  return {
+    success: true,
+    data: {
+      message: `SEO audit triggered for ${url}. Results will appear in the audits section.`,
+    },
+  };
+}
+
+// ─── createCampaign ────────────────────────────────────────────────────────
+
+export async function createCampaign(
+  formData: FormData,
+): Promise<ActionResult<{ id: string }>> {
+  const db = getServiceSupabase();
+  const orgId = (formData.get('organization_id') as string) || DEFAULT_ORG_ID;
+
+  const name = formData.get('name') as string;
+  const campaignType = formData.get('campaign_type') as string;
+
+  if (!name || name.trim().length === 0) {
+    return { success: false, error: 'Campaign name is required' };
+  }
+
+  const { data, error } = await db
+    .from('campaigns')
+    .insert({
+      organization_id: orgId,
+      name: name.trim(),
+      campaign_type: campaignType || 'email',
+      status: 'draft',
+      stats: { contacts: 0, sent: 0, opened: 0, replied: 0 },
+      template: {},
+      schedule: {},
+    })
+    .select('id')
+    .single();
+
+  if (error) {
+    return { success: false, error: `Failed to create campaign: ${error.message}` };
+  }
+
+  await audit(db, orgId, 'create', 'campaign', data.id, {
+    name,
+    campaign_type: campaignType,
+  });
+
+  revalidatePath('/campaigns');
+
+  return { success: true, data: { id: data.id } };
+}
+
+// ─── pauseCampaign ─────────────────────────────────────────────────────────
+
+export async function pauseCampaign(
+  campaignId: string,
+): Promise<ActionResult<{ id: string }>> {
+  const db = getServiceSupabase();
+
+  if (!campaignId) {
+    return { success: false, error: 'Campaign ID is required' };
+  }
+
+  const { data: campaign, error: fetchError } = await db
+    .from('campaigns')
+    .select('organization_id, status')
+    .eq('id', campaignId)
+    .single();
+
+  if (fetchError || !campaign) {
+    return { success: false, error: 'Campaign not found' };
+  }
+
+  if (campaign.status !== 'active') {
+    return { success: false, error: `Cannot pause a campaign with status "${campaign.status}"` };
+  }
+
+  const { error } = await db
+    .from('campaigns')
+    .update({ status: 'paused' })
+    .eq('id', campaignId)
+    .eq('organization_id', campaign.organization_id);
+
+  if (error) {
+    return { success: false, error: `Failed to pause campaign: ${error.message}` };
+  }
+
+  await audit(db, campaign.organization_id, 'update', 'campaign', campaignId, {
+    status: { from: 'active', to: 'paused' },
+  });
+
+  revalidatePath('/campaigns');
+
+  return { success: true, data: { id: campaignId } };
+}
+
+// ─── resumeCampaign ────────────────────────────────────────────────────────
+
+export async function resumeCampaign(
+  campaignId: string,
+): Promise<ActionResult<{ id: string }>> {
+  const db = getServiceSupabase();
+
+  if (!campaignId) {
+    return { success: false, error: 'Campaign ID is required' };
+  }
+
+  const { data: campaign, error: fetchError } = await db
+    .from('campaigns')
+    .select('organization_id, status')
+    .eq('id', campaignId)
+    .single();
+
+  if (fetchError || !campaign) {
+    return { success: false, error: 'Campaign not found' };
+  }
+
+  if (campaign.status !== 'paused') {
+    return { success: false, error: `Cannot resume a campaign with status "${campaign.status}"` };
+  }
+
+  const { error } = await db
+    .from('campaigns')
+    .update({ status: 'active' })
+    .eq('id', campaignId)
+    .eq('organization_id', campaign.organization_id);
+
+  if (error) {
+    return { success: false, error: `Failed to resume campaign: ${error.message}` };
+  }
+
+  await audit(db, campaign.organization_id, 'update', 'campaign', campaignId, {
+    status: { from: 'paused', to: 'active' },
+  });
+
+  revalidatePath('/campaigns');
+
+  return { success: true, data: { id: campaignId } };
+}
+
+// ─── createInvoice ─────────────────────────────────────────────────────────
+
+export async function createInvoice(
+  formData: FormData,
+): Promise<ActionResult<{ id: string }>> {
+  const db = getServiceSupabase();
+  const orgId = (formData.get('organization_id') as string) || DEFAULT_ORG_ID;
+
+  const clientId = formData.get('client_id') as string;
+  const invoiceNumber = formData.get('invoice_number') as string;
+  const dueDate = formData.get('due_date') as string;
+  const lineItemsJson = formData.get('line_items') as string;
+
+  if (!invoiceNumber || invoiceNumber.trim().length === 0) {
+    return { success: false, error: 'Invoice number is required' };
+  }
+
+  let lineItems: Array<{ description: string; quantity: number; unit_price: number; total: number }> = [];
+  try {
+    lineItems = lineItemsJson ? JSON.parse(lineItemsJson) : [];
+  } catch {
+    return { success: false, error: 'Invalid line items format' };
+  }
+
+  const amount = lineItems.reduce((sum, item) => sum + (item.total ?? item.quantity * item.unit_price), 0);
+
+  const { data, error } = await db
+    .from('invoices')
+    .insert({
+      organization_id: orgId,
+      client_id: clientId || null,
+      invoice_number: invoiceNumber.trim(),
+      amount,
+      status: 'draft',
+      due_date: dueDate || null,
+      line_items: lineItems,
+    })
+    .select('id')
+    .single();
+
+  if (error) {
+    return { success: false, error: `Failed to create invoice: ${error.message}` };
+  }
+
+  await audit(db, orgId, 'create', 'invoice', data.id, {
+    invoice_number: invoiceNumber,
+    amount,
+    client_id: clientId,
+  });
+
+  revalidatePath('/billing');
+  revalidatePath('/billing/invoices');
+
+  return { success: true, data: { id: data.id } };
+}
+
+// ─── updateInvoiceStatus ───────────────────────────────────────────────────
+
+export async function updateInvoiceStatus(
+  invoiceId: string,
+  status: string,
+): Promise<ActionResult<{ id: string; status: string }>> {
+  const db = getServiceSupabase();
+
+  if (!invoiceId) {
+    return { success: false, error: 'Invoice ID is required' };
+  }
+
+  const validStatuses = ['draft', 'sent', 'paid', 'overdue', 'void'];
+  if (!validStatuses.includes(status)) {
+    return { success: false, error: `Invalid status: ${status}` };
+  }
+
+  const { data: invoice, error: fetchError } = await db
+    .from('invoices')
+    .select('organization_id, status')
+    .eq('id', invoiceId)
+    .single();
+
+  if (fetchError || !invoice) {
+    return { success: false, error: 'Invoice not found' };
+  }
+
+  const updates: Record<string, unknown> = { status };
+  if (status === 'paid') {
+    updates.paid_at = new Date().toISOString();
+  }
+
+  const { error } = await db
+    .from('invoices')
+    .update(updates)
+    .eq('id', invoiceId)
+    .eq('organization_id', invoice.organization_id);
+
+  if (error) {
+    return { success: false, error: `Failed to update invoice: ${error.message}` };
+  }
+
+  await audit(db, invoice.organization_id, 'update', 'invoice', invoiceId, {
+    status: { from: invoice.status, to: status },
+    ...(status === 'paid' ? { paid_at: updates.paid_at } : {}),
+  });
+
+  revalidatePath('/billing');
+  revalidatePath('/billing/invoices');
+
+  return { success: true, data: { id: invoiceId, status } };
+}
