@@ -1,0 +1,10 @@
+{
+  "name": "nb-smtp-receiver",
+  "version": "1.0.0",
+  "description": "Lightweight SMTP receiver for North Bridge Digital",
+  "main": "server.js",
+  "dependencies": {
+    "smtp-server": "^3.13.6",
+    "mailparser": "^3.7.2"
+  }
+}

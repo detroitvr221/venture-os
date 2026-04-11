@@ -21,6 +21,7 @@ import {
   Search,
   Send,
   LogOut,
+  Mail,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -35,6 +36,7 @@ const navigation = [
   { name: "Workflows", href: "/workflows", icon: GitBranch },
   { name: "Memory", href: "/memory", icon: Brain },
   { name: "Approvals", href: "/approvals", icon: CheckCircle2 },
+  { name: "Email", href: "/email", icon: Mail },
   { name: "Campaigns", href: "/campaigns", icon: Send },
   { name: "Billing", href: "/billing", icon: CreditCard },
   { name: "Companies", href: "/companies", icon: Building2 },

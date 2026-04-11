@@ -427,6 +427,56 @@ export async function triggerSeoAudit(
   };
 }
 
+// ─── Email Actions ──────────────────────────────────────────────────────────
+
+export async function sendEmail(
+  to: string[],
+  subject: string,
+  body: string,
+  options?: { from?: string; cc?: string[]; replyTo?: string; inReplyTo?: string }
+) {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || ''}/api/email/send`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      to,
+      subject,
+      text: body,
+      from: options?.from,
+      cc: options?.cc,
+      replyTo: options?.replyTo,
+      inReplyTo: options?.inReplyTo,
+    }),
+  });
+
+  const data = await res.json();
+  if (!res.ok) return { success: false, error: data.error };
+
+  revalidatePath('/email');
+  return { success: true, data };
+}
+
+export async function archiveEmail(emailId: string) {
+  const db = await getSupabase();
+  const { error } = await db
+    .from('emails')
+    .update({ status: 'archived' })
+    .eq('id', emailId);
+
+  revalidatePath('/email');
+  return { success: !error, error: error?.message };
+}
+
+export async function markEmailRead(emailId: string) {
+  const db = await getSupabase();
+  const { error } = await db
+    .from('emails')
+    .update({ status: 'read', read_at: new Date().toISOString() })
+    .eq('id', emailId);
+
+  return { success: !error };
+}
+
 // ─── generateProposal ──────────────────────────────────────────────────────
 
 export async function generateProposal(
