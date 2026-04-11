@@ -1,7 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, MoreHorizontal, Building2, DollarSign, Clock } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Plus, Building2, DollarSign, Clock, MoreHorizontal } from "lucide-react";
+import { createLead, updateLeadStage } from "../../actions";
+import { createClient } from "@supabase/supabase-js";
+
+// ─── Types ──────────────────────────────────────────────────────────────────
 
 type LeadStage =
   | "new"
@@ -12,14 +16,17 @@ type LeadStage =
   | "won"
   | "lost";
 
-interface Lead {
+interface LeadRow {
   id: string;
-  company: string;
-  contact: string;
-  value: string;
+  contact_name: string;
+  contact_email: string;
+  source: string | null;
   stage: LeadStage;
-  daysInStage: number;
-  tags: string[];
+  score: number;
+  assigned_agent: string | null;
+  expected_value: number | null;
+  notes: string | null;
+  created_at: string;
 }
 
 const columns: { key: LeadStage; label: string; color: string }[] = [
@@ -32,112 +39,97 @@ const columns: { key: LeadStage; label: string; color: string }[] = [
   { key: "lost", label: "Lost", color: "#ef4444" },
 ];
 
-const initialLeads: Lead[] = [
-  {
-    id: "1",
-    company: "TechFlow Inc.",
-    contact: "Sarah Chen",
-    value: "$45,000",
-    stage: "new",
-    daysInStage: 1,
-    tags: ["Enterprise", "AI"],
-  },
-  {
-    id: "2",
-    company: "Meridian Health",
-    contact: "Dr. James Wilson",
-    value: "$120,000",
-    stage: "new",
-    daysInStage: 3,
-    tags: ["Healthcare", "Web"],
-  },
-  {
-    id: "3",
-    company: "GreenLeaf Co.",
-    contact: "Emily Santos",
-    value: "$28,000",
-    stage: "contacted",
-    daysInStage: 5,
-    tags: ["SMB", "SEO"],
-  },
-  {
-    id: "4",
-    company: "Atlas Robotics",
-    contact: "Mike Torres",
-    value: "$200,000",
-    stage: "contacted",
-    daysInStage: 2,
-    tags: ["Enterprise", "Integration"],
-  },
-  {
-    id: "5",
-    company: "Vertex Solutions",
-    contact: "Rachel Park",
-    value: "$85,000",
-    stage: "qualified",
-    daysInStage: 7,
-    tags: ["Mid-Market", "AI"],
-  },
-  {
-    id: "6",
-    company: "CloudSync Ltd.",
-    contact: "David Kim",
-    value: "$150,000",
-    stage: "proposal",
-    daysInStage: 4,
-    tags: ["Enterprise", "SaaS"],
-  },
-  {
-    id: "7",
-    company: "NovaPay",
-    contact: "Lisa Morgan",
-    value: "$95,000",
-    stage: "proposal",
-    daysInStage: 6,
-    tags: ["FinTech", "Integration"],
-  },
-  {
-    id: "8",
-    company: "Pinnacle Media",
-    contact: "Alex Rivera",
-    value: "$60,000",
-    stage: "negotiation",
-    daysInStage: 3,
-    tags: ["Media", "Web"],
-  },
-  {
-    id: "9",
-    company: "BrightPath Education",
-    contact: "Karen Wu",
-    value: "$35,000",
-    stage: "won",
-    daysInStage: 0,
-    tags: ["Education", "SEO"],
-  },
-  {
-    id: "10",
-    company: "Ironclad Security",
-    contact: "Tom Bradley",
-    value: "$75,000",
-    stage: "lost",
-    daysInStage: 0,
-    tags: ["Security", "Enterprise"],
-  },
-];
+// ─── Supabase Client-Side (anon key) ────────────────────────────────────────
+
+function getClientDb() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  );
+}
+
+const ORG_ID = process.env.NEXT_PUBLIC_DEFAULT_ORGANIZATION_ID ?? "00000000-0000-0000-0000-000000000001";
+
+// ─── Component ──────────────────────────────────────────────────────────────
 
 export default function LeadsPage() {
-  const [leads] = useState<Lead[]>(initialLeads);
+  const [leads, setLeads] = useState<LeadRow[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const fetchLeads = useCallback(async () => {
+    const db = getClientDb();
+    const { data, error } = await db
+      .from("leads")
+      .select("id, contact_name, contact_email, source, stage, score, assigned_agent, expected_value, notes, created_at")
+      .eq("organization_id", ORG_ID)
+      .order("created_at", { ascending: false });
+
+    if (!error && data) {
+      setLeads(data as LeadRow[]);
+    }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchLeads();
+  }, [fetchLeads]);
 
   const getLeadsForStage = (stage: LeadStage) =>
     leads.filter((l) => l.stage === stage);
 
   const totalPipelineValue = leads
     .filter((l) => l.stage !== "lost")
-    .reduce(
-      (sum, l) => sum + parseInt(l.value.replace(/[$,]/g, "")),
-      0
+    .reduce((sum, l) => sum + (l.expected_value ?? 0), 0);
+
+  const handleDragStart = (e: React.DragEvent, leadId: string) => {
+    e.dataTransfer.setData("text/plain", leadId);
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetStage: LeadStage) => {
+    e.preventDefault();
+    const leadId = e.dataTransfer.getData("text/plain");
+    if (!leadId) return;
+
+    // Optimistic update
+    setLeads((prev) =>
+      prev.map((l) => (l.id === leadId ? { ...l, stage: targetStage } : l)),
     );
+
+    const result = await updateLeadStage(leadId, targetStage);
+    if (!result.success) {
+      // Revert on failure
+      fetchLeads();
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleCreateLead = async (formData: FormData) => {
+    setFormError(null);
+    const result = await createLead(formData);
+    if (result.success) {
+      setShowAddModal(false);
+      fetchLeads();
+    } else {
+      setFormError(result.error);
+    }
+  };
+
+  function daysSinceCreated(dateStr: string): number {
+    return Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-pulse text-[#888]">Loading leads...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -161,6 +153,58 @@ export default function LeadsPage() {
         </button>
       </div>
 
+      {/* Add Lead Modal */}
+      {showAddModal && (
+        <div className="rounded-xl border border-[#222] bg-[#0a0a0a] p-5">
+          <h3 className="text-lg font-semibold text-white mb-4">New Lead</h3>
+          <form action={handleCreateLead} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <input type="hidden" name="organization_id" value={ORG_ID} />
+            <input type="hidden" name="company_id" value={ORG_ID} />
+            <div>
+              <label className="text-xs text-[#888] block mb-1">Contact Name *</label>
+              <input name="contact_name" required className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder-[#666] focus:border-[#3b82f6] focus:outline-none" placeholder="Jane Smith" />
+            </div>
+            <div>
+              <label className="text-xs text-[#888] block mb-1">Email *</label>
+              <input name="contact_email" type="email" required className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder-[#666] focus:border-[#3b82f6] focus:outline-none" placeholder="jane@company.com" />
+            </div>
+            <div>
+              <label className="text-xs text-[#888] block mb-1">Phone</label>
+              <input name="contact_phone" className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder-[#666] focus:border-[#3b82f6] focus:outline-none" placeholder="+1234567890" />
+            </div>
+            <div>
+              <label className="text-xs text-[#888] block mb-1">Source</label>
+              <select name="source" className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white focus:border-[#3b82f6] focus:outline-none">
+                <option value="">Select source</option>
+                <option value="website">Website</option>
+                <option value="referral">Referral</option>
+                <option value="linkedin">LinkedIn</option>
+                <option value="cold_outreach">Cold Outreach</option>
+                <option value="conference">Conference</option>
+                <option value="partner">Partner</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-[#888] block mb-1">Expected Value ($)</label>
+              <input name="expected_value" type="number" min="0" className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder-[#666] focus:border-[#3b82f6] focus:outline-none" placeholder="10000" />
+            </div>
+            <div>
+              <label className="text-xs text-[#888] block mb-1">Notes</label>
+              <input name="notes" className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder-[#666] focus:border-[#3b82f6] focus:outline-none" placeholder="Interested in AI integration..." />
+            </div>
+            <div className="sm:col-span-2 flex items-center gap-3">
+              <button type="submit" className="rounded-lg bg-[#3b82f6] px-4 py-2 text-sm font-medium text-white hover:bg-[#2563eb]">
+                Create Lead
+              </button>
+              <button type="button" onClick={() => setShowAddModal(false)} className="rounded-lg border border-[#333] px-4 py-2 text-sm text-[#888] hover:text-white">
+                Cancel
+              </button>
+              {formError && <p className="text-sm text-[#ef4444]">{formError}</p>}
+            </div>
+          </form>
+        </div>
+      )}
+
       {/* Kanban Board */}
       <div className="flex gap-4 overflow-x-auto pb-4">
         {columns.map((column) => {
@@ -169,6 +213,8 @@ export default function LeadsPage() {
             <div
               key={column.key}
               className="w-[280px] shrink-0 rounded-xl border border-[#222] bg-[#0a0a0a]"
+              onDrop={(e) => handleDrop(e, column.key)}
+              onDragOver={handleDragOver}
             >
               {/* Column Header */}
               <div className="flex items-center justify-between border-b border-[#222] p-4">
@@ -191,13 +237,15 @@ export default function LeadsPage() {
                 {columnLeads.map((lead) => (
                   <div
                     key={lead.id}
-                    className="group rounded-lg border border-[#222] bg-[#111] p-3.5 transition-all hover:border-[#333]"
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, lead.id)}
+                    className="group cursor-grab rounded-lg border border-[#222] bg-[#111] p-3.5 transition-all hover:border-[#333] active:cursor-grabbing"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">
                         <Building2 className="h-4 w-4 text-[#666]" />
                         <span className="text-sm font-medium text-white">
-                          {lead.company}
+                          {lead.contact_name}
                         </span>
                       </div>
                       <button className="opacity-0 group-hover:opacity-100 transition-opacity">
@@ -205,32 +253,41 @@ export default function LeadsPage() {
                       </button>
                     </div>
                     <p className="mt-1.5 text-xs text-[#888]">
-                      {lead.contact}
+                      {lead.contact_email}
                     </p>
+                    {lead.score > 0 && (
+                      <p className="mt-1 text-xs text-[#888]">
+                        Score: <span className={lead.score > 70 ? "text-[#22c55e]" : lead.score > 50 ? "text-[#eab308]" : "text-[#888]"}>{lead.score}</span>
+                      </p>
+                    )}
                     <div className="mt-3 flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        <DollarSign className="h-3.5 w-3.5 text-[#22c55e]" />
-                        <span className="text-sm font-medium text-[#22c55e]">
-                          {lead.value}
-                        </span>
-                      </div>
-                      {lead.daysInStage > 0 && (
-                        <div className="flex items-center gap-1 text-[#666]">
-                          <Clock className="h-3 w-3" />
-                          <span className="text-xs">{lead.daysInStage}d</span>
+                      {lead.expected_value && lead.expected_value > 0 ? (
+                        <div className="flex items-center gap-1">
+                          <DollarSign className="h-3.5 w-3.5 text-[#22c55e]" />
+                          <span className="text-sm font-medium text-[#22c55e]">
+                            ${lead.expected_value.toLocaleString()}
+                          </span>
                         </div>
+                      ) : (
+                        <span />
                       )}
+                      <div className="flex items-center gap-1 text-[#666]">
+                        <Clock className="h-3 w-3" />
+                        <span className="text-xs">{daysSinceCreated(lead.created_at)}d</span>
+                      </div>
                     </div>
-                    <div className="mt-2.5 flex flex-wrap gap-1.5">
-                      {lead.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="rounded-md bg-[#1a1a1a] px-2 py-0.5 text-[10px] font-medium text-[#888]"
-                        >
-                          {tag}
+                    {lead.source && (
+                      <div className="mt-2.5 flex flex-wrap gap-1.5">
+                        <span className="rounded-md bg-[#1a1a1a] px-2 py-0.5 text-[10px] font-medium text-[#888]">
+                          {lead.source}
                         </span>
-                      ))}
-                    </div>
+                        {lead.assigned_agent && (
+                          <span className="rounded-md bg-[#3b82f615] px-2 py-0.5 text-[10px] font-medium text-[#3b82f6]">
+                            {lead.assigned_agent}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
 

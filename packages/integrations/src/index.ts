@@ -25,3 +25,12 @@ export type {
   WebSearchOptions,
   WebSearchResult,
 } from './firecrawl';
+
+export { OpenClawClient, OpenClawError, createOpenClawClient } from './openclaw';
+export type {
+  OpenClawConfig,
+  OpenClawMessage,
+  OpenClawAgentRunInput,
+  OpenClawAgentRunResult,
+  OpenClawHealthStatus,
+} from './openclaw';

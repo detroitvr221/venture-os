@@ -8,105 +8,210 @@ import {
   Bot,
   Filter,
 } from "lucide-react";
+import { createClient } from "@supabase/supabase-js";
 
-const stats = [
-  {
-    label: "Total Leads",
-    value: "247",
-    change: "+12.5%",
-    trend: "up" as const,
-    icon: Filter,
-    color: "#3b82f6",
-  },
-  {
-    label: "Active Clients",
-    value: "38",
-    change: "+4.2%",
-    trend: "up" as const,
-    icon: Users,
-    color: "#8b5cf6",
-  },
-  {
-    label: "Running Projects",
-    value: "12",
-    change: "+2",
-    trend: "up" as const,
-    icon: FolderKanban,
-    color: "#22c55e",
-  },
-  {
-    label: "Pending Approvals",
-    value: "7",
-    change: "-3",
-    trend: "down" as const,
-    icon: CheckCircle2,
-    color: "#eab308",
-  },
-  {
-    label: "Monthly Revenue",
-    value: "$84,230",
-    change: "+18.3%",
-    trend: "up" as const,
-    icon: DollarSign,
-    color: "#22c55e",
-  },
-  {
-    label: "Agent Costs",
-    value: "$2,140",
-    change: "+6.1%",
-    trend: "up" as const,
-    icon: Bot,
-    color: "#ef4444",
-  },
-];
+// ─── Supabase Server Client ─────────────────────────────────────────────────
 
-const recentActivity = [
-  {
-    id: 1,
-    action: "New lead captured",
-    detail: "TechFlow Inc. - Enterprise AI Integration",
-    time: "2 minutes ago",
-    type: "lead",
-  },
-  {
-    id: 2,
-    action: "Agent completed task",
-    detail: "SEO Agent optimized 14 pages for meridianhealth.com",
-    time: "18 minutes ago",
-    type: "agent",
-  },
-  {
-    id: 3,
-    action: "Invoice paid",
-    detail: "Vertex Solutions - $12,500 monthly retainer",
-    time: "1 hour ago",
-    type: "billing",
-  },
-  {
-    id: 4,
-    action: "Approval required",
-    detail: "New sub-company creation: AeroVista Labs",
-    time: "2 hours ago",
-    type: "approval",
-  },
-  {
-    id: 5,
-    action: "Project milestone",
-    detail: "CloudSync MVP reached beta status",
-    time: "4 hours ago",
-    type: "project",
-  },
-];
+function getDb() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } },
+  );
+}
 
-const topAgents = [
-  { name: "Sales Agent", tasks: 142, status: "online" },
-  { name: "SEO Agent", tasks: 98, status: "online" },
-  { name: "Developer Agent", tasks: 76, status: "online" },
-  { name: "Research Agent", tasks: 64, status: "busy" },
-  { name: "Finance Agent", tasks: 51, status: "offline" },
-];
+const ORG_ID =
+  process.env.DEFAULT_ORGANIZATION_ID ??
+  "00000000-0000-0000-0000-000000000001";
 
-export default function OverviewPage() {
+// ─── Data Fetching ──────────────────────────────────────────────────────────
+
+async function getOverviewData() {
+  const db = getDb();
+
+  const [
+    leadsResult,
+    clientsResult,
+    projectsResult,
+    approvalsResult,
+    invoicesResult,
+    agentCostsResult,
+    auditLogsResult,
+    agentsResult,
+  ] = await Promise.all([
+    // Count leads
+    db
+      .from("leads")
+      .select("*", { count: "exact", head: true })
+      .eq("organization_id", ORG_ID),
+    // Count active clients
+    db
+      .from("clients")
+      .select("*", { count: "exact", head: true })
+      .eq("organization_id", ORG_ID)
+      .eq("status", "active"),
+    // Count active projects
+    db
+      .from("projects")
+      .select("*", { count: "exact", head: true })
+      .eq("organization_id", ORG_ID)
+      .eq("status", "active"),
+    // Count pending approvals
+    db
+      .from("approvals")
+      .select("*", { count: "exact", head: true })
+      .eq("organization_id", ORG_ID)
+      .eq("status", "pending"),
+    // Sum paid invoices this month
+    db
+      .from("invoices")
+      .select("amount_paid")
+      .eq("organization_id", ORG_ID)
+      .eq("status", "paid")
+      .gte("paid_at", new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()),
+    // Sum agent costs this month
+    db
+      .from("agent_costs")
+      .select("cost_usd")
+      .eq("organization_id", ORG_ID)
+      .gte("recorded_at", new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()),
+    // Recent audit logs for activity feed
+    db
+      .from("audit_logs")
+      .select("id, actor_type, actor_id, action, resource_type, resource_id, changes, created_at")
+      .eq("organization_id", ORG_ID)
+      .order("created_at", { ascending: false })
+      .limit(10),
+    // Top agents (by tool call count)
+    db
+      .from("agents")
+      .select("name, display_name, is_active, model")
+      .eq("organization_id", ORG_ID)
+      .eq("is_active", true)
+      .limit(5),
+  ]);
+
+  const monthlyRevenue = (invoicesResult.data ?? []).reduce(
+    (sum: number, inv: { amount_paid: number }) => sum + (inv.amount_paid ?? 0),
+    0,
+  );
+
+  const agentSpend = (agentCostsResult.data ?? []).reduce(
+    (sum: number, c: { cost_usd: number }) => sum + (c.cost_usd ?? 0),
+    0,
+  );
+
+  return {
+    leadCount: leadsResult.count ?? 0,
+    clientCount: clientsResult.count ?? 0,
+    projectCount: projectsResult.count ?? 0,
+    pendingApprovals: approvalsResult.count ?? 0,
+    monthlyRevenue,
+    agentSpend,
+    recentActivity: (auditLogsResult.data ?? []) as Array<{
+      id: string;
+      actor_type: string;
+      actor_id: string;
+      action: string;
+      resource_type: string;
+      resource_id: string;
+      changes: Record<string, unknown> | null;
+      created_at: string;
+    }>,
+    topAgents: (agentsResult.data ?? []) as Array<{
+      name: string;
+      display_name: string;
+      is_active: boolean;
+      model: string;
+    }>,
+  };
+}
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+function formatCurrency(amount: number): string {
+  return `$${amount.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+}
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days}d ago`;
+}
+
+function actionLabel(action: string, resourceType: string): string {
+  const labels: Record<string, string> = {
+    create: "Created",
+    update: "Updated",
+    delete: "Deleted",
+    approve: "Approved",
+    reject: "Rejected",
+    send: "Sent",
+    convert: "Converted",
+    login: "Logged in",
+    export: "Exported",
+  };
+  const verb = labels[action] ?? action;
+  return `${verb} ${resourceType.replace(/_/g, " ")}`;
+}
+
+function activityTypeColor(resourceType: string): string {
+  if (resourceType.includes("lead")) return "bg-[#3b82f6]";
+  if (resourceType.includes("agent")) return "bg-[#8b5cf6]";
+  if (resourceType.includes("invoice") || resourceType.includes("billing")) return "bg-[#22c55e]";
+  if (resourceType.includes("approval")) return "bg-[#eab308]";
+  return "bg-[#888]";
+}
+
+// ─── Component ──────────────────────────────────────────────────────────────
+
+export default async function OverviewPage() {
+  const data = await getOverviewData();
+
+  const stats = [
+    {
+      label: "Total Leads",
+      value: data.leadCount.toString(),
+      icon: Filter,
+      color: "#3b82f6",
+    },
+    {
+      label: "Active Clients",
+      value: data.clientCount.toString(),
+      icon: Users,
+      color: "#8b5cf6",
+    },
+    {
+      label: "Running Projects",
+      value: data.projectCount.toString(),
+      icon: FolderKanban,
+      color: "#22c55e",
+    },
+    {
+      label: "Pending Approvals",
+      value: data.pendingApprovals.toString(),
+      icon: CheckCircle2,
+      color: "#eab308",
+    },
+    {
+      label: "Monthly Revenue",
+      value: formatCurrency(data.monthlyRevenue),
+      icon: DollarSign,
+      color: "#22c55e",
+    },
+    {
+      label: "Agent Costs",
+      value: formatCurrency(Math.round(data.agentSpend * 100) / 100),
+      icon: Bot,
+      color: "#ef4444",
+    },
+  ];
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -143,21 +248,6 @@ export default function OverviewPage() {
                   />
                 </div>
               </div>
-              <div className="mt-4 flex items-center gap-1.5">
-                {stat.trend === "up" ? (
-                  <TrendingUp className="h-4 w-4 text-[#22c55e]" />
-                ) : (
-                  <TrendingDown className="h-4 w-4 text-[#ef4444]" />
-                )}
-                <span
-                  className={`text-sm font-medium ${
-                    stat.trend === "up" ? "text-[#22c55e]" : "text-[#ef4444]"
-                  }`}
-                >
-                  {stat.change}
-                </span>
-                <span className="text-sm text-[#666]">vs last month</span>
-              </div>
             </div>
           );
         })}
@@ -169,34 +259,27 @@ export default function OverviewPage() {
         <div className="lg:col-span-3 rounded-xl border border-[#222] bg-[#0a0a0a] p-5">
           <h2 className="text-lg font-semibold text-white">Recent Activity</h2>
           <div className="mt-4 space-y-3">
-            {recentActivity.map((item) => (
+            {data.recentActivity.length === 0 && (
+              <p className="text-sm text-[#666]">No recent activity</p>
+            )}
+            {data.recentActivity.map((item) => (
               <div
                 key={item.id}
                 className="flex items-start gap-3 rounded-lg border border-[#1a1a1a] bg-[#111] p-3.5"
               >
                 <div
-                  className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${
-                    item.type === "lead"
-                      ? "bg-[#3b82f6]"
-                      : item.type === "agent"
-                        ? "bg-[#8b5cf6]"
-                        : item.type === "billing"
-                          ? "bg-[#22c55e]"
-                          : item.type === "approval"
-                            ? "bg-[#eab308]"
-                            : "bg-[#888]"
-                  }`}
+                  className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${activityTypeColor(item.resource_type)}`}
                 />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-white">
-                    {item.action}
+                    {actionLabel(item.action, item.resource_type)}
                   </p>
                   <p className="mt-0.5 truncate text-sm text-[#888]">
-                    {item.detail}
+                    by {item.actor_type === "agent" ? item.actor_id : item.actor_type} &middot; {item.resource_id.slice(0, 8)}...
                   </p>
                 </div>
                 <span className="shrink-0 text-xs text-[#666]">
-                  {item.time}
+                  {timeAgo(item.created_at)}
                 </span>
               </div>
             ))}
@@ -206,10 +289,13 @@ export default function OverviewPage() {
         {/* Top Agents */}
         <div className="lg:col-span-2 rounded-xl border border-[#222] bg-[#0a0a0a] p-5">
           <h2 className="text-lg font-semibold text-white">
-            Top Agents This Month
+            Active Agents
           </h2>
           <div className="mt-4 space-y-3">
-            {topAgents.map((agent, i) => (
+            {data.topAgents.length === 0 && (
+              <p className="text-sm text-[#666]">No active agents</p>
+            )}
+            {data.topAgents.map((agent, i) => (
               <div
                 key={agent.name}
                 className="flex items-center gap-3 rounded-lg border border-[#1a1a1a] bg-[#111] p-3.5"
@@ -219,24 +305,16 @@ export default function OverviewPage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-white">
-                    {agent.name}
+                    {agent.display_name}
                   </p>
                   <p className="text-xs text-[#888]">
-                    {agent.tasks} tasks completed
+                    {agent.model}
                   </p>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <div
-                    className={`h-2 w-2 rounded-full ${
-                      agent.status === "online"
-                        ? "bg-[#22c55e]"
-                        : agent.status === "busy"
-                          ? "bg-[#eab308]"
-                          : "bg-[#666]"
-                    }`}
-                  />
-                  <span className="text-xs capitalize text-[#888]">
-                    {agent.status}
+                  <div className={`h-2 w-2 rounded-full ${agent.is_active ? "bg-[#22c55e]" : "bg-[#666]"}`} />
+                  <span className="text-xs text-[#888]">
+                    {agent.is_active ? "online" : "offline"}
                   </span>
                 </div>
               </div>
