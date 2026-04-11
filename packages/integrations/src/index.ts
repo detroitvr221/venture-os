@@ -34,3 +34,16 @@ export type {
   OpenClawAgentRunResult,
   OpenClawHealthStatus,
 } from './openclaw';
+
+export {
+  createApolloClient,
+  enrichOrganization,
+  bulkEnrichOrganizations,
+  searchPeople,
+  enrichPerson,
+} from './apollo';
+export type {
+  ApolloClient,
+  ApolloOrg,
+  ApolloPerson,
+} from './apollo';
