@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const DEFAULT_FROM = process.env.EMAIL_FROM || "atlas@thenorthbridgemi.org";
@@ -12,8 +14,38 @@ function getServiceClient() {
   );
 }
 
+async function getAuthUser() {
+  const cookieStore = await cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return cookieStore.getAll(); },
+        setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
+          try { cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options)); } catch {}
+        },
+      },
+    }
+  );
+  const { data: { user } } = await supabase.auth.getUser();
+  return user;
+}
+
 export async function POST(request: NextRequest) {
   try {
+    // Auth check: must be logged in OR have webhook secret
+    const authHeader = request.headers.get("authorization");
+    const webhookSecret = process.env.OPENCLAW_WEBHOOK_SECRET || "vos-webhook-secret-2026";
+    const isWebhookAuth = authHeader === `Bearer ${webhookSecret}`;
+
+    if (!isWebhookAuth) {
+      const user = await getAuthUser();
+      if (!user) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+    }
+
     const body = await request.json();
     const { to, cc, bcc, subject, text, html, from, replyTo, inReplyTo } = body;
 
