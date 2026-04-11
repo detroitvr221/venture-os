@@ -24,6 +24,9 @@ import {
   Clock,
   ArrowRight,
   ChevronRight,
+  CheckCircle2,
+  Zap,
+  UserCheck,
 } from "lucide-react";
 
 // ─── Data ───────────────────────────────────────────────────────────────────
@@ -33,37 +36,37 @@ const services = [
     icon: Search,
     title: "SEO & Growth",
     description:
-      "AI-powered SEO audits, keyword strategy, and content optimization to drive organic traffic and dominate search rankings.",
+      "Our SEO agent crawls your site, identifies technical issues, and builds a prioritized action plan. A human strategist reviews every recommendation before it ships.",
   },
   {
     icon: Globe,
     title: "Website & Presence",
     description:
-      "Full website builds, UX audits, and conversion optimization. Your digital presence, engineered for results.",
+      "AI audits your site for trust, speed, and conversions. Our team builds or rebuilds it to convert. You own the code, the design, and the results.",
   },
   {
     icon: Bot,
     title: "AI Integration",
     description:
-      "Automate workflows, deploy AI agents inside your business, and unlock efficiency at every level of operations.",
+      "We map your workflows, identify automation opportunities, and deploy AI agents inside your business. Human operators manage the rollout and monitor performance.",
   },
   {
     icon: FileText,
     title: "Content Operations",
     description:
-      "Blog, social, and email content at scale with AI writers. Consistent quality, unlimited output.",
+      "AI writers draft blog posts, social content, and email sequences at scale. Human editors review every piece before it goes live. Quality at volume.",
   },
   {
     icon: Rocket,
     title: "Venture Building",
     description:
-      "Launch new companies with AI-first operations from day one. From concept to revenue, fully automated.",
+      "From napkin idea to running company in 30 days. AI agents scaffold the brand, website, and operations. Humans approve every strategic decision.",
   },
   {
     icon: Cog,
     title: "Automation & CRM",
     description:
-      "Lead intake, follow-up sequences, and billing automation. Your sales pipeline on autopilot.",
+      "Automated lead intake, consent-checked follow-up sequences, and billing workflows. Every outbound message is logged. Every financial action is human-approved.",
   },
 ];
 
@@ -73,43 +76,52 @@ const steps = [
     step: "01",
     title: "We Audit",
     description:
-      "Deep analysis of your digital presence, SEO performance, and operations to identify every opportunity.",
+      "AI agents analyze your website, SEO, content, and operations. Human strategists review the findings and build your action plan.",
   },
   {
     icon: Hammer,
     step: "02",
     title: "We Build",
     description:
-      "Custom AI agents, workflows, and automations designed specifically for your business needs.",
+      "AI agents write the code, draft the content, and configure the systems. Human operators review, approve, and deploy.",
   },
   {
     icon: Radio,
     step: "03",
     title: "We Operate",
     description:
-      "Ongoing management with 11 specialist AI agents working 24/7 to grow and optimize your business.",
+      "11 AI agents run your operations 24/7. Human oversight on every sensitive action — outreach, billing, deployments, and client communications.",
   },
 ];
 
 const agents = [
-  { name: "Atlas", role: "CEO / Operator", description: "Orchestrates all agents, prioritizes tasks, and makes strategic decisions across the entire portfolio." },
-  { name: "Mercury", role: "Sales", description: "Manages lead intake, qualification, outreach sequences, and pipeline conversion." },
-  { name: "Beacon", role: "SEO", description: "Runs technical audits, keyword research, content optimization, and rank tracking." },
-  { name: "Canvas", role: "Web Presence", description: "Builds and maintains websites, landing pages, and conversion funnels." },
-  { name: "Nexus", role: "AI Integration", description: "Deploys AI tools, chatbots, and workflow automation inside client businesses." },
-  { name: "Forge", role: "Venture Builder", description: "Launches new companies with automated operations, branding, and go-to-market." },
-  { name: "Cipher", role: "Developer", description: "Writes code, ships features, manages deployments, and maintains infrastructure." },
-  { name: "Pulse", role: "Operations", description: "Monitors systems, handles scheduling, and ensures smooth day-to-day operations." },
-  { name: "Ledger", role: "Finance", description: "Generates invoices, tracks expenses, manages budgets, and produces financial reports." },
-  { name: "Scout", role: "Research", description: "Gathers market intelligence, competitive analysis, and trend reports." },
-  { name: "Sentinel", role: "Compliance", description: "Ensures legal compliance, data privacy, contract review, and risk management." },
+  { name: "CEO / Operator", role: "Strategy & Routing", description: "Routes work across the team, reviews KPIs, and makes priority calls. Human approval required for high-risk decisions." },
+  { name: "Sales Agent", role: "Pipeline & Proposals", description: "Qualifies leads, drafts proposals, and suggests outreach. Never sends first-contact without human approval." },
+  { name: "SEO Agent", role: "Audits & Rankings", description: "Crawls sites, analyzes indexing and content gaps, generates action plans. Human strategist reviews every audit." },
+  { name: "Web Presence", role: "Sites & Conversion", description: "Audits trust signals, brand consistency, local presence, and conversion clarity. Recommends fixes humans implement." },
+  { name: "AI Integration", role: "Automation & Workflows", description: "Maps client workflows, identifies automation opportunities, drafts integration plans with ROI estimates." },
+  { name: "Venture Builder", role: "New Companies", description: "Scaffolds new businesses — brand, website, KPIs, workflows. Every company launch requires human approval gate." },
+  { name: "Developer", role: "Code & Deploys", description: "Writes code in a sandbox, opens PRs, updates docs. Never deploys to production without human review." },
+  { name: "Ops Agent", role: "Monitoring & Health", description: "Monitors workflows, retries, queue health, and incidents. Escalates to humans when intervention is needed." },
+  { name: "Finance Agent", role: "Billing & Revenue", description: "Tracks subscriptions, invoices, and usage. Drafts recommendations. No autonomous money movement — ever." },
+  { name: "Research Agent", role: "Intel & Analysis", description: "Fetches market data, competitor summaries, and tech references. Attaches source provenance to every output." },
+  { name: "Compliance", role: "Safety & Guardrails", description: "Validates consent, communication legality, and financial action gating. The agent that keeps every other agent honest." },
 ];
 
 const stats = [
-  { value: "11", label: "AI Agents", icon: Bot },
-  { value: "41", label: "Database Tables", icon: Database },
-  { value: "6", label: "Automated Workflows", icon: GitBranch },
-  { value: "24/7", label: "Operations", icon: Clock },
+  { value: "11", label: "AI Agents", sublabel: "working alongside human operators", icon: Bot },
+  { value: "24/7", label: "Operations", sublabel: "with human oversight on sensitive actions", icon: Clock },
+  { value: "48hr", label: "Proposals", sublabel: "from first contact to delivery", icon: Zap },
+  { value: "100%", label: "Auditable", sublabel: "every action logged, every approval tracked", icon: Shield },
+];
+
+const trustPoints = [
+  "Human approval on all outbound communications",
+  "Consent checks before every email and SMS",
+  "No autonomous money movement",
+  "Complete audit trail on every action",
+  "Code runs in sandboxes, never on production without review",
+  "Compliance agent validates every sensitive decision",
 ];
 
 // ─── Component ──────────────────────────────────────────────────────────────
@@ -151,7 +163,13 @@ export default function LandingPage() {
               onClick={() => scrollTo("agents")}
               className="text-sm text-[#888] transition-colors hover:text-white"
             >
-              Agents
+              Our Team
+            </button>
+            <button
+              onClick={() => scrollTo("trust")}
+              className="text-sm text-[#888] transition-colors hover:text-white"
+            >
+              Trust
             </button>
             <Link
               href="/login"
@@ -165,7 +183,6 @@ export default function LandingPage() {
 
       {/* ── Hero ───────────────────────────────────────────────────────── */}
       <section className="relative flex min-h-screen flex-col items-center justify-center px-6 pt-16 text-center">
-        {/* Gradient glow */}
         <div className="pointer-events-none absolute top-1/4 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#3b82f6] opacity-[0.07] blur-[120px]" />
         <div className="pointer-events-none absolute top-1/3 left-1/2 h-[400px] w-[400px] -translate-x-1/2 translate-y-0 rounded-full bg-[#8b5cf6] opacity-[0.05] blur-[100px]" />
 
@@ -173,25 +190,36 @@ export default function LandingPage() {
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#222] bg-[#111] px-4 py-1.5">
             <div className="h-2 w-2 rounded-full bg-[#22c55e] animate-pulse" />
             <span className="text-xs text-[#888]">
-              11 AI Agents Online
+              11 AI Agents + Human Operators Online
             </span>
           </div>
 
           <h1 className="text-5xl font-extrabold leading-tight tracking-tight sm:text-6xl lg:text-7xl">
-            <span className="bg-gradient-to-r from-[#3b82f6] via-[#6366f1] to-[#8b5cf6] bg-clip-text text-transparent">
-              AI-Powered Agency
+            <span className="text-white">
+              AI Agents That Run
             </span>
             <br />
-            <span className="text-white">
-              Services for Modern Businesses
+            <span className="bg-gradient-to-r from-[#3b82f6] via-[#6366f1] to-[#8b5cf6] bg-clip-text text-transparent">
+              Your Business.
+            </span>
+            <br />
+            <span className="text-white text-4xl sm:text-5xl lg:text-5xl font-bold">
+              Humans That Keep It Honest.
             </span>
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-lg text-[#888] leading-relaxed">
-            North Bridge Digital is an AI holding company that launches and
-            operates businesses. We deploy specialist AI agents to handle SEO,
-            sales, development, and operations — so you can scale without limits.
+            North Bridge Digital deploys 11 specialist AI agents alongside human
+            operators to run your marketing, SEO, website, and operations. The AI
+            does the heavy lifting. Humans provide the strategy, judgment, and
+            approval on everything that matters.
           </p>
+
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-[#666]">
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-[#22c55e]" /> Human-approved outreach</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-[#22c55e]" /> 48-hour proposals</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-[#22c55e]" /> Full audit trail</span>
+          </div>
 
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link
@@ -202,16 +230,15 @@ export default function LandingPage() {
               <ArrowRight className="h-4 w-4" />
             </Link>
             <button
-              onClick={() => scrollTo("services")}
+              onClick={() => scrollTo("how-it-works")}
               className="flex items-center gap-2 rounded-xl border border-[#333] bg-[#111] px-8 py-3.5 text-sm font-semibold text-[#ccc] transition-all hover:border-[#444] hover:text-white"
             >
-              Learn More
+              See How It Works
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
         </div>
 
-        {/* Scroll indicator */}
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2">
           <div className="h-10 w-6 rounded-full border-2 border-[#333] p-1">
             <div className="h-2 w-full rounded-full bg-[#888] animate-bounce" />
@@ -223,14 +250,14 @@ export default function LandingPage() {
       <section id="services" className="mx-auto max-w-6xl px-6 py-24">
         <div className="text-center">
           <p className="text-sm font-semibold uppercase tracking-widest text-[#3b82f6]">
-            What We Do
+            What We Deliver
           </p>
           <h2 className="mt-3 text-3xl font-bold sm:text-4xl">
-            Full-Stack AI Agency Services
+            AI Execution. Human Judgment.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-[#888]">
-            Everything your business needs to grow, automated and managed by
-            specialist AI agents.
+            Six service lines, each powered by specialist AI agents and guided by
+            human operators who approve every critical action.
           </p>
         </div>
 
@@ -265,10 +292,10 @@ export default function LandingPage() {
               Our Process
             </p>
             <h2 className="mt-3 text-3xl font-bold sm:text-4xl">
-              How It Works
+              Audit. Build. Operate.
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-[#888]">
-              Three steps to transform your business with AI-powered operations.
+              Three phases. AI handles the volume. Humans handle the decisions.
             </p>
           </div>
 
@@ -303,11 +330,11 @@ export default function LandingPage() {
             The Team
           </p>
           <h2 className="mt-3 text-3xl font-bold sm:text-4xl">
-            11 Specialist AI Agents
+            11 AI Agents. Human Operators. One Mission.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-[#888]">
-            A full team of AI agents working around the clock to run every aspect
-            of your business.
+            Every agent has a defined role, clear boundaries, and a human operator
+            who approves anything sensitive. No agent acts alone on decisions that matter.
           </p>
         </div>
 
@@ -343,23 +370,54 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Stats ──────────────────────────────────────────────────────── */}
-      <section className="border-y border-[#1a1a1a] bg-[#0d0d0d]">
-        <div className="mx-auto max-w-6xl px-6 py-20">
-          <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-            {stats.map((stat) => {
-              const Icon = stat.icon;
-              return (
-                <div key={stat.label} className="text-center">
-                  <Icon className="mx-auto h-6 w-6 text-[#3b82f6]" />
-                  <p className="mt-3 text-4xl font-extrabold bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] bg-clip-text text-transparent">
-                    {stat.value}
-                  </p>
-                  <p className="mt-1 text-sm text-[#888]">{stat.label}</p>
+      {/* ── Trust & Safety ─────────────────────────────────────────────── */}
+      <section id="trust" className="border-y border-[#1a1a1a] bg-[#0d0d0d]">
+        <div className="mx-auto max-w-6xl px-6 py-24">
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-widest text-[#22c55e]">
+                Built Responsibly
+              </p>
+              <h2 className="mt-3 text-3xl font-bold sm:text-4xl">
+                AI That You Can Trust.
+                <br />
+                <span className="text-[#888]">Because Humans Are Always In The Loop.</span>
+              </h2>
+              <p className="mt-4 text-[#888] leading-relaxed">
+                We built compliance into the architecture, not the fine print. Every
+                outbound message is consent-checked. Every financial action requires
+                human approval. Every agent action is logged with a complete audit trail.
+                This is not an afterthought — it is how the system works.
+              </p>
+            </div>
+            <div className="space-y-4">
+              {trustPoints.map((point) => (
+                <div key={point} className="flex items-start gap-3 rounded-lg border border-[#1a1a1a] bg-[#111] p-4">
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#22c55e]" />
+                  <span className="text-sm text-[#ccc]">{point}</span>
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
+        </div>
+      </section>
+
+      {/* ── Stats ──────────────────────────────────────────────────────── */}
+      <section className="mx-auto max-w-6xl px-6 py-20">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+          {stats.map((stat) => {
+            const Icon = stat.icon;
+            return (
+              <div key={stat.label} className="text-center">
+                <Icon className="mx-auto h-6 w-6 text-[#3b82f6]" />
+                <p className="mt-3 text-4xl font-extrabold bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] bg-clip-text text-transparent">
+                  {stat.value}
+                </p>
+                <p className="mt-1 text-sm font-medium text-white">{stat.label}</p>
+                <p className="mt-0.5 text-xs text-[#666]">{stat.sublabel}</p>
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -367,11 +425,11 @@ export default function LandingPage() {
       <section className="mx-auto max-w-6xl px-6 py-24">
         <div className="rounded-3xl border border-[#1a1a1a] bg-gradient-to-br from-[#111] to-[#0d0d0d] p-12 text-center lg:p-16">
           <h2 className="text-3xl font-bold sm:text-4xl">
-            Ready to transform your business?
+            Ready to put 11 agents to work?
           </h2>
           <p className="mx-auto mt-4 max-w-lg text-[#888]">
-            Get started with North Bridge Digital and let our AI agents take your
-            operations to the next level.
+            AI handles the execution. Humans handle the judgment. Together,
+            they run your business better than either could alone.
           </p>
           <div className="mx-auto mt-8 flex max-w-md flex-col gap-3 sm:flex-row">
             <input
@@ -400,7 +458,7 @@ export default function LandingPage() {
               <span className="text-[10px] font-bold text-white">NB</span>
             </div>
             <span className="text-sm text-[#888]">
-              North Bridge Digital &copy; 2026
+              North Bridge Digital &copy; 2026. AI-powered, human-guided.
             </span>
           </div>
           <div className="flex items-center gap-6">
@@ -410,14 +468,12 @@ export default function LandingPage() {
             >
               Dashboard
             </Link>
-            <a
-              href="https://github.com"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/login"
               className="text-sm text-[#666] transition-colors hover:text-white"
             >
-              GitHub
-            </a>
+              Sign In
+            </Link>
           </div>
         </div>
       </footer>
