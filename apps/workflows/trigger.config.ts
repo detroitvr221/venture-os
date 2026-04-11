@@ -5,7 +5,7 @@
 import { defineConfig } from '@trigger.dev/sdk/v3';
 
 export default defineConfig({
-  project: 'venture-os',
+  project: 'proj_kcgxzdrphdkewxfwwboy',
   runtime: 'node',
   logLevel: 'log',
   maxDuration: 300,

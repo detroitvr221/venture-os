@@ -11,11 +11,11 @@
     "lint": "eslint src/"
   },
   "dependencies": {
-    "@trigger.dev/sdk": "^3.3.0",
-    "@venture-os/shared": "workspace:*",
+    "@trigger.dev/sdk": "^4.4.3",
     "@venture-os/db": "workspace:*",
-    "@venture-os/services": "workspace:*",
     "@venture-os/integrations": "workspace:*",
+    "@venture-os/services": "workspace:*",
+    "@venture-os/shared": "workspace:*",
     "openai": "^4.73.0",
     "resend": "^4.1.0",
     "zod": "^3.23.0"
