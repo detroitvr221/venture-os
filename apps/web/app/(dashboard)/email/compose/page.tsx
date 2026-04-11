@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Send, Paperclip, X } from "lucide-react";
@@ -13,6 +13,14 @@ const FROM_OPTIONS = [
 ];
 
 export default function ComposePage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center py-32"><div className="h-6 w-6 animate-spin rounded-full border-2 border-[#3b82f6] border-t-transparent" /></div>}>
+      <ComposeForm />
+    </Suspense>
+  );
+}
+
+function ComposeForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
