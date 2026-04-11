@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — @venture-os/services barrel export
+// North Bridge Digital — @venture-os/services barrel export
 // ─────────────────────────────────────────────────────────────────────────────
 
 export { LeadService, createLeadService } from './leads';

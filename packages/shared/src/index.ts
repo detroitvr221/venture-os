@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — @venture-os/shared barrel export
+// North Bridge Digital — @venture-os/shared barrel export
 // ─────────────────────────────────────────────────────────────────────────────
 
 export * from './types';

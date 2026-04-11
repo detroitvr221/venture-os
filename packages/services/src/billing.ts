@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — Billing Service
+// North Bridge Digital — Billing Service
 // Subscription management, usage metering, invoicing, and Stripe sync
 // ─────────────────────────────────────────────────────────────────────────────
 

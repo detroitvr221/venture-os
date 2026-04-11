@@ -4,7 +4,7 @@
 Accepted
 
 ## Context
-VentureOS is a multi-tenant platform where organizations must have strict data isolation, and within an organization, different roles (owner, admin, agent, viewer) need different levels of access to resources.
+North Bridge Digital is a multi-tenant platform where organizations must have strict data isolation, and within an organization, different roles (owner, admin, agent, viewer) need different levels of access to resources.
 
 ## Decision
 We implement access control at two layers:

@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — OpenClaw Webhook Bridge
+// North Bridge Digital — OpenClaw Webhook Bridge
 // Receives actions from OpenClaw and routes to appropriate services.
 // ─────────────────────────────────────────────────────────────────────────────
 

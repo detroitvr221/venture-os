@@ -1,6 +1,6 @@
-# VentureOS
+# North Bridge Digital
 
-An AI-powered venture operating system for building and managing multiple businesses. VentureOS deploys a roster of 11 specialized AI agents -- from CEO to Compliance -- coordinated by a central orchestrator to automate sales pipelines, SEO audits, web presence management, billing, and more.
+An AI-powered venture operating system for building and managing multiple businesses. North Bridge Digital deploys a roster of 11 specialized AI agents -- from CEO to Compliance -- coordinated by a central orchestrator to automate sales pipelines, SEO audits, web presence management, billing, and more.
 
 ## Project Stats
 
@@ -138,7 +138,7 @@ venture-os/
 
 ## Architecture Overview
 
-VentureOS follows a layered architecture:
+North Bridge Digital follows a layered architecture:
 
 1. **Client Layer** -- Web dashboard and API clients
 2. **API Gateway** -- Authentication, rate limiting, routing

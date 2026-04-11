@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — @venture-os/integrations barrel export
+// North Bridge Digital — @venture-os/integrations barrel export
 // ─────────────────────────────────────────────────────────────────────────────
 
 export { Mem0Client, Mem0Error, createMem0Client } from './mem0';

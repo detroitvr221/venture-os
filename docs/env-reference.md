@@ -1,6 +1,6 @@
-# VentureOS Environment Variables Reference
+# North Bridge Digital Environment Variables Reference
 
-All environment variables used by VentureOS, grouped by service. Copy `.env.example` and fill in your values.
+All environment variables used by North Bridge Digital, grouped by service. Copy `.env.example` and fill in your values.
 
 ## Supabase
 
@@ -56,7 +56,7 @@ All environment variables used by VentureOS, grouped by service. Copy `.env.exam
 |----------|----------|-------------|---------|--------------|
 | `OPENCLAW_GATEWAY_URL` | Yes | URL of the OpenClaw gateway | `https://claw.thenorthbridgemi.com` | Your gateway deployment URL |
 | `OPENCLAW_API_KEY` | Yes | API key for authenticating with the OpenClaw gateway | `oc-abc123...` | Generated during OpenClaw setup |
-| `OPENCLAW_GATEWAY_TOKEN` | Yes | Token for gateway-to-VentureOS communication | `your-gateway-token` | Generated during setup, shared with gateway config |
+| `OPENCLAW_GATEWAY_TOKEN` | Yes | Token for gateway-to-North Bridge Digital communication | `your-gateway-token` | Generated during setup, shared with gateway config |
 | `OPENCLAW_HOOKS_TOKEN` | Yes | Token for webhook authentication | `your-hooks-token` | Generated during setup, set as `OPENCLAW_WEBHOOK_SECRET` |
 | `OPENCLAW_WEBHOOK_SECRET` | Yes | Validates incoming webhook requests from OpenClaw | `your-webhook-secret` | Same value as `OPENCLAW_HOOKS_TOKEN` |
 
@@ -71,7 +71,7 @@ All environment variables used by VentureOS, grouped by service. Copy `.env.exam
 
 | Variable | Required | Description | Example | Where to Get |
 |----------|----------|-------------|---------|--------------|
-| `NEXT_PUBLIC_APP_URL` | Yes | Public URL of the VentureOS dashboard | `https://app.thenorthbridgemi.com` | Your deployment domain |
+| `NEXT_PUBLIC_APP_URL` | Yes | Public URL of the North Bridge Digital dashboard | `https://app.thenorthbridgemi.com` | Your deployment domain |
 | `NODE_ENV` | Yes | Runtime environment | `development` or `production` | Set per environment |
 | `DEFAULT_ORGANIZATION_ID` | Optional | Default org ID for server actions when none is provided | `00000000-0000-0000-0000-000000000001` | Your organization's UUID from the `organizations` table |
 

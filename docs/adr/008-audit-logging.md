@@ -4,7 +4,7 @@
 Accepted
 
 ## Context
-VentureOS processes sensitive business data and executes actions on behalf of users via AI agents. Regulatory compliance, security investigations, and operational debugging all require a complete record of who did what, when, and why.
+North Bridge Digital processes sensitive business data and executes actions on behalf of users via AI agents. Regulatory compliance, security investigations, and operational debugging all require a complete record of who did what, when, and why.
 
 ## Decision
 Every significant action in the system is logged to the `audit_logs` table with the following information:

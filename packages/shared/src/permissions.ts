@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — Role-based permission matrix
+// North Bridge Digital — Role-based permission matrix
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { OrgMemberRole } from './types';

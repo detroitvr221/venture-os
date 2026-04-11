@@ -4,7 +4,7 @@
 Accepted
 
 ## Context
-VentureOS needs a scalable backend with PostgreSQL, authentication, real-time subscriptions, file storage, and edge functions. Building and maintaining a custom backend would significantly delay time-to-market.
+North Bridge Digital needs a scalable backend with PostgreSQL, authentication, real-time subscriptions, file storage, and edge functions. Building and maintaining a custom backend would significantly delay time-to-market.
 
 ## Decision
 We use **Supabase** as the primary backend platform, providing:

@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — Lead Service
+// North Bridge Digital — Lead Service
 // CRUD operations + qualification + conversion with full audit logging
 // ─────────────────────────────────────────────────────────────────────────────
 

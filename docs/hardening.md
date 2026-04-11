@@ -1,4 +1,4 @@
-# VentureOS Security Hardening Checklist
+# North Bridge Digital Security Hardening Checklist
 
 Review before every production deployment. Items marked with `[x]` are implemented. Items marked with `[ ]` require verification or manual action.
 

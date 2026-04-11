@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — Lead Intake Workflow
+// North Bridge Digital — Lead Intake Workflow
 // Triggered when a new lead is inserted in Supabase.
 // Scores, assigns, qualifies, and notifies.
 // ─────────────────────────────────────────────────────────────────────────────

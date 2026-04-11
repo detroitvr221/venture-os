@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — Follow-Up Sequence Workflow
+// North Bridge Digital — Follow-Up Sequence Workflow
 // Compliance-first: checks consent, suppression, quiet hours before every send.
 // ─────────────────────────────────────────────────────────────────────────────
 

@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — OpenClaw Integration Client
+// North Bridge Digital — OpenClaw Integration Client
 // Communicates with the OpenClaw gateway for agent orchestration.
 // ─────────────────────────────────────────────────────────────────────────────
 

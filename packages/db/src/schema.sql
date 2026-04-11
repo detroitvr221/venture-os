@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════════════════
--- VentureOS — Complete PostgreSQL schema
+-- North Bridge Digital — Complete PostgreSQL schema
 -- Target: Supabase (PostgreSQL 15+)
 -- ═══════════════════════════════════════════════════════════════════════════
 

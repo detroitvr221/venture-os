@@ -276,7 +276,7 @@ export default function InvoiceDetailPage() {
               From
             </p>
             <p className="text-sm font-semibold text-white">North Bridge Digital</p>
-            <p className="text-sm text-[#888]">VentureOS Platform</p>
+            <p className="text-sm text-[#888]">North Bridge Digital Platform</p>
           </div>
           <div>
             <p className="text-xs font-medium uppercase tracking-wider text-[#666] mb-2">

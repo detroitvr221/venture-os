@@ -76,11 +76,11 @@ export default function DashboardLayout({
         {/* Logo */}
         <div className="flex h-16 items-center gap-3 border-b border-[#222] px-4">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6]">
-            <span className="text-sm font-bold text-white">V</span>
+            <span className="text-sm font-bold text-white">NB</span>
           </div>
           {!collapsed && (
             <span className="bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] bg-clip-text text-lg font-bold text-transparent">
-              VentureOS
+              NB Digital
             </span>
           )}
         </div>

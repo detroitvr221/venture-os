@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — Shared constants used across all packages
+// North Bridge Digital — Shared constants used across all packages
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type {

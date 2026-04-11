@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — @venture-os/agents barrel export
+// North Bridge Digital — @venture-os/agents barrel export
 // ─────────────────────────────────────────────────────────────────────────────
 
 export {

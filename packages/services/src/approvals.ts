@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — Approval Service
+// North Bridge Digital — Approval Service
 // Create, approve, reject approval requests and resume paused workflows
 // ─────────────────────────────────────────────────────────────────────────────
 

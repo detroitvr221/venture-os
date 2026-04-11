@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — Agent Orchestrator
+// North Bridge Digital — Agent Orchestrator
 // Routes requests to agents, manages handoffs, enforces approvals, tracks costs
 // ─────────────────────────────────────────────────────────────────────────────
 

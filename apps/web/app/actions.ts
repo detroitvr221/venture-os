@@ -1,7 +1,7 @@
 'use server';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — Server Actions
+// North Bridge Digital — Server Actions
 // All mutations go through here with validation and audit logging.
 // ─────────────────────────────────────────────────────────────────────────────
 

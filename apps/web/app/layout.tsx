@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "VentureOS - North Bridge Digital Operating System",
+  title: "North Bridge Digital - AI-Powered Operating System",
   description:
     "The command center for North Bridge Digital. AI-powered agency services — manage agents, clients, leads, and ventures from a single dashboard.",
   icons: {

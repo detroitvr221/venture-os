@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — Firecrawl Integration
+// North Bridge Digital — Firecrawl Integration
 // Web crawling, content extraction, and search
 // ─────────────────────────────────────────────────────────────────────────────
 

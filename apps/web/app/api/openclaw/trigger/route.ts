@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — OpenClaw Trigger Endpoint
-// Accepts requests from VentureOS to trigger OpenClaw agent runs.
+// North Bridge Digital — OpenClaw Trigger Endpoint
+// Accepts requests from North Bridge Digital to trigger OpenClaw agent runs.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { NextRequest, NextResponse } from 'next/server';

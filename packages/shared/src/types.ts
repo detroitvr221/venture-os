@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — Canonical TypeScript types for the entire data model
+// North Bridge Digital — Canonical TypeScript types for the entire data model
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** Common columns present on every row in the system. */

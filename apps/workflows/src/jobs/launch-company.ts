@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — Launch Company Workflow
+// North Bridge Digital — Launch Company Workflow
 // Creates a new sub-company with brand, default KPIs, and approval gate.
 // ─────────────────────────────────────────────────────────────────────────────
 

@@ -128,10 +128,10 @@ export default function LandingPage() {
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <div className="flex items-center gap-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6]">
-              <span className="text-sm font-bold text-white">V</span>
+              <span className="text-sm font-bold text-white">NB</span>
             </div>
             <span className="bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] bg-clip-text text-lg font-bold text-transparent">
-              VentureOS
+              North Bridge Digital
             </span>
           </div>
           <div className="hidden items-center gap-8 md:flex">
@@ -397,7 +397,7 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 sm:flex-row">
           <div className="flex items-center gap-3">
             <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6]">
-              <span className="text-[10px] font-bold text-white">V</span>
+              <span className="text-[10px] font-bold text-white">NB</span>
             </div>
             <span className="text-sm text-[#888]">
               North Bridge Digital &copy; 2026

@@ -4,7 +4,7 @@ End-to-end flow from first contact to active delivery.
 
 ## Prerequisites
 
-- Organization exists in VentureOS
+- Organization exists in North Bridge Digital
 - At least one sub-company configured
 - Sales agent and Ops agent active in OpenClaw
 

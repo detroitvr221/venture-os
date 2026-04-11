@@ -1,8 +1,8 @@
-# VentureOS Architecture
+# North Bridge Digital Architecture
 
 ## Overview
 
-VentureOS is an AI-powered venture operating system that manages the full lifecycle of building and running multiple businesses. It employs a roster of 11 specialized AI agents coordinated by a central orchestrator, backed by a PostgreSQL database with row-level security for multi-tenant isolation.
+North Bridge Digital is an AI-powered venture operating system that manages the full lifecycle of building and running multiple businesses. It employs a roster of 11 specialized AI agents coordinated by a central orchestrator, backed by a PostgreSQL database with row-level security for multi-tenant isolation.
 
 ## System Layers
 

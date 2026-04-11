@@ -4,7 +4,7 @@
 Accepted
 
 ## Context
-VentureOS requires specialized AI capabilities across sales, SEO, web presence, development, finance, compliance, and more. A single monolithic AI agent would become unmanageable and produce lower-quality outputs due to context overload.
+North Bridge Digital requires specialized AI capabilities across sales, SEO, web presence, development, finance, compliance, and more. A single monolithic AI agent would become unmanageable and produce lower-quality outputs due to context overload.
 
 ## Decision
 We adopt a **multi-agent architecture** with 11 specialized agents, each with its own system prompt, tools, memory scope, and boundaries. A central **Orchestrator** routes requests to the appropriate agent, manages handoffs between agents, and enforces approval gates.

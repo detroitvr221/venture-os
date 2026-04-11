@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — SEO Audit Workflow
+// North Bridge Digital — SEO Audit Workflow
 // Crawls a website, analyzes SEO factors, and stores findings in Supabase.
 // ─────────────────────────────────────────────────────────────────────────────
 

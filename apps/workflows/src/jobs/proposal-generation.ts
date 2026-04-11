@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — Proposal Generation Workflow
+// North Bridge Digital — Proposal Generation Workflow
 // Uses OpenAI to generate a professional proposal from lead/client data.
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -110,7 +110,7 @@ export const proposalGenerationTask = task({
       services,
       expectedValue,
       notes,
-      brandName: brand?.name ?? 'VentureOS',
+      brandName: brand?.name ?? 'North Bridge Digital',
       voiceGuidelines: brand?.voice_guidelines ?? 'Professional, confident, results-oriented.',
       customInstructions: validated.custom_instructions,
     });

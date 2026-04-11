@@ -1,6 +1,6 @@
 # Runbook: Launch Sub-Company
 
-Create and activate a new sub-company within the VentureOS organization.
+Create and activate a new sub-company within the North Bridge Digital organization.
 
 ## Prerequisites
 
@@ -77,7 +77,7 @@ After activation, set up company-specific configuration:
 
 ### 6. Launch
 
-The company is now active in VentureOS:
+The company is now active in North Bridge Digital:
 - Appears in the **Companies** list
 - Leads can be created under this company
 - Agents can be assigned to work on this company's projects

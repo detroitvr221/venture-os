@@ -1,4 +1,4 @@
-# VentureOS Deployment Guide
+# North Bridge Digital Deployment Guide
 
 ## Prerequisites
 
@@ -116,12 +116,12 @@ Required extensions (already in schema.sql):
 
 ## VPS Deployment
 
-VentureOS runs on two Hostinger VPS instances.
+North Bridge Digital runs on two Hostinger VPS instances.
 
 ### VPS 1: Dashboard + OpenClaw Gateway
 
 - **IP**: 145.223.75.46
-- **Runs**: VentureOS Next.js app, OpenClaw master gateway
+- **Runs**: North Bridge Digital Next.js app, OpenClaw master gateway
 - **Domains**: app.thenorthbridgemi.com, claw.thenorthbridgemi.com
 
 ### VPS 2: OpenClaw Workers

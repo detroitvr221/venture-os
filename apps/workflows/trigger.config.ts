@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — Trigger.dev configuration
+// North Bridge Digital — Trigger.dev configuration
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { defineConfig } from '@trigger.dev/sdk/v3';

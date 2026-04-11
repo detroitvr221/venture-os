@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — Communications Service
+// North Bridge Digital — Communications Service
 // COMPLIANCE-FIRST: Every outbound message must pass consent, suppression,
 // and quiet-hours checks before sending. No exceptions.
 // ─────────────────────────────────────────────────────────────────────────────

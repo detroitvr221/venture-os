@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — Mem0 Integration
+// North Bridge Digital — Mem0 Integration
 // Memory management client scoped by organization, company, and client
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -175,7 +175,7 @@ export class Mem0Client {
   // ─── Internal helpers ────────────────────────────────────────────────────
 
   /**
-   * Convert a VentureOS memory scope into Mem0 filter parameters.
+   * Convert a North Bridge Digital memory scope into Mem0 filter parameters.
    */
   private scopeToFilters(scope: MemoryScope_Filter): Record<string, string> {
     const filters: Record<string, string> = {

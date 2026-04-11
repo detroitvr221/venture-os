@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — Zod validation schemas for API input
+// North Bridge Digital — Zod validation schemas for API input
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { z } from 'zod';

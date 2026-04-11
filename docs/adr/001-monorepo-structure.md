@@ -4,7 +4,7 @@
 Accepted
 
 ## Context
-VentureOS is a complex platform with multiple packages (shared types, database layer, agent orchestration, services, integrations) that need to share code and stay in sync. We need a build system that supports incremental builds, dependency management, and a unified development experience.
+North Bridge Digital is a complex platform with multiple packages (shared types, database layer, agent orchestration, services, integrations) that need to share code and stay in sync. We need a build system that supports incremental builds, dependency management, and a unified development experience.
 
 ## Decision
 We adopt a monorepo architecture using **Turborepo** as the build orchestrator and **pnpm** workspaces for dependency management. The repository is organized into the following top-level packages under `packages/`:

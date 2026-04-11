@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// VentureOS — @venture-os/db  Supabase client factory
+// North Bridge Digital — @venture-os/db  Supabase client factory
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { createClient as supabaseCreateClient, SupabaseClient } from '@supabase/supabase-js';
