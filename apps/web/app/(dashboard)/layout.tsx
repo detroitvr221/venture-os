@@ -23,10 +23,13 @@ import {
   LogOut,
   Mail,
   ClipboardList,
+  MessageSquare,
+  ShieldCheck,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 const navigation = [
+  { name: "Chat", href: "/chat", icon: MessageSquare },
   { name: "Overview", href: "/overview", icon: LayoutDashboard },
   { name: "Leads", href: "/leads", icon: Filter },
   { name: "Proposals", href: "/proposals", icon: FileText },
@@ -43,7 +46,8 @@ const navigation = [
   { name: "Intake", href: "/intake", icon: ClipboardList },
   { name: "Companies", href: "/companies", icon: Building2 },
   { name: "Settings", href: "/settings", icon: Settings },
-];
+  { name: "Admin", href: "/admin", icon: ShieldCheck, adminOnly: true },
+] as const;
 
 export default function DashboardLayout({
   children,
@@ -52,13 +56,22 @@ export default function DashboardLayout({
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
       setUserEmail(user?.email ?? null);
+      if (user) {
+        const { data: member } = await supabase
+          .from("organization_members")
+          .select("role")
+          .eq("user_id", user.id)
+          .single();
+        setUserRole(member?.role ?? null);
+      }
     });
   }, []);
 
@@ -92,7 +105,12 @@ export default function DashboardLayout({
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto px-2 py-4">
           <ul className="space-y-1">
-            {navigation.map((item) => {
+            {navigation.filter((item) => {
+              if ("adminOnly" in item && item.adminOnly) {
+                return userRole === "owner" || userRole === "admin";
+              }
+              return true;
+            }).map((item) => {
               const isActive =
                 pathname === item.href ||
                 (item.href !== "/overview" && pathname.startsWith(item.href));
