@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Filter,
@@ -20,7 +20,9 @@ import {
   FileText,
   Search,
   Send,
+  LogOut,
 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 const navigation = [
   { name: "Overview", href: "/overview", icon: LayoutDashboard },
@@ -45,7 +47,23 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [collapsed, setCollapsed] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUserEmail(user?.email ?? null);
+    });
+  }, []);
+
+  const handleSignOut = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+    router.refresh();
+  };
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -105,11 +123,24 @@ export default function DashboardLayout({
           </ul>
         </nav>
 
-        {/* Collapse toggle */}
-        <div className="border-t border-[#222] p-2">
+        {/* User + Sign Out + Collapse */}
+        <div className="border-t border-[#222] p-2 space-y-1">
+          {userEmail && !collapsed && (
+            <div className="px-3 py-2">
+              <p className="truncate text-xs text-[#888]">{userEmail}</p>
+            </div>
+          )}
+          <button
+            onClick={handleSignOut}
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[#888] transition-colors hover:bg-[#1a1a1a] hover:text-[#ef4444]"
+            title={collapsed ? "Sign Out" : undefined}
+          >
+            <LogOut className="h-4 w-4 shrink-0" />
+            {!collapsed && <span>Sign Out</span>}
+          </button>
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm text-[#666] transition-colors hover:bg-[#111] hover:text-[#999]"
+            className="flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm text-[#666] transition-colors hover:bg-[#111] hover:text-[#999]"
           >
             {collapsed ? (
               <ChevronRight className="h-4 w-4" />
