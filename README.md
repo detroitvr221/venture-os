@@ -112,6 +112,24 @@ venture-os/
 │       ├── 009-cost-tracking.md
 │       └── 010-sandbox-execution.md
 │
+├── .github/
+│   └── workflows/
+│       └── ci.yml             # GitHub Actions CI pipeline
+│
+├── docs/
+│   ├── architecture.md        # System architecture overview
+│   ├── deployment.md          # Full deployment guide
+│   ├── hardening.md           # Security hardening checklist
+│   ├── env-reference.md       # All environment variables
+│   ├── api.md                 # API route and server action docs
+│   ├── adr/                   # Architecture Decision Records
+│   └── runbooks/
+│       ├── new-client-onboarding.md
+│       ├── seo-audit.md
+│       ├── launch-sub-company.md
+│       └── incident-response.md
+│
+├── docker-compose.yml     # Local dev services (Postgres, Redis, MailHog)
 ├── package.json           # Root workspace config
 ├── pnpm-workspace.yaml    # Workspace definition
 ├── turbo.json             # Turborepo pipeline config
@@ -154,9 +172,34 @@ VentureOS follows a layered architecture:
 - **Full audit trail**: Every mutation is logged with actor identity and change diffs
 - **Cost tracking**: Per-agent, per-thread, per-organization AI spend monitoring
 
+## Build Phases
+
+| Phase | Focus | Status |
+|-------|-------|--------|
+| Phase 1 | Foundation -- monorepo, types, database schema (41 tables + RLS), agents, services | Complete |
+| Phase 2 | Dashboard -- 19 pages, server actions, API routes, OpenClaw integration | Complete |
+| Phase 3 | Workflows -- 6 Trigger.dev jobs (lead intake, proposals, SEO, follow-ups, company launch, reports) | Complete |
+| Phase 4 | Hardening -- CI/CD, Docker Compose, deployment docs, runbooks, security checklist | Complete |
+
+## Documentation
+
+| Document | Path | Description |
+|----------|------|-------------|
+| Deployment Guide | [docs/deployment.md](docs/deployment.md) | Full setup and production deployment |
+| Hardening Checklist | [docs/hardening.md](docs/hardening.md) | Security verification for every deploy |
+| Env Reference | [docs/env-reference.md](docs/env-reference.md) | All environment variables with sources |
+| API Docs | [docs/api.md](docs/api.md) | API routes and server actions |
+| Architecture | [docs/architecture.md](docs/architecture.md) | System design and data model |
+| Client Onboarding | [docs/runbooks/new-client-onboarding.md](docs/runbooks/new-client-onboarding.md) | End-to-end lead-to-delivery flow |
+| SEO Audit | [docs/runbooks/seo-audit.md](docs/runbooks/seo-audit.md) | Running and reviewing SEO audits |
+| Launch Company | [docs/runbooks/launch-sub-company.md](docs/runbooks/launch-sub-company.md) | Creating a new sub-company |
+| Incident Response | [docs/runbooks/incident-response.md](docs/runbooks/incident-response.md) | Troubleshooting production issues |
+
 ## Environment Variables
 
-See `.env.example` for the full list. At minimum you need:
+See [docs/env-reference.md](docs/env-reference.md) for the complete list with descriptions and where to find each value.
+
+At minimum you need:
 
 - `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` for database access
 - `OPENAI_API_KEY` or Anthropic key for AI model access
