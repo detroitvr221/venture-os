@@ -64,6 +64,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Redirect bare dashboard path to overview
+  if (pathname === "/overview" || pathname === "") {
+    // Already at overview, let it through
+  }
+
   return supabaseResponse;
 }
 
