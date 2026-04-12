@@ -17,14 +17,31 @@ config = {
     "channels": {
         "slack": {
             "enabled": True,
-            "botToken": os.environ.get("SLACK_BOT_TOKEN", ""),
-            "appToken": os.environ.get("SLACK_APP_TOKEN", "")
+            "bot_token": os.environ.get("SLACK_BOT_TOKEN", ""),
+            "app_token": os.environ.get("SLACK_APP_TOKEN", ""),
+            "allow_from": []
         }
     }
 }
 
-os.makedirs(os.path.expanduser("~/.nanobot"), exist_ok=True)
-path = os.path.expanduser("~/.nanobot/config.json")
+# Add WhatsApp if configured
+wa_number = os.environ.get("WHATSAPP_PHONE_NUMBER_ID", "")
+wa_token = os.environ.get("WHATSAPP_ACCESS_TOKEN", "")
+wa_verify = os.environ.get("WHATSAPP_VERIFY_TOKEN", "")
+if wa_token:
+    config["channels"]["whatsapp"] = {
+        "enabled": True,
+        "phone_number_id": wa_number,
+        "access_token": wa_token,
+        "verify_token": wa_verify or "northbridge-verify-2026"
+    }
+
+config_dir = os.path.expanduser("~/.nanobot")
+os.makedirs(config_dir, exist_ok=True)
+os.makedirs(os.path.join(config_dir, "workspace"), exist_ok=True)
+
+path = os.path.join(config_dir, "config.json")
 with open(path, "w") as f:
     json.dump(config, f, indent=2)
 print(f"[SETUP] Config written to {path}")
+print(f"[SETUP] Channels: {', '.join(k for k, v in config['channels'].items() if v.get('enabled'))}")
