@@ -25,7 +25,8 @@ config = {
             "panels": ["*"],
             "refreshIntervalMs": 30000,
             "replyDelayMode": "non-mention",
-            "replyDelayMs": 5000
+            "replyDelayMs": 5000,
+            "allow_from": ["*"]
         }
     }
 }
