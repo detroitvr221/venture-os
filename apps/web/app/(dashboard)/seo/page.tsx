@@ -13,7 +13,7 @@ import {
   BarChart3,
 } from "lucide-react";
 import { runSeoAudit } from "../../actions";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/client";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -32,17 +32,6 @@ interface WebsiteMap {
 }
 
 // ─── Supabase ───────────────────────────────────────────────────────────────
-
-function getClientDb() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-}
-
-const ORG_ID =
-  process.env.NEXT_PUBLIC_DEFAULT_ORGANIZATION_ID ??
-  "00000000-0000-0000-0000-000000000001";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -80,14 +69,13 @@ export default function SeoAuditsPage() {
   const [message, setMessage] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
-    const db = getClientDb();
+    const db = createClient();
 
     const { data: auditsData } = await db
       .from("website_audits")
       .select(
         "id, website_id, audit_type, score, summary, findings_count, created_at"
       )
-      .eq("organization_id", ORG_ID)
       .order("created_at", { ascending: false });
 
     const rows = (auditsData ?? []) as AuditRow[];

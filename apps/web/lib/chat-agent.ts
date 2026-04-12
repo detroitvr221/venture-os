@@ -9,7 +9,6 @@ const OPENCLAW_TOKEN = process.env.OPENCLAW_API_KEY || "vos-hooks-token-2026";
 type ChatMessage = {
   role: "user" | "assistant" | "system" | "tool";
   content: string | null;
-  tool_calls?: unknown;
 };
 
 type AgentConfig = {
@@ -24,11 +23,10 @@ export async function getAgentResponse(
   agentConfig: AgentConfig
 ): Promise<{ content: string; model: string; token_count?: number; cost_usd?: number }> {
   const agentId = agentConfig.agent_id || "main";
-  const systemPrompt = agentConfig.system_prompt ||
-    "You are a Northbridge Digital assistant. Help the employee with their work. Be concise, professional, and action-oriented. You have access to the company's tools and data.";
+  const lastMessage = messages[messages.length - 1]?.content || "";
 
   try {
-    // Try OpenClaw gateway first
+    // Send to OpenClaw — it processes async and returns a runId
     const res = await fetch(`${OPENCLAW_URL}/hooks/agent`, {
       method: "POST",
       headers: {
@@ -37,11 +35,10 @@ export async function getAgentResponse(
       },
       body: JSON.stringify({
         agent_id: agentId,
-        message: messages[messages.length - 1]?.content || "",
+        message: lastMessage,
         context: {
           thread_context: threadContext,
-          conversation_history: messages.slice(-10), // Last 10 for context window
-          system_prompt: systemPrompt,
+          conversation_history: messages.slice(-10),
         },
       }),
       signal: AbortSignal.timeout(30000),
@@ -49,20 +46,32 @@ export async function getAgentResponse(
 
     if (res.ok) {
       const data = await res.json();
-      return {
-        content: data.response || data.message || data.content || "I received your message. Let me look into that.",
-        model: data.model || agentConfig.model || "openclaw/gpt-5.4-mini",
-        token_count: data.token_count,
-        cost_usd: data.cost_usd,
-      };
+
+      // OpenClaw returns {ok: true, runId: "..."} for async processing
+      // or {response: "..."} for sync responses
+      if (data.response || data.message || data.content) {
+        return {
+          content: data.response || data.message || data.content,
+          model: data.model || agentConfig.model || "minimax/MiniMax-M2.7",
+          token_count: data.token_count,
+          cost_usd: data.cost_usd,
+        };
+      }
+
+      // Async mode — agent is processing via Slack/hooks
+      if (data.ok && data.runId) {
+        return {
+          content: `Task received and assigned to ${agentId === "main" ? "Atlas" : agentId}. Processing now — check Slack for the full response.\n\nRun ID: ${data.runId}`,
+          model: "system",
+        };
+      }
     }
   } catch {
-    // OpenClaw unavailable — fall through to direct response
+    // OpenClaw unavailable
   }
 
-  // Fallback: acknowledge the message (OpenClaw handles async via Slack)
   return {
-    content: "Message received. The team has been notified and will follow up. If you need immediate help, reach out in Slack.",
+    content: "I received your message but couldn't reach the agent system right now. Your message has been saved — try again in a moment or check Slack for a response.",
     model: "system-fallback",
   };
 }
