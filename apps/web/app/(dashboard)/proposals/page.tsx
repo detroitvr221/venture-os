@@ -168,6 +168,13 @@ export default function ProposalsPage() {
             </span>
           </p>
         </div>
+        <Link
+          href="/proposals/new"
+          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+        >
+          <FileText className="h-4 w-4" />
+          New Proposal
+        </Link>
       </div>
 
       {/* Stats */}

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
 import { UserPlus, CheckCircle2, Clock, AlertCircle, ArrowRight, RefreshCw } from "lucide-react";
 
 type OnboardingStep = { index: number; title: string; completed: boolean; completed_at: string | null };
@@ -74,12 +75,19 @@ export default function OnboardingPage() {
     const completedCount = updated.filter((s) => s.completed).length;
     const allDone = completedCount === updated.length;
 
+    const stepName = (updated.find((s) => s.index === stepIndex) as { index: number; completed: boolean; title?: string })?.title || "Step";
+    const wasCompleted = updated.find((s) => s.index === stepIndex)?.completed;
     await supabase.from("onboarding_checklists").update({
       steps: updated,
       completed_steps: completedCount,
       status: allDone ? "completed" : "in_progress",
       completed_at: allDone ? new Date().toISOString() : null,
     }).eq("id", onboardingId);
+    if (wasCompleted) {
+      toast.success("Step completed");
+    } else {
+      toast.info("Step marked incomplete");
+    }
     loadData();
   }
 

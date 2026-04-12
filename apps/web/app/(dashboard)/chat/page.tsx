@@ -191,7 +191,7 @@ export default function ChatPage() {
   return (
     <div className="flex h-[calc(100vh-4rem)] -m-6 lg:-m-8">
       {/* ── Sidebar ────────────────────────────────────────────────── */}
-      <div className="flex w-[300px] shrink-0 flex-col border-r border-[#222] bg-[#0a0a0a]">
+      <div className={`${activeThreadId ? "hidden md:flex" : "flex"} w-full md:w-[300px] shrink-0 flex-col border-r border-[#222] bg-[#0a0a0a]`}>
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#222] px-4 py-3">
           <h2 className="text-sm font-semibold text-white">Chat</h2>
@@ -273,7 +273,7 @@ export default function ChatPage() {
       </div>
 
       {/* ── Main Chat Area ─────────────────────────────────────────── */}
-      <div className="flex flex-1 flex-col bg-[#111]">
+      <div className={`${!activeThreadId ? "hidden md:flex" : "flex"} flex-1 flex-col bg-[#111]`}>
         {!activeThreadId ? (
           <div className="flex flex-1 flex-col items-center justify-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#3b82f6]/20 to-[#8b5cf6]/20">
@@ -289,9 +289,17 @@ export default function ChatPage() {
           <>
             {/* Thread header */}
             <div className="flex items-center justify-between border-b border-[#222] bg-[#0a0a0a] px-5 py-3">
-              <div>
-                <h3 className="text-sm font-medium text-white">{activeThread?.title || "New Chat"}</h3>
-                <p className="text-[10px] text-[#666]">{activeThread?.message_count || 0} messages &middot; Private workspace</p>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setActiveThreadId(null)}
+                  className="rounded p-1.5 text-[#666] hover:text-white md:hidden"
+                >
+                  <ChevronDown className="h-4 w-4 rotate-90" />
+                </button>
+                <div>
+                  <h3 className="text-sm font-medium text-white">{activeThread?.title || "New Chat"}</h3>
+                  <p className="text-[10px] text-[#666]">{activeThread?.message_count || 0} messages &middot; Private workspace</p>
+                </div>
               </div>
               <div className="flex items-center gap-1">
                 <button onClick={() => activeThread && handlePin(activeThread.id, activeThread.is_pinned)}

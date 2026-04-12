@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
 import { Settings, Key, Globe, Bot, Mail, Bell, Shield, Save, CheckCircle2 } from "lucide-react";
 
 export default function SettingsPage() {
   const [userEmail, setUserEmail] = useState("");
   const [orgName, setOrgName] = useState("Northbridge Digital");
-  const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("general");
 
   useEffect(() => {
@@ -82,6 +83,29 @@ export default function SettingsPage() {
                     <label className="mb-1 block text-xs text-[#888]">Domain</label>
                     <input value="thenorthbridgemi.org" disabled className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-[#666]" />
                   </div>
+                </div>
+                <div className="mt-4 flex justify-end">
+                  <button
+                    onClick={async () => {
+                      setSaving(true);
+                      const supabase = createClient();
+                      const { error } = await supabase
+                        .from("organizations")
+                        .update({ name: orgName })
+                        .neq("id", "00000000-0000-0000-0000-000000000000");
+                      if (error) {
+                        toast.error("Failed to save settings");
+                      } else {
+                        toast.success("Settings saved");
+                      }
+                      setSaving(false);
+                    }}
+                    disabled={saving}
+                    className="flex items-center gap-2 rounded-lg bg-[#3b82f6] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#2563eb] disabled:opacity-50"
+                  >
+                    <Save className="h-4 w-4" />
+                    {saving ? "Saving..." : "Save Changes"}
+                  </button>
                 </div>
               </div>
 

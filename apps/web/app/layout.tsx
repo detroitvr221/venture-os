@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const inter = Inter({
@@ -9,9 +10,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "North Bridge Digital - AI-Powered Operating System",
+  title: "Northbridge Digital — Build. Launch. Grow.",
   description:
-    "The command center for North Bridge Digital. AI-powered agency services — manage agents, clients, leads, and ventures from a single dashboard.",
+    "Northbridge Digital helps businesses build, launch, and grow online through websites, SEO, social media, and modern digital systems.",
   icons: {
     icon: "/favicon.ico",
   },
@@ -26,6 +27,17 @@ export default function RootLayout({
     <html lang="en" className={`dark ${inter.variable}`}>
       <body className="min-h-screen bg-background font-sans antialiased">
         {children}
+        <Toaster
+          theme="dark"
+          position="top-right"
+          toastOptions={{
+            style: {
+              background: "#111",
+              border: "1px solid #333",
+              color: "#fff",
+            },
+          }}
+        />
       </body>
     </html>
   );

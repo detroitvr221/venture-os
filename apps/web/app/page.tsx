@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
 import {
   Globe,
@@ -24,6 +24,8 @@ import {
   Building2,
   Menu,
   X,
+  Star,
+  ChevronDown,
 } from "lucide-react";
 
 // ─── Data ───────────────────────────────────────────────────────────────────
@@ -169,6 +171,7 @@ export default function LandingPage() {
   const [email, setEmail] = useState("");
   const [pricingTrack, setPricingTrack] = useState<"build" | "growth">("build");
   const [mobileNav, setMobileNav] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const scrollTo = (id: string) => {
     setMobileNav(false);
@@ -256,7 +259,7 @@ export default function LandingPage() {
               href="/signup"
               className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-[#3b82f620] transition-all hover:shadow-[#3b82f640] hover:scale-[1.02]"
             >
-              Start Growing
+              Get Started Free
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
@@ -463,6 +466,62 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── Social Proof ──────────────────────────────────────────────── */}
+      <section className="mx-auto max-w-6xl px-6 py-24">
+        <div className="text-center">
+          <p className="text-sm font-semibold uppercase tracking-widest text-[#f59e0b]">Social Proof</p>
+          <h2 className="mt-3 text-3xl font-bold sm:text-4xl">Trusted by Businesses Across Michigan</h2>
+        </div>
+
+        <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+          {[
+            {
+              quote: "Northbridge completely transformed our online presence. Within months we saw a real increase in leads from search.",
+              name: "Local Services Company",
+              role: "Owner",
+            },
+            {
+              quote: "The monthly partnership model is refreshing. No surprise invoices, just consistent progress and clear reporting every month.",
+              name: "E-Commerce Brand",
+              role: "Founder",
+            },
+            {
+              quote: "They built our site, set up our SEO, and handle our social. Having one team for everything makes life so much easier.",
+              name: "Professional Services Firm",
+              role: "Managing Director",
+            },
+          ].map((testimonial, i) => (
+            <div key={i} className="rounded-2xl border border-[#1a1a1a] bg-[#111] p-7">
+              <div className="flex gap-1 text-[#f59e0b]">
+                {Array.from({ length: 5 }).map((_, s) => (
+                  <Star key={s} className="h-4 w-4 fill-current" />
+                ))}
+              </div>
+              <p className="mt-4 text-sm leading-relaxed text-[#ccc]">
+                &ldquo;{testimonial.quote}&rdquo;
+              </p>
+              <div className="mt-4 border-t border-[#222] pt-4">
+                <p className="text-sm font-medium text-white">{testimonial.name}</p>
+                <p className="text-xs text-[#888]">{testimonial.role}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-12 grid grid-cols-3 gap-6 text-center">
+          {[
+            { value: "50+", label: "Projects Delivered" },
+            { value: "6", label: "Service Packages" },
+            { value: "MI", label: "Based in Michigan" },
+          ].map((stat) => (
+            <div key={stat.label} className="rounded-xl border border-[#1a1a1a] bg-[#111] p-5">
+              <p className="text-3xl font-extrabold bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] bg-clip-text text-transparent">{stat.value}</p>
+              <p className="mt-1 text-sm text-[#888]">{stat.label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* ── Trust ─────────────────────────────────────────────────────── */}
       <section className="mx-auto max-w-6xl px-6 py-24">
         <div className="text-center">
@@ -505,10 +564,20 @@ export default function LandingPage() {
           <h2 className="mt-3 text-3xl font-bold">Common Questions</h2>
         </div>
         <div className="mt-12 space-y-4">
-          {faqs.map((faq) => (
-            <div key={faq.q} className="rounded-xl border border-[#1a1a1a] bg-[#111] p-5">
-              <h3 className="text-sm font-semibold text-white">{faq.q}</h3>
-              <p className="mt-2 text-sm text-[#888] leading-relaxed">{faq.a}</p>
+          {faqs.map((faq, i) => (
+            <div key={faq.q} className="rounded-xl border border-[#1a1a1a] bg-[#111]">
+              <button
+                onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                className="flex w-full items-center justify-between p-5 text-left"
+              >
+                <h3 className="text-sm font-semibold text-white">{faq.q}</h3>
+                <ChevronDown className={`h-4 w-4 shrink-0 text-[#888] transition-transform ${openFaq === i ? "rotate-180" : ""}`} />
+              </button>
+              {openFaq === i && (
+                <div className="border-t border-[#1a1a1a] px-5 pb-5 pt-3">
+                  <p className="text-sm text-[#888] leading-relaxed">{faq.a}</p>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -533,7 +602,7 @@ export default function LandingPage() {
               href={email ? `/signup?email=${encodeURIComponent(email)}` : "/signup"}
               className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
             >
-              Start Growing
+              Get Started Free
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>

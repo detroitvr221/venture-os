@@ -5,7 +5,7 @@ import {
   Building2,
   Plus,
   Users,
-  DollarSign,
+  Hash,
   Globe,
   ArrowUpRight,
   Crown,
@@ -237,7 +237,7 @@ export default function CompaniesPage() {
                   <p className="text-[10px] text-[#666]">Clients</p>
                 </div>
                 <div className="rounded-lg bg-[#111] p-3 text-center">
-                  <DollarSign className="mx-auto h-4 w-4 text-[#666]" />
+                  <Hash className="mx-auto h-4 w-4 text-[#666]" />
                   <p className="mt-1.5 text-lg font-bold text-white">
                     {company.slug}
                   </p>

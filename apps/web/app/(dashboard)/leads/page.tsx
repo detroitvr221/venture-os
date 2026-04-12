@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, Building2, DollarSign, Clock, MoreHorizontal } from "lucide-react";
+import { toast } from "sonner";
 import { createLead, updateLeadStage } from "../../actions";
 import { createClient } from "@supabase/supabase-js";
 
@@ -53,6 +55,7 @@ const ORG_ID = process.env.NEXT_PUBLIC_DEFAULT_ORGANIZATION_ID ?? "00000000-0000
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function LeadsPage() {
+  const router = useRouter();
   const [leads, setLeads] = useState<LeadRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -98,7 +101,10 @@ export default function LeadsPage() {
     );
 
     const result = await updateLeadStage(leadId, targetStage);
-    if (!result.success) {
+    if (result.success) {
+      toast.success(`Lead moved to ${targetStage}`);
+    } else {
+      toast.error("Failed to update lead stage");
       // Revert on failure
       fetchLeads();
     }
@@ -112,9 +118,11 @@ export default function LeadsPage() {
     setFormError(null);
     const result = await createLead(formData);
     if (result.success) {
+      toast.success("Lead created");
       setShowAddModal(false);
       fetchLeads();
     } else {
+      toast.error(result.error || "Failed to create lead");
       setFormError(result.error);
     }
   };
@@ -239,7 +247,7 @@ export default function LeadsPage() {
                     key={lead.id}
                     draggable
                     onDragStart={(e) => handleDragStart(e, lead.id)}
-                    onClick={() => window.location.href = `/leads/${lead.id}`}
+                    onClick={() => router.push(`/leads/${lead.id}`)}
                     className="group cursor-grab rounded-lg border border-[#222] bg-[#111] p-3.5 transition-all hover:border-[#333] active:cursor-grabbing"
                   >
                     <div className="flex items-start justify-between">

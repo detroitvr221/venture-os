@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
 import { Users, Plus, Search, Building2, Mail, Phone, ExternalLink, DollarSign } from "lucide-react";
+import { SkeletonGrid } from "@/components/Skeleton";
 
 type Client = {
   id: string;
@@ -23,9 +25,18 @@ export default function ClientsPage() {
   const [search, setSearch] = useState("");
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", phone: "", website: "", industry: "" });
+  const [orgId, setOrgId] = useState("00000000-0000-0000-0000-000000000001");
 
   useEffect(() => {
     loadClients();
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        supabase.from("organization_members").select("organization_id").eq("user_id", user.id).single().then(({ data }) => {
+          if (data?.organization_id) setOrgId(data.organization_id);
+        });
+      }
+    });
   }, []);
 
   async function loadClients() {
@@ -41,15 +52,20 @@ export default function ClientsPage() {
   async function handleAdd() {
     if (!form.name) return;
     const supabase = createClient();
-    await supabase.from("clients").insert({
+    const { error } = await supabase.from("clients").insert({
       name: form.name,
       email: form.email || null,
       phone: form.phone || null,
       website: form.website || null,
       industry: form.industry || null,
-      organization_id: "00000000-0000-0000-0000-000000000001",
+      organization_id: orgId,
       status: "active",
     });
+    if (error) {
+      toast.error("Failed to create client");
+      return;
+    }
+    toast.success("Client created");
     setForm({ name: "", email: "", phone: "", website: "", industry: "" });
     setShowAdd(false);
     loadClients();
@@ -88,7 +104,7 @@ export default function ClientsPage() {
               { key: "website", label: "Website", placeholder: "https://acme.com" },
               { key: "industry", label: "Industry", placeholder: "Technology" },
             ].map((f) => (
-              <div key={f.key}>
+              <div key={f.key} className={f.key === "industry" ? "col-span-2" : ""}>
                 <label className="mb-1 block text-xs text-[#888]">{f.label}</label>
                 <input
                   value={form[f.key as keyof typeof form]}
@@ -119,7 +135,7 @@ export default function ClientsPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {loading ? (
-          <div className="col-span-full py-16 text-center text-[#666]">Loading...</div>
+          <SkeletonGrid cards={6} />
         ) : filtered.length === 0 ? (
           <div className="col-span-full flex flex-col items-center py-16">
             <Users className="mb-3 h-10 w-10 text-[#333]" />

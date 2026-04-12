@@ -16,6 +16,7 @@ import {
   ChevronRight,
   Star,
 } from "lucide-react";
+import { SkeletonList } from "@/components/Skeleton";
 
 type Email = {
   id: string;
@@ -186,9 +187,7 @@ export default function EmailPage() {
           {/* Email list */}
           <div className="rounded-xl border border-[#222] bg-[#0a0a0a]">
             {loading ? (
-              <div className="flex items-center justify-center py-16">
-                <RefreshCw className="h-5 w-5 animate-spin text-[#666]" />
-              </div>
+              <SkeletonList rows={8} />
             ) : emails.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16">
                 <Mail className="mb-3 h-10 w-10 text-[#333]" />

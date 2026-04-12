@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
 import { FolderKanban, Plus, Search, Clock, CheckCircle2, AlertCircle, Pause } from "lucide-react";
+import { SkeletonList } from "@/components/Skeleton";
 
 type Project = {
   id: string;
@@ -29,6 +31,8 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
+  const [showAdd, setShowAdd] = useState(false);
+  const [newProject, setNewProject] = useState({ name: "", description: "", status: "planning" });
 
   useEffect(() => {
     loadProjects();
@@ -42,6 +46,24 @@ export default function ProjectsPage() {
       .order("created_at", { ascending: false });
     setProjects(data || []);
     setLoading(false);
+  }
+
+  async function handleCreateProject() {
+    if (!newProject.name) return;
+    const supabase = createClient();
+    const { error } = await supabase.from("projects").insert({
+      name: newProject.name,
+      description: newProject.description || null,
+      status: newProject.status,
+    });
+    if (error) {
+      toast.error("Failed to create project");
+      return;
+    }
+    toast.success("Project created");
+    setNewProject({ name: "", description: "", status: "planning" });
+    setShowAdd(false);
+    loadProjects();
   }
 
   const filtered = filter === "all" ? projects : projects.filter((p) => p.status === filter);
@@ -59,7 +81,56 @@ export default function ProjectsPage() {
           <h1 className="text-2xl font-bold text-white">Projects</h1>
           <p className="mt-1 text-sm text-[#888]">{stats.active} active &middot; {stats.completed} completed</p>
         </div>
+        <button
+          onClick={() => setShowAdd(!showAdd)}
+          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-4 py-2 text-sm font-medium text-white"
+        >
+          <Plus className="h-4 w-4" />
+          New Project
+        </button>
       </div>
+
+      {showAdd && (
+        <div className="mb-6 rounded-xl border border-[#222] bg-[#0a0a0a] p-4">
+          <h3 className="mb-3 text-sm font-medium text-white">Create Project</h3>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-xs text-[#888]">Project Name *</label>
+              <input
+                value={newProject.name}
+                onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
+                placeholder="Website Redesign"
+                className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder:text-[#555] focus:border-[#3b82f6] focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-[#888]">Status</label>
+              <select
+                value={newProject.status}
+                onChange={(e) => setNewProject({ ...newProject, status: e.target.value })}
+                className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white focus:border-[#3b82f6] focus:outline-none"
+              >
+                <option value="planning">Planning</option>
+                <option value="active">Active</option>
+                <option value="on_hold">On Hold</option>
+              </select>
+            </div>
+            <div className="sm:col-span-2">
+              <label className="mb-1 block text-xs text-[#888]">Description</label>
+              <input
+                value={newProject.description}
+                onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
+                placeholder="Brief project description..."
+                className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder:text-[#555] focus:border-[#3b82f6] focus:outline-none"
+              />
+            </div>
+          </div>
+          <div className="mt-4 flex justify-end gap-2">
+            <button onClick={() => setShowAdd(false)} className="px-3 py-1.5 text-xs text-[#888]">Cancel</button>
+            <button onClick={handleCreateProject} className="rounded-lg bg-[#3b82f6] px-4 py-1.5 text-xs font-medium text-white">Create</button>
+          </div>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="mb-6 grid grid-cols-3 gap-4">
@@ -93,7 +164,7 @@ export default function ProjectsPage() {
       {/* Project list */}
       <div className="space-y-3">
         {loading ? (
-          <div className="py-16 text-center text-[#666]">Loading...</div>
+          <SkeletonList rows={5} />
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center py-16">
             <FolderKanban className="mb-3 h-10 w-10 text-[#333]" />

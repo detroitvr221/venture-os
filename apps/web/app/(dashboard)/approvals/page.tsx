@@ -113,9 +113,9 @@ export default function ApprovalsPage() {
 
   const [rejectModal, setRejectModal] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [approveModal, setApproveModal] = useState<string | null>(null);
 
   const handleApprove = async (id: string) => {
-    if (!confirm("Approve this item?")) return;
     setActionLoading(id);
     const result = await approvePendingApproval(id);
     if (result.success) {
@@ -124,6 +124,7 @@ export default function ApprovalsPage() {
       );
     }
     setActionLoading(null);
+    setApproveModal(null);
   };
 
   const handleReject = async (id: string) => {
@@ -251,7 +252,7 @@ export default function ApprovalsPage() {
                         {approval.status === "pending" && (
                           <div className="flex items-center justify-end gap-2">
                             <button
-                              onClick={() => handleApprove(approval.id)}
+                              onClick={() => setApproveModal(approval.id)}
                               disabled={actionLoading === approval.id}
                               className="rounded-lg bg-[#22c55e] px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-80 disabled:opacity-50"
                             >
@@ -272,6 +273,21 @@ export default function ApprovalsPage() {
                 })}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+      {/* Approval confirmation modal */}
+      {approveModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setApproveModal(null)}>
+          <div className="w-full max-w-md rounded-xl border border-[#333] bg-[#0a0a0a] p-6" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold text-white">Confirm Approval</h3>
+            <p className="mt-1 text-sm text-[#888]">Are you sure you want to approve this item? This action cannot be undone.</p>
+            <div className="mt-4 flex justify-end gap-2">
+              <button onClick={() => setApproveModal(null)} className="rounded-lg px-4 py-2 text-xs text-[#888] hover:text-white">Cancel</button>
+              <button onClick={() => handleApprove(approveModal)} className="rounded-lg bg-[#22c55e] px-4 py-2 text-xs font-medium text-white hover:bg-[#16a34a]">
+                Approve
+              </button>
+            </div>
           </div>
         </div>
       )}
