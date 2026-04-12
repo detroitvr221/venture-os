@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""NanoBot setup script — generates config from environment variables."""
+"""NanoBot setup script — generates config with MoChat channel."""
 import json, os
 
 config = {
@@ -15,26 +15,20 @@ config = {
         }
     },
     "channels": {
-        "slack": {
+        "mochat": {
             "enabled": True,
-            "bot_token": os.environ.get("SLACK_BOT_TOKEN", ""),
-            "app_token": os.environ.get("SLACK_APP_TOKEN", ""),
-            "allow_from": ["*"]
+            "baseUrl": "https://mochat.io",
+            "socketUrl": "https://mochat.io",
+            "clawToken": os.environ.get("MOCHAT_TOKEN", ""),
+            "agentUserId": os.environ.get("MOCHAT_BOT_USER_ID", ""),
+            "sessions": ["*"],
+            "panels": ["*"],
+            "refreshIntervalMs": 30000,
+            "replyDelayMode": "non-mention",
+            "replyDelayMs": 5000
         }
     }
 }
-
-# Add WhatsApp if configured
-wa_number = os.environ.get("WHATSAPP_PHONE_NUMBER_ID", "")
-wa_token = os.environ.get("WHATSAPP_ACCESS_TOKEN", "")
-wa_verify = os.environ.get("WHATSAPP_VERIFY_TOKEN", "")
-if wa_token:
-    config["channels"]["whatsapp"] = {
-        "enabled": True,
-        "phone_number_id": wa_number,
-        "access_token": wa_token,
-        "verify_token": wa_verify or "northbridge-verify-2026"
-    }
 
 config_dir = os.path.expanduser("~/.nanobot")
 os.makedirs(config_dir, exist_ok=True)
@@ -45,3 +39,4 @@ with open(path, "w") as f:
     json.dump(config, f, indent=2)
 print(f"[SETUP] Config written to {path}")
 print(f"[SETUP] Channels: {', '.join(k for k, v in config['channels'].items() if v.get('enabled'))}")
+print(f"[SETUP] Model: {config['agents']['defaults']['model']}")
