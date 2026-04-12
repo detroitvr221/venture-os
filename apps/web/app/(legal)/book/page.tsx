@@ -10,16 +10,6 @@ export default function BookingPage() {
       const cal = await getCalApi();
       cal("ui", {
         theme: "dark",
-        cssVarsPerTheme: {
-          dark: {
-            "cal-brand": "#3b82f6",
-            "cal-text": "#ffffff",
-            "cal-text-emphasis": "#ffffff",
-            "cal-border": "#222222",
-            "cal-bg": "#0a0a0a",
-            "cal-bg-emphasis": "#111111",
-          },
-        },
         hideEventTypeDetails: false,
       });
     })();
