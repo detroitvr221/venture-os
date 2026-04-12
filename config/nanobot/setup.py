@@ -19,7 +19,7 @@ config = {
             "enabled": True,
             "bot_token": os.environ.get("SLACK_BOT_TOKEN", ""),
             "app_token": os.environ.get("SLACK_APP_TOKEN", ""),
-            "allow_from": []
+            "allow_from": ["*"]
         }
     }
 }
