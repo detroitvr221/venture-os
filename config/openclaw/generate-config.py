@@ -68,7 +68,7 @@ config = {
     },
     "tools":{"profile":"coding","elevated":{"enabled":True},"web":{"search":{"enabled":True},"fetch":{"enabled":True}}},
     "browser":{"headless":True,"noSandbox":True},
-    "plugins":{"allow":["browser","slack","mochat"],"entries":{"browser":{"enabled":True},"slack":{"enabled":True},"mochat":{"enabled":True}}},
+    "plugins":{"allow":["browser","slack"],"entries":{"browser":{"enabled":True},"slack":{"enabled":True}}},
     "hooks":{"enabled":True,"token":"vos-hooks-token-2026"},
     "update":{"channel":"stable","checkOnStart":False},
     "mcp":{"servers":mcp}
