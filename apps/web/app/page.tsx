@@ -33,96 +33,129 @@ import {
 const buildPackages = [
   {
     name: "Launch",
-    price: "$99",
+    price: "$497",
+    strikePrice: "$997",
     period: "/month",
-    description: "Perfect for getting online fast",
+    description: "Get online with a professional presence",
     features: [
-      "1 landing page",
-      "Mobile optimization",
-      "Contact form setup",
-      "Basic analytics",
-      "Minor monthly edits",
+      "Custom landing page design",
+      "Mobile-first responsive build",
+      "Contact form + lead capture",
+      "Google Analytics setup",
+      "SSL + hosting configuration",
+      "2 rounds of revisions per month",
+      "Monthly performance check-in",
+      "48-hour response time",
     ],
-    cta: "Start with Launch",
+    cta: "Get Started",
     popular: false,
+    save: "Save $500/mo",
   },
   {
     name: "Build",
-    price: "$199",
+    price: "$997",
+    strikePrice: "$1,997",
     period: "/month",
-    description: "For businesses ready to grow",
+    description: "Most popular — full website with lead generation",
     features: [
-      "Up to 5 pages",
-      "Lead capture forms",
-      "Light integrations",
-      "Hosting & domain guidance",
-      "Monthly updates",
+      "Everything in Launch, plus:",
+      "Up to 10-page custom website",
+      "Lead funnels + conversion forms",
+      "CRM integration setup",
+      "Blog or content section",
+      "Speed optimization (90+ score)",
+      "Monthly design updates",
+      "Bi-weekly strategy calls",
+      "Priority 24-hour support",
     ],
-    cta: "Start with Build",
+    cta: "Get Started",
     popular: true,
+    save: "Save $1,000/mo",
   },
   {
     name: "Platform",
-    price: "$299",
+    price: "$1,997",
+    strikePrice: "$3,997",
     period: "/month",
-    description: "Advanced web experiences",
+    description: "Full digital platform for serious growth",
     features: [
-      "Website + app layer",
-      "Ongoing design/dev improvements",
-      "Customer journey optimization",
-      "Dashboard/admin support",
-      "Priority support",
+      "Everything in Build, plus:",
+      "Unlimited pages + app features",
+      "Custom dashboard / client portal",
+      "E-commerce or booking system",
+      "A/B testing + conversion optimization",
+      "API integrations + automation",
+      "Weekly strategy sessions",
+      "Dedicated project manager",
+      "Same-day priority support",
     ],
-    cta: "Start with Platform",
+    cta: "Get Started",
     popular: false,
+    save: "Save $2,000/mo",
   },
 ];
 
 const growthPackages = [
   {
     name: "Visibility",
-    price: "$99",
+    price: "$497",
+    strikePrice: "$997",
     period: "/month",
-    description: "Get found online",
+    description: "Start showing up where customers search",
     features: [
-      "Basic SEO setup",
-      "Google Business optimization",
-      "Title & meta updates",
-      "Profile consistency audit",
-      "1 monthly check-in",
+      "Full technical SEO audit",
+      "Google Business Profile optimization",
+      "On-page SEO (titles, metas, headers)",
+      "Local citation building",
+      "Keyword tracking dashboard",
+      "Monthly rankings report",
+      "1 strategy call per month",
+      "48-hour response time",
     ],
-    cta: "Start with Visibility",
+    cta: "Get Started",
     popular: false,
+    save: "Save $500/mo",
   },
   {
     name: "Growth",
-    price: "$199",
+    price: "$997",
+    strikePrice: "$1,997",
     period: "/month",
-    description: "Accelerate your presence",
+    description: "Most popular — SEO + content + social combined",
     features: [
-      "SEO improvements",
-      "Social media support",
-      "2-4 content pieces/month",
-      "Analytics reporting",
-      "Monthly optimization",
+      "Everything in Visibility, plus:",
+      "4-8 SEO-optimized content pieces/mo",
+      "Social media management (3 platforms)",
+      "Branded content creation",
+      "Monthly competitor analysis",
+      "Analytics + conversion tracking",
+      "Bi-weekly strategy calls",
+      "Priority 24-hour support",
     ],
-    cta: "Start with Growth",
+    cta: "Get Started",
     popular: true,
+    save: "Save $1,000/mo",
   },
   {
     name: "Momentum",
-    price: "$299",
+    price: "$1,997",
+    strikePrice: "$3,997",
     period: "/month",
-    description: "Full growth engine",
+    description: "Full-stack growth engine with strategy",
     features: [
-      "SEO + social + visibility",
-      "Content planning",
-      "Lead generation optimization",
-      "Monthly strategy touchpoint",
-      "Priority execution",
+      "Everything in Growth, plus:",
+      "12+ content pieces per month",
+      "Paid ad management (Google + Meta)",
+      "Landing page creation + testing",
+      "Lead gen funnel optimization",
+      "Email marketing automation",
+      "Weekly strategy sessions",
+      "Dedicated growth strategist",
+      "Same-day priority support",
     ],
-    cta: "Start with Momentum",
+    cta: "Get Started",
     popular: false,
+    save: "Save $2,000/mo",
   },
 ];
 
@@ -360,12 +393,25 @@ export default function LandingPage() {
                     Most Popular
                   </div>
                 )}
-                <h3 className="text-lg font-bold text-white">{pkg.name}</h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-bold text-white">{pkg.name}</h3>
+                  {"save" in pkg && (
+                    <span className="rounded-full bg-[#10b981]/20 px-2.5 py-0.5 text-[10px] font-semibold text-[#10b981]">
+                      {(pkg as Record<string, unknown>).save as string}
+                    </span>
+                  )}
+                </div>
                 <p className="mt-1 text-xs text-[#888]">{pkg.description}</p>
-                <div className="mt-4">
+                <div className="mt-4 flex items-baseline gap-2">
                   <span className="text-4xl font-extrabold text-white">{pkg.price}</span>
                   <span className="text-sm text-[#666]">{pkg.period}</span>
                 </div>
+                {"strikePrice" in pkg && (
+                  <p className="mt-1 text-sm text-[#666]">
+                    <span className="line-through">{(pkg as Record<string, unknown>).strikePrice as string}/mo</span>
+                    <span className="ml-2 text-[#10b981]">50% off</span>
+                  </p>
+                )}
                 <ul className="mt-6 space-y-3">
                   {pkg.features.map((f) => (
                     <li key={f} className="flex items-start gap-2 text-sm text-[#ccc]">
