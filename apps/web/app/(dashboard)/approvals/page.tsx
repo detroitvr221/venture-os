@@ -111,7 +111,11 @@ export default function ApprovalsPage() {
 
   const pendingCount = approvals.filter((a) => a.status === "pending").length;
 
+  const [rejectModal, setRejectModal] = useState<string | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
+
   const handleApprove = async (id: string) => {
+    if (!confirm("Approve this item?")) return;
     setActionLoading(id);
     const result = await approvePendingApproval(id);
     if (result.success) {
@@ -123,16 +127,16 @@ export default function ApprovalsPage() {
   };
 
   const handleReject = async (id: string) => {
-    const reason = prompt("Rejection reason:");
-    if (reason === null) return; // User cancelled
     setActionLoading(id);
-    const result = await rejectPendingApproval(id, reason || "Rejected via dashboard");
+    const result = await rejectPendingApproval(id, rejectReason || "Rejected via dashboard");
     if (result.success) {
       setApprovals((prev) =>
-        prev.map((a) => (a.id === id ? { ...a, status: "rejected" as const, decided_at: new Date().toISOString(), reason } : a)),
+        prev.map((a) => (a.id === id ? { ...a, status: "rejected" as const, decided_at: new Date().toISOString(), reason: rejectReason } : a)),
       );
     }
     setActionLoading(null);
+    setRejectModal(null);
+    setRejectReason("");
   };
 
   if (loading) {
@@ -254,7 +258,7 @@ export default function ApprovalsPage() {
                               {actionLoading === approval.id ? "..." : "Approve"}
                             </button>
                             <button
-                              onClick={() => handleReject(approval.id)}
+                              onClick={() => { setRejectModal(approval.id); setRejectReason(""); }}
                               disabled={actionLoading === approval.id}
                               className="rounded-lg border border-[#333] bg-transparent px-3 py-1.5 text-xs font-medium text-[#888] transition-colors hover:border-[#ef4444] hover:text-[#ef4444] disabled:opacity-50"
                             >
@@ -268,6 +272,29 @@ export default function ApprovalsPage() {
                 })}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+      {/* Rejection modal */}
+      {rejectModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setRejectModal(null)}>
+          <div className="w-full max-w-md rounded-xl border border-[#333] bg-[#0a0a0a] p-6" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold text-white">Reject Approval</h3>
+            <p className="mt-1 text-sm text-[#888]">Provide a reason for rejecting this item.</p>
+            <textarea
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="Rejection reason..."
+              rows={3}
+              autoFocus
+              className="mt-4 w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder:text-[#555] focus:border-[#ef4444] focus:outline-none"
+            />
+            <div className="mt-4 flex justify-end gap-2">
+              <button onClick={() => setRejectModal(null)} className="rounded-lg px-4 py-2 text-xs text-[#888] hover:text-white">Cancel</button>
+              <button onClick={() => handleReject(rejectModal)} className="rounded-lg bg-[#ef4444] px-4 py-2 text-xs font-medium text-white hover:bg-[#dc2626]">
+                Reject
+              </button>
+            </div>
           </div>
         </div>
       )}

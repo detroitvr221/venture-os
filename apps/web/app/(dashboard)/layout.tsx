@@ -4,29 +4,10 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  LayoutDashboard,
-  Filter,
-  Users,
-  FolderKanban,
-  Bot,
-  GitBranch,
-  Brain,
-  CheckCircle2,
-  CreditCard,
-  Building2,
-  Settings,
-  ChevronLeft,
-  ChevronRight,
-  FileText,
-  Search,
-  Send,
-  LogOut,
-  Mail,
-  ClipboardList,
-  MessageSquare,
-  ShieldCheck,
-  UserPlus,
-  BookOpen,
+  LayoutDashboard, Filter, Users, FolderKanban, Bot, GitBranch, Brain,
+  CheckCircle2, CreditCard, Building2, Settings, ChevronLeft, ChevronRight,
+  FileText, Search, Send, LogOut, Mail, ClipboardList, MessageSquare,
+  ShieldCheck, UserPlus, BookOpen, Menu, X,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -53,12 +34,9 @@ const navigation = [
   { name: "Admin", href: "/admin", icon: ShieldCheck, adminOnly: true },
 ] as const;
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const pathname = usePathname();
@@ -79,6 +57,9 @@ export default function DashboardLayout({
     });
   }, []);
 
+  // Close mobile nav on route change
+  useEffect(() => { setMobileOpen(false); }, [pathname]);
+
   const handleSignOut = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
@@ -86,16 +67,18 @@ export default function DashboardLayout({
     router.refresh();
   };
 
-  return (
-    <div className="flex h-screen overflow-hidden">
-      {/* Sidebar */}
-      <aside
-        className={`flex flex-col border-r border-[#222] bg-[#0a0a0a] transition-all duration-300 ${
-          collapsed ? "w-[68px]" : "w-[240px]"
-        }`}
-      >
-        {/* Logo */}
-        <div className="flex h-16 items-center gap-3 border-b border-[#222] px-4">
+  const filteredNav = navigation.filter((item) => {
+    if ("adminOnly" in item && item.adminOnly) {
+      return userRole === "owner" || userRole === "admin";
+    }
+    return true;
+  });
+
+  const sidebarContent = (
+    <>
+      {/* Logo */}
+      <div className="flex h-16 items-center justify-between border-b border-[#222] px-4">
+        <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6]">
             <span className="text-sm font-bold text-white">NB</span>
           </div>
@@ -105,84 +88,96 @@ export default function DashboardLayout({
             </span>
           )}
         </div>
+        {/* Mobile close button */}
+        <button onClick={() => setMobileOpen(false)} className="md:hidden rounded p-1 text-[#888] hover:text-white">
+          <X className="h-5 w-5" />
+        </button>
+      </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-2 py-4">
-          <ul className="space-y-1">
-            {navigation.filter((item) => {
-              if ("adminOnly" in item && item.adminOnly) {
-                return userRole === "owner" || userRole === "admin";
-              }
-              return true;
-            }).map((item) => {
-              const isActive =
-                pathname === item.href ||
-                (item.href !== "/overview" && pathname.startsWith(item.href));
-              const Icon = item.icon;
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto px-2 py-4">
+        <ul className="space-y-1">
+          {filteredNav.map((item) => {
+            const isActive = pathname === item.href || (item.href !== "/overview" && pathname.startsWith(item.href));
+            const Icon = item.icon;
+            return (
+              <li key={item.name}>
+                <Link
+                  href={item.href}
+                  className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
+                    isActive ? "bg-[#1a1a1a] text-white" : "text-[#888] hover:bg-[#111] hover:text-[#ccc]"
+                  }`}
+                  title={collapsed ? item.name : undefined}
+                >
+                  <Icon className={`h-5 w-5 shrink-0 ${isActive ? "text-[#3b82f6]" : "text-[#666] group-hover:text-[#999]"}`} />
+                  {!collapsed && <span>{item.name}</span>}
+                  {isActive && !collapsed && <div className="ml-auto h-1.5 w-1.5 rounded-full bg-[#3b82f6]" />}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
 
-              return (
-                <li key={item.name}>
-                  <Link
-                    href={item.href}
-                    className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
-                      isActive
-                        ? "bg-[#1a1a1a] text-white"
-                        : "text-[#888] hover:bg-[#111] hover:text-[#ccc]"
-                    }`}
-                    title={collapsed ? item.name : undefined}
-                  >
-                    <Icon
-                      className={`h-5 w-5 shrink-0 ${
-                        isActive
-                          ? "text-[#3b82f6]"
-                          : "text-[#666] group-hover:text-[#999]"
-                      }`}
-                    />
-                    {!collapsed && <span>{item.name}</span>}
-                    {isActive && !collapsed && (
-                      <div className="ml-auto h-1.5 w-1.5 rounded-full bg-[#3b82f6]" />
-                    )}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
+      {/* User + Sign Out + Collapse */}
+      <div className="border-t border-[#222] p-2 space-y-1">
+        {userEmail && !collapsed && (
+          <div className="px-3 py-2">
+            <p className="truncate text-xs text-[#888]">{userEmail}</p>
+          </div>
+        )}
+        <button
+          onClick={handleSignOut}
+          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[#888] transition-colors hover:bg-[#1a1a1a] hover:text-[#ef4444]"
+          title={collapsed ? "Sign Out" : undefined}
+        >
+          <LogOut className="h-4 w-4 shrink-0" />
+          {!collapsed && <span>Sign Out</span>}
+        </button>
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="hidden md:flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm text-[#666] transition-colors hover:bg-[#111] hover:text-[#999]"
+        >
+          {collapsed ? <ChevronRight className="h-4 w-4" /> : <><ChevronLeft className="h-4 w-4" /><span>Collapse</span></>}
+        </button>
+      </div>
+    </>
+  );
 
-        {/* User + Sign Out + Collapse */}
-        <div className="border-t border-[#222] p-2 space-y-1">
-          {userEmail && !collapsed && (
-            <div className="px-3 py-2">
-              <p className="truncate text-xs text-[#888]">{userEmail}</p>
-            </div>
-          )}
-          <button
-            onClick={handleSignOut}
-            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[#888] transition-colors hover:bg-[#1a1a1a] hover:text-[#ef4444]"
-            title={collapsed ? "Sign Out" : undefined}
-          >
-            <LogOut className="h-4 w-4 shrink-0" />
-            {!collapsed && <span>Sign Out</span>}
-          </button>
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm text-[#666] transition-colors hover:bg-[#111] hover:text-[#999]"
-          >
-            {collapsed ? (
-              <ChevronRight className="h-4 w-4" />
-            ) : (
-              <>
-                <ChevronLeft className="h-4 w-4" />
-                <span>Collapse</span>
-              </>
-            )}
-          </button>
-        </div>
+  return (
+    <div className="flex h-screen overflow-hidden">
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-40 bg-black/60 md:hidden" onClick={() => setMobileOpen(false)} />
+      )}
+
+      {/* Sidebar — desktop */}
+      <aside className={`hidden md:flex flex-col border-r border-[#222] bg-[#0a0a0a] transition-all duration-300 ${
+        collapsed ? "w-[68px]" : "w-[240px]"
+      }`}>
+        {sidebarContent}
+      </aside>
+
+      {/* Sidebar — mobile (slide-in) */}
+      <aside className={`fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col bg-[#0a0a0a] transition-transform duration-300 md:hidden ${
+        mobileOpen ? "translate-x-0" : "-translate-x-full"
+      }`}>
+        {sidebarContent}
       </aside>
 
       {/* Main content */}
       <main className="flex-1 overflow-y-auto bg-[#111]">
-        <div className="mx-auto max-w-[1400px] p-6 lg:p-8">{children}</div>
+        {/* Mobile header */}
+        <div className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-[#222] bg-[#0a0a0a] px-4 md:hidden">
+          <button onClick={() => setMobileOpen(true)} className="rounded p-1.5 text-[#888] hover:text-white">
+            <Menu className="h-5 w-5" />
+          </button>
+          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6]">
+            <span className="text-[10px] font-bold text-white">NB</span>
+          </div>
+          <span className="text-sm font-medium text-white">Northbridge</span>
+        </div>
+        <div className="mx-auto max-w-[1400px] p-4 sm:p-6 lg:p-8">{children}</div>
       </main>
     </div>
   );

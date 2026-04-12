@@ -22,6 +22,8 @@ import {
   Eye,
   Layers,
   Building2,
+  Menu,
+  X,
 } from "lucide-react";
 
 // ─── Data ───────────────────────────────────────────────────────────────────
@@ -166,8 +168,10 @@ const faqs = [
 export default function LandingPage() {
   const [email, setEmail] = useState("");
   const [pricingTrack, setPricingTrack] = useState<"build" | "growth">("build");
+  const [mobileNav, setMobileNav] = useState(false);
 
   const scrollTo = (id: string) => {
+    setMobileNav(false);
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -184,6 +188,11 @@ export default function LandingPage() {
               Northbridge Digital
             </span>
           </div>
+          {/* Mobile hamburger */}
+          <button onClick={() => setMobileNav(!mobileNav)} className="rounded p-2 text-[#888] hover:text-white md:hidden">
+            {mobileNav ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+          {/* Desktop nav */}
           <div className="hidden items-center gap-8 md:flex">
             <button onClick={() => scrollTo("services")} className="text-sm text-[#888] transition-colors hover:text-white">Services</button>
             <button onClick={() => scrollTo("pricing")} className="text-sm text-[#888] transition-colors hover:text-white">Pricing</button>
@@ -194,6 +203,21 @@ export default function LandingPage() {
             </Link>
           </div>
         </div>
+        {/* Mobile nav dropdown */}
+        {mobileNav && (
+          <div className="border-t border-[#222] bg-[#0a0a0a] px-6 py-4 md:hidden">
+            <div className="flex flex-col gap-3">
+              <button onClick={() => scrollTo("services")} className="text-left text-sm text-[#888] hover:text-white">Services</button>
+              <button onClick={() => scrollTo("pricing")} className="text-left text-sm text-[#888] hover:text-white">Pricing</button>
+              <button onClick={() => scrollTo("how-it-works")} className="text-left text-sm text-[#888] hover:text-white">How It Works</button>
+              <button onClick={() => scrollTo("ventures")} className="text-left text-sm text-[#888] hover:text-white">Ventures</button>
+              <Link href="/book" className="text-left text-sm text-[#888] hover:text-white" onClick={() => setMobileNav(false)}>Book a Call</Link>
+              <Link href="/login" className="mt-2 rounded-lg bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-4 py-2 text-center text-sm font-medium text-white" onClick={() => setMobileNav(false)}>
+                Sign In
+              </Link>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* ── Hero ───────────────────────────────────────────────────────── */}

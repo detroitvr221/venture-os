@@ -24,9 +24,6 @@ export default function SettingsPage() {
     { key: "general", label: "General", icon: Settings },
     { key: "integrations", label: "Integrations", icon: Key },
     { key: "email", label: "Email", icon: Mail },
-    { key: "agents", label: "Agents", icon: Bot },
-    { key: "notifications", label: "Notifications", icon: Bell },
-    { key: "security", label: "Security", icon: Shield },
   ];
 
   const integrations = [
@@ -150,12 +147,6 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {(activeTab === "agents" || activeTab === "notifications" || activeTab === "security") && (
-            <div className="flex flex-col items-center rounded-xl border border-[#222] bg-[#0a0a0a] py-16">
-              <Settings className="mb-3 h-10 w-10 text-[#333]" />
-              <p className="text-sm text-[#666]">{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} settings coming soon</p>
-            </div>
-          )}
         </div>
       </div>
     </div>

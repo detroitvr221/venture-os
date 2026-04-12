@@ -67,7 +67,7 @@ export default function WorkflowsPage() {
       </div>
 
       {/* Stats */}
-      <div className="mb-6 grid grid-cols-4 gap-4">
+      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {[
           { label: "Workflows", value: stats.total, color: "text-[#3b82f6]" },
           { label: "Running", value: stats.running, color: "text-[#f59e0b]" },
