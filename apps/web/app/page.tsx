@@ -33,8 +33,8 @@ import {
 const buildPackages = [
   {
     name: "Launch",
-    price: "$497",
-    strikePrice: "$997",
+    price: "$199",
+    strikePrice: "$497",
     period: "/month",
     description: "Get online with a professional presence",
     features: [
@@ -49,12 +49,12 @@ const buildPackages = [
     ],
     cta: "Get Started",
     popular: false,
-    save: "Save $500/mo",
+    save: "60% off",
   },
   {
     name: "Build",
-    price: "$997",
-    strikePrice: "$1,997",
+    price: "$399",
+    strikePrice: "$997",
     period: "/month",
     description: "Most popular — full website with lead generation",
     features: [
@@ -70,12 +70,12 @@ const buildPackages = [
     ],
     cta: "Get Started",
     popular: true,
-    save: "Save $1,000/mo",
+    save: "60% off",
   },
   {
     name: "Platform",
-    price: "$1,997",
-    strikePrice: "$3,997",
+    price: "$699",
+    strikePrice: "$1,997",
     period: "/month",
     description: "Full digital platform for serious growth",
     features: [
@@ -91,15 +91,15 @@ const buildPackages = [
     ],
     cta: "Get Started",
     popular: false,
-    save: "Save $2,000/mo",
+    save: "65% off",
   },
 ];
 
 const growthPackages = [
   {
     name: "Visibility",
-    price: "$497",
-    strikePrice: "$997",
+    price: "$199",
+    strikePrice: "$497",
     period: "/month",
     description: "Start showing up where customers search",
     features: [
@@ -114,12 +114,12 @@ const growthPackages = [
     ],
     cta: "Get Started",
     popular: false,
-    save: "Save $500/mo",
+    save: "60% off",
   },
   {
     name: "Growth",
-    price: "$997",
-    strikePrice: "$1,997",
+    price: "$399",
+    strikePrice: "$997",
     period: "/month",
     description: "Most popular — SEO + content + social combined",
     features: [
@@ -134,12 +134,12 @@ const growthPackages = [
     ],
     cta: "Get Started",
     popular: true,
-    save: "Save $1,000/mo",
+    save: "60% off",
   },
   {
     name: "Momentum",
-    price: "$1,997",
-    strikePrice: "$3,997",
+    price: "$699",
+    strikePrice: "$1,997",
     period: "/month",
     description: "Full-stack growth engine with strategy",
     features: [
@@ -155,7 +155,7 @@ const growthPackages = [
     ],
     cta: "Get Started",
     popular: false,
-    save: "Save $2,000/mo",
+    save: "65% off",
   },
 ];
 
@@ -409,7 +409,7 @@ export default function LandingPage() {
                 {"strikePrice" in pkg && (
                   <p className="mt-1 text-sm text-[#666]">
                     <span className="line-through">{(pkg as Record<string, unknown>).strikePrice as string}/mo</span>
-                    <span className="ml-2 text-[#10b981]">50% off</span>
+                    <span className="ml-2 text-[#10b981]">Limited time</span>
                   </p>
                 )}
                 <ul className="mt-6 space-y-3">
