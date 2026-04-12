@@ -43,6 +43,7 @@ export async function middleware(request: NextRequest) {
     pathname === "/signup" ||
     pathname === "/terms" ||
     pathname === "/privacy" ||
+    pathname === "/book" ||
     pathname === "/sitemap.xml" ||
     pathname === "/robots.txt" ||
     pathname === "/favicon.ico" ||

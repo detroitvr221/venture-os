@@ -235,13 +235,13 @@ export default function LandingPage() {
               Start Growing
               <ArrowRight className="h-4 w-4" />
             </Link>
-            <button
-              onClick={() => scrollTo("pricing")}
+            <Link
+              href="/book"
               className="flex items-center gap-2 rounded-xl border border-[#333] bg-[#111] px-8 py-3.5 text-sm font-semibold text-[#ccc] transition-all hover:border-[#444] hover:text-white"
             >
-              See Packages
+              Book a Free Call
               <ChevronRight className="h-4 w-4" />
-            </button>
+            </Link>
           </div>
         </div>
 
