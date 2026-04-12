@@ -8,6 +8,48 @@ const WEBHOOK_URL = process.env.WEBHOOK_URL || "http://venture-os-web-1:3000/api
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || "nbdigital-mail-2026";
 const SMTP_PORT = parseInt(process.env.SMTP_PORT || "25", 10);
 const ALLOWED_DOMAINS = (process.env.ALLOWED_DOMAINS || "thenorthbridgemi.org,thenorthbridgemi.com").split(",");
+const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
+
+// Forwarding rules: address → gmail
+const FORWARD_RULES = {
+  "info@thenorthbridgemi.org": "detroitvr221@gmail.com",
+  "hello@thenorthbridgemi.org": "detroitvr221@gmail.com",
+  "support@thenorthbridgemi.org": "detroitvr221@gmail.com",
+  "team@thenorthbridgemi.org": "detroitvr221@gmail.com",
+};
+
+async function forwardEmail(payload) {
+  const recipients = payload.envelope?.to || payload.to || [];
+  for (const rcpt of recipients) {
+    const forwardTo = FORWARD_RULES[rcpt.toLowerCase()];
+    if (!forwardTo || !RESEND_API_KEY) continue;
+
+    try {
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: `fwd@thenorthbridgemi.org`,
+          to: [forwardTo],
+          subject: `[FWD: ${rcpt}] ${payload.subject || "(No Subject)"}`,
+          text: `--- Forwarded email to ${rcpt} ---\nFrom: ${payload.from}\nDate: ${payload.receivedAt}\n\n${payload.text || ""}`,
+          html: payload.html || undefined,
+          reply_to: payload.from || undefined,
+        }),
+      });
+      if (res.ok) {
+        console.log(`[SMTP] Forwarded ${rcpt} → ${forwardTo}`);
+      } else {
+        console.error(`[SMTP] Forward failed: ${res.status}`);
+      }
+    } catch (e) {
+      console.error(`[SMTP] Forward error: ${e.message}`);
+    }
+  }
+}
 
 console.log(`[SMTP] Starting server on port ${SMTP_PORT}`);
 console.log(`[SMTP] Webhook: ${WEBHOOK_URL}`);
@@ -101,6 +143,9 @@ const server = new SMTPServer({
           console.error("[SMTP] Webhook error:", webhookErr.message);
           // Still accept the email even if webhook fails
         }
+
+        // Forward to Gmail if rules match
+        await forwardEmail(payload);
 
         return callback();
       } catch (parseErr) {
