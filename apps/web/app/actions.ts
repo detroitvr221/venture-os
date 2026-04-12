@@ -810,7 +810,6 @@ export async function runSeoAudit(
       organization_id: orgId,
       website_id: websiteId,
       audit_type: 'seo',
-      status: 'pending',
       score: null,
       findings_count: 0,
       summary: null,
