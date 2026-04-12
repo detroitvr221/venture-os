@@ -56,13 +56,12 @@ async function handleAgentResult(
     await db.from('agent_tool_calls').insert({
       organization_id,
       thread_id: data.thread_id,
-      agent_name: agent_id ?? 'unknown',
+      agent_slug: agent_id ?? 'unknown',
       tool_name: (data.tool_name as string) ?? 'external',
       input: (data.input as Record<string, unknown>) ?? {},
       output: (data.output as Record<string, unknown>) ?? {},
+      status: (data.error as string) ? 'error' : 'success',
       duration_ms: (data.duration_ms as number) ?? null,
-      error: (data.error as string) ?? null,
-      called_at: payload.timestamp ?? new Date().toISOString(),
     });
   }
 
@@ -71,12 +70,11 @@ async function handleAgentResult(
     await db.from('agent_costs').insert({
       organization_id,
       thread_id: (data.thread_id as string) ?? null,
-      agent_name: agent_id ?? 'unknown',
+      agent_slug: agent_id ?? 'unknown',
       model: (data.model as string) ?? 'unknown',
       input_tokens: (data.input_tokens as number) ?? 0,
       output_tokens: (data.output_tokens as number) ?? 0,
       cost_usd: data.cost_usd,
-      recorded_at: new Date().toISOString(),
     });
   }
 

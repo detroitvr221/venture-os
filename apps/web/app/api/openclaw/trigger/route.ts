@@ -67,9 +67,12 @@ export async function POST(request: NextRequest) {
       organization_id: payload.organization_id,
       agent_id: payload.agent_id,
       status: 'open',
-      subject: payload.message.slice(0, 255),
-      context: payload.context ?? {},
-      started_by: 'ventureos-trigger',
+      channel: 'dashboard',
+      metadata: {
+        message: payload.message.slice(0, 255),
+        context: payload.context ?? {},
+        triggered_by: 'ventureos-trigger',
+      },
     })
     .select('id')
     .single();
@@ -91,7 +94,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const gatewayResponse = await fetch(`${gatewayUrl}/hooks/`, {
+    const gatewayResponse = await fetch(`${gatewayUrl}/hooks/agent`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${gatewayApiKey}`,
