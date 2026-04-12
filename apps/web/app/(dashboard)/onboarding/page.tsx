@@ -5,10 +5,13 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { UserPlus, CheckCircle2, Clock, AlertCircle, ArrowRight, RefreshCw } from "lucide-react";
 
+type OnboardingStep = { index: number; title: string; completed: boolean; completed_at: string | null };
+
 type Onboarding = {
   id: string;
   client_id: string;
   status: string;
+  steps: OnboardingStep[];
   completed_steps: number;
   total_steps: number;
   started_at: string | null;
@@ -139,7 +142,7 @@ export default function OnboardingPage() {
             const cfg = statusConfig[ob.status] || statusConfig.pending;
             const Icon = cfg.icon;
             const progress = ob.total_steps > 0 ? (ob.completed_steps / ob.total_steps) * 100 : 0;
-            const steps = (ob.steps || []) as { index: number; title: string; completed: boolean; completed_at: string | null }[];
+            const steps: OnboardingStep[] = ob.steps || [];
 
             return (
               <div key={ob.id} className="rounded-xl border border-[#222] bg-[#0a0a0a] p-5">
