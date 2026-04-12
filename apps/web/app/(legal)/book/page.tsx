@@ -42,15 +42,29 @@ export default function BookingPage() {
           <p className="mt-1 text-xs text-[#666]">No commitment. No sales pressure. Just strategy.</p>
         </div>
 
-        <div className="rounded-2xl border border-[#222] bg-[#111] p-2">
-          <Cal
-            calLink="detroit-wwzue8/30min"
-            style={{ width: "100%", height: "700px", overflow: "auto" }}
-            config={{
-              layout: "month_view",
-              theme: "dark",
-            }}
-          />
+        <div className="rounded-2xl border border-[#222] bg-[#111] p-2 relative min-h-[500px]">
+          <div className="absolute inset-0 flex items-center justify-center text-[#666] text-sm z-0">
+            <div className="text-center">
+              <div className="mb-3 h-6 w-6 mx-auto animate-spin rounded-full border-2 border-[#3b82f6] border-t-transparent" />
+              Loading calendar...
+              <p className="mt-2 text-xs text-[#555]">
+                If the calendar does not load,{" "}
+                <a href="https://cal.com/detroit-wwzue8/30min" target="_blank" rel="noopener noreferrer" className="text-[#3b82f6] hover:underline">
+                  book directly on Cal.com
+                </a>
+              </p>
+            </div>
+          </div>
+          <div className="relative z-10">
+            <Cal
+              calLink="detroit-wwzue8/30min"
+              style={{ width: "100%", height: "700px", overflow: "auto" }}
+              config={{
+                layout: "month_view",
+                theme: "dark",
+              }}
+            />
+          </div>
         </div>
 
         <div className="mt-8 text-center">

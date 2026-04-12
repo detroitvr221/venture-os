@@ -11,7 +11,7 @@ export default function AuthLayout({
           <span className="text-lg font-bold text-white">NB</span>
         </div>
         <span className="bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] bg-clip-text text-2xl font-bold text-transparent">
-          North Bridge Digital
+          Northbridge Digital
         </span>
       </div>
 
