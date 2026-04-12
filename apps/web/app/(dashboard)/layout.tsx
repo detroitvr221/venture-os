@@ -25,6 +25,8 @@ import {
   ClipboardList,
   MessageSquare,
   ShieldCheck,
+  UserPlus,
+  BookOpen,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -44,6 +46,8 @@ const navigation = [
   { name: "Campaigns", href: "/campaigns", icon: Send },
   { name: "Billing", href: "/billing", icon: CreditCard },
   { name: "Intake", href: "/intake", icon: ClipboardList },
+  { name: "Onboarding", href: "/onboarding", icon: UserPlus },
+  { name: "Playbooks", href: "/playbooks", icon: BookOpen },
   { name: "Companies", href: "/companies", icon: Building2 },
   { name: "Settings", href: "/settings", icon: Settings },
   { name: "Admin", href: "/admin", icon: ShieldCheck, adminOnly: true },
