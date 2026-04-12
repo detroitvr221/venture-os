@@ -11,28 +11,53 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
-const navigation = [
-  { name: "Chat", href: "/chat", icon: MessageSquare },
-  { name: "Overview", href: "/overview", icon: LayoutDashboard },
-  { name: "Leads", href: "/leads", icon: Filter },
-  { name: "Proposals", href: "/proposals", icon: FileText },
-  { name: "Clients", href: "/clients", icon: Users },
-  { name: "Projects", href: "/projects", icon: FolderKanban },
-  { name: "SEO Audits", href: "/seo", icon: Search },
-  { name: "Operations", href: "/agents", icon: Bot },
-  { name: "Workflows", href: "/workflows", icon: GitBranch },
-  { name: "Knowledge", href: "/memory", icon: Brain },
-  { name: "Approvals", href: "/approvals", icon: CheckCircle2 },
-  { name: "Email", href: "/email", icon: Mail },
-  { name: "Campaigns", href: "/campaigns", icon: Send },
-  { name: "Billing", href: "/billing", icon: CreditCard },
-  { name: "Intake", href: "/intake", icon: ClipboardList },
-  { name: "Onboarding", href: "/onboarding", icon: UserPlus },
-  { name: "Playbooks", href: "/playbooks", icon: BookOpen },
-  { name: "Companies", href: "/companies", icon: Building2 },
-  { name: "Settings", href: "/settings", icon: Settings },
-  { name: "Admin", href: "/admin", icon: ShieldCheck, adminOnly: true },
-] as const;
+const navGroups = [
+  {
+    label: null, // No label for top items
+    items: [
+      { name: "Chat", href: "/chat", icon: MessageSquare },
+      { name: "Overview", href: "/overview", icon: LayoutDashboard },
+    ],
+  },
+  {
+    label: "Sales",
+    items: [
+      { name: "Leads", href: "/leads", icon: Filter },
+      { name: "Proposals", href: "/proposals", icon: FileText },
+      { name: "Clients", href: "/clients", icon: Users },
+      { name: "Intake", href: "/intake", icon: ClipboardList },
+    ],
+  },
+  {
+    label: "Delivery",
+    items: [
+      { name: "Projects", href: "/projects", icon: FolderKanban },
+      { name: "Onboarding", href: "/onboarding", icon: UserPlus },
+      { name: "SEO Audits", href: "/seo", icon: Search },
+      { name: "Campaigns", href: "/campaigns", icon: Send },
+      { name: "Email", href: "/email", icon: Mail },
+    ],
+  },
+  {
+    label: "Operations",
+    items: [
+      { name: "Systems", href: "/agents", icon: Bot },
+      { name: "Workflows", href: "/workflows", icon: GitBranch },
+      { name: "Knowledge", href: "/memory", icon: Brain },
+      { name: "Approvals", href: "/approvals", icon: CheckCircle2 },
+      { name: "Playbooks", href: "/playbooks", icon: BookOpen },
+    ],
+  },
+  {
+    label: "Business",
+    items: [
+      { name: "Billing", href: "/billing", icon: CreditCard },
+      { name: "Companies", href: "/companies", icon: Building2 },
+      { name: "Settings", href: "/settings", icon: Settings },
+      { name: "Admin", href: "/admin", icon: ShieldCheck, adminOnly: true as const },
+    ],
+  },
+];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -67,12 +92,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     router.refresh();
   };
 
-  const filteredNav = navigation.filter((item) => {
-    if ("adminOnly" in item && item.adminOnly) {
-      return userRole === "owner" || userRole === "admin";
-    }
-    return true;
-  });
+  const isAdmin = userRole === "owner" || userRole === "admin";
 
   const sidebarContent = (
     <>
@@ -95,28 +115,42 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-2 py-4">
-        <ul className="space-y-1">
-          {filteredNav.map((item) => {
-            const isActive = pathname === item.href || (item.href !== "/overview" && pathname.startsWith(item.href));
-            const Icon = item.icon;
-            return (
-              <li key={item.name}>
-                <Link
-                  href={item.href}
-                  className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
-                    isActive ? "bg-[#1a1a1a] text-white" : "text-[#888] hover:bg-[#111] hover:text-[#ccc]"
-                  }`}
-                  title={collapsed ? item.name : undefined}
-                >
-                  <Icon className={`h-5 w-5 shrink-0 ${isActive ? "text-[#3b82f6]" : "text-[#666] group-hover:text-[#999]"}`} />
-                  {!collapsed && <span>{item.name}</span>}
-                  {isActive && !collapsed && <div className="ml-auto h-1.5 w-1.5 rounded-full bg-[#3b82f6]" />}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+      <nav className="flex-1 overflow-y-auto px-2 py-3">
+        {navGroups.map((group, gi) => {
+          const groupItems = group.items.filter((item) =>
+            "adminOnly" in item && item.adminOnly ? isAdmin : true
+          );
+          if (groupItems.length === 0) return null;
+          return (
+            <div key={gi} className={gi > 0 ? "mt-4" : ""}>
+              {group.label && !collapsed && (
+                <p className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-wider text-[#555]">{group.label}</p>
+              )}
+              {collapsed && gi > 0 && <div className="mx-3 mb-2 border-t border-[#222]" />}
+              <ul className="space-y-0.5">
+                {groupItems.map((item) => {
+                  const isActive = pathname === item.href || (item.href !== "/overview" && pathname.startsWith(item.href));
+                  const Icon = item.icon;
+                  return (
+                    <li key={item.name}>
+                      <Link
+                        href={item.href}
+                        className={`group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
+                          isActive ? "bg-[#1a1a2e] text-white" : "text-[#888] hover:bg-[#111] hover:text-[#ccc]"
+                        }`}
+                        title={collapsed ? item.name : undefined}
+                      >
+                        <Icon className={`h-4.5 w-4.5 shrink-0 ${isActive ? "text-[#3b82f6]" : "text-[#666] group-hover:text-[#999]"}`} />
+                        {!collapsed && <span>{item.name}</span>}
+                        {isActive && !collapsed && <div className="ml-auto h-1.5 w-1.5 rounded-full bg-[#3b82f6]" />}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          );
+        })}
       </nav>
 
       {/* User + Sign Out + Collapse */}

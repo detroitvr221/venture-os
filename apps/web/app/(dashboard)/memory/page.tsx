@@ -84,7 +84,7 @@ export default function MemoryPage() {
 
       {/* Tabs */}
       <div className="mb-4 flex gap-2">
-        {(["memories", "entities", "graph"] as const).map((t) => (
+        {(["memories", "entities"] as const).map((t) => (
           <button key={t} onClick={() => setTab(t)}
             className={`rounded-lg px-3 py-1.5 text-xs font-medium ${tab === t ? "bg-[#3b82f6] text-white" : "bg-[#1a1a1a] text-[#888] hover:text-white"}`}
           >

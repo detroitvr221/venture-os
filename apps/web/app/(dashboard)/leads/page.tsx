@@ -239,6 +239,7 @@ export default function LeadsPage() {
                     key={lead.id}
                     draggable
                     onDragStart={(e) => handleDragStart(e, lead.id)}
+                    onClick={() => window.location.href = `/leads/${lead.id}`}
                     className="group cursor-grab rounded-lg border border-[#222] bg-[#111] p-3.5 transition-all hover:border-[#333] active:cursor-grabbing"
                   >
                     <div className="flex items-start justify-between">

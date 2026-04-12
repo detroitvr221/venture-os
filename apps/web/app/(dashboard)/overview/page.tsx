@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic';
 
+import Link from "next/link";
 import {
   TrendingUp,
   TrendingDown,
@@ -181,36 +182,42 @@ export default async function OverviewPage() {
       value: data.leadCount.toString(),
       icon: Filter,
       color: "#3b82f6",
+      href: "/leads",
     },
     {
       label: "Active Clients",
       value: data.clientCount.toString(),
       icon: Users,
       color: "#8b5cf6",
+      href: "/clients",
     },
     {
       label: "Running Projects",
       value: data.projectCount.toString(),
       icon: FolderKanban,
       color: "#22c55e",
+      href: "/projects",
     },
     {
       label: "Pending Approvals",
       value: data.pendingApprovals.toString(),
       icon: CheckCircle2,
       color: "#eab308",
+      href: "/approvals",
     },
     {
       label: "Monthly Revenue",
       value: formatCurrency(data.monthlyRevenue),
       icon: DollarSign,
       color: "#22c55e",
+      href: "/billing",
     },
     {
-      label: "Agent Costs",
+      label: "Operations",
       value: formatCurrency(Math.round(data.agentSpend * 100) / 100),
       icon: Bot,
       color: "#ef4444",
+      href: "/agents",
     },
   ];
 
@@ -229,9 +236,10 @@ export default async function OverviewPage() {
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
-            <div
+            <Link
+              href={stat.href}
               key={stat.label}
-              className="rounded-xl border border-[#222] bg-[#0a0a0a] p-5 transition-colors hover:border-[#333]"
+              className="block rounded-xl border border-[#222] bg-[#0a0a0a] p-5 transition-colors hover:border-[#333]"
             >
               <div className="flex items-start justify-between">
                 <div>
@@ -250,7 +258,7 @@ export default async function OverviewPage() {
                   />
                 </div>
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>

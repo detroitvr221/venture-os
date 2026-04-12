@@ -11,6 +11,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +38,7 @@ export default function LoginPage() {
     <div className="w-full max-w-sm">
       <div className="rounded-2xl border border-[#222] bg-[#111] p-8">
         <h1 className="text-center text-xl font-bold text-white">
-          Sign in to North Bridge Digital
+          Sign in to Northbridge Digital
         </h1>
         <p className="mt-2 text-center text-sm text-[#888]">
           Enter your credentials to access the dashboard
@@ -97,7 +98,27 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-[#888]">
+        <div className="mt-4 text-center">
+          <button
+            onClick={async () => {
+              if (!email) { setError("Enter your email first"); return; }
+              const supabase = createClient();
+              const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: `${window.location.origin}/login`,
+              });
+              if (resetError) setError(resetError.message);
+              else setResetSent(true);
+            }}
+            className="text-xs text-[#666] hover:text-[#3b82f6] transition-colors"
+          >
+            Forgot your password?
+          </button>
+          {resetSent && (
+            <p className="mt-2 text-xs text-[#10b981]">Password reset email sent. Check your inbox.</p>
+          )}
+        </div>
+
+        <p className="mt-4 text-center text-sm text-[#888]">
           Don&apos;t have an account?{" "}
           <Link
             href="/signup"
