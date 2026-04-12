@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Filter, Users, FolderKanban, Bot, GitBranch, Brain,
   CheckCircle2, CreditCard, Building2, Settings, ChevronLeft, ChevronRight,
   FileText, Search, Send, LogOut, Mail, ClipboardList, MessageSquare,
-  ShieldCheck, UserPlus, BookOpen, Menu, X,
+  ShieldCheck, UserPlus, BookOpen, Menu, X, Calendar,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -35,6 +35,7 @@ const navGroups = [
       { name: "Onboarding", href: "/onboarding", icon: UserPlus },
       { name: "SEO Audits", href: "/seo", icon: Search },
       { name: "Campaigns", href: "/campaigns", icon: Send },
+      { name: "Calendar", href: "/calendar", icon: Calendar },
       { name: "Email", href: "/email", icon: Mail },
     ],
   },

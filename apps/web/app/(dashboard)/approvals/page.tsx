@@ -142,8 +142,11 @@ export default function ApprovalsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-pulse text-[#888]">Loading approvals...</div>
+      <div className="space-y-6">
+        <div className="space-y-2"><div className="h-8 w-48 animate-pulse rounded-lg bg-[#1a1a1a]" /><div className="h-4 w-32 animate-pulse rounded-lg bg-[#1a1a1a]" /></div>
+        <div className="rounded-xl border border-[#222] bg-[#0a0a0a] divide-y divide-[#1a1a1a]">
+          {[1,2,3,4].map((i) => <div key={i} className="flex items-center gap-4 px-5 py-4"><div className="h-10 w-10 animate-pulse rounded-full bg-[#1a1a1a]" /><div className="flex-1 space-y-2"><div className="h-4 w-40 animate-pulse rounded bg-[#1a1a1a]" /><div className="h-3 w-24 animate-pulse rounded bg-[#1a1a1a]" /></div><div className="h-6 w-16 animate-pulse rounded-full bg-[#1a1a1a]" /></div>)}
+        </div>
       </div>
     );
   }

@@ -573,11 +573,13 @@ export default function LandingPage() {
                 <h3 className="text-sm font-semibold text-white">{faq.q}</h3>
                 <ChevronDown className={`h-4 w-4 shrink-0 text-[#888] transition-transform ${openFaq === i ? "rotate-180" : ""}`} />
               </button>
-              {openFaq === i && (
-                <div className="border-t border-[#1a1a1a] px-5 pb-5 pt-3">
-                  <p className="text-sm text-[#888] leading-relaxed">{faq.a}</p>
+              <div className={`grid transition-all duration-300 ease-in-out ${openFaq === i ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+                <div className="overflow-hidden">
+                  <div className="border-t border-[#1a1a1a] px-5 pb-5 pt-3">
+                    <p className="text-sm text-[#888] leading-relaxed">{faq.a}</p>
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
           ))}
         </div>

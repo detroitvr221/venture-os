@@ -14,8 +14,17 @@ export default function SignupPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const passwordStrength = password.length === 0 ? 0 : password.length < 6 ? 1 : password.length < 10 ? 2 : 3;
+
+  const fieldErrors: Record<string, string> = {};
+  if (touched.fullName && !fullName.trim()) fieldErrors.fullName = "Name is required";
+  if (touched.email && !email.includes("@")) fieldErrors.email = "Enter a valid email";
+  if (touched.password && password.length > 0 && password.length < 8) fieldErrors.password = "Min 8 characters";
+  if (touched.confirmPassword && confirmPassword && password !== confirmPassword) fieldErrors.confirmPassword = "Passwords don't match";
+
+  const markTouched = (field: string) => setTouched((prev) => ({ ...prev, [field]: true }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,8 +105,9 @@ export default function SignupPage() {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label htmlFor="fullName" className="mb-1.5 block text-xs font-medium text-[#888]">Full Name *</label>
-              <input id="fullName" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} required autoComplete="name" placeholder="John Smith"
-                className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] px-3 py-2.5 text-sm text-white placeholder-[#666] outline-none focus:border-[#3b82f6]" />
+              <input id="fullName" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} onBlur={() => markTouched("fullName")} required autoComplete="name" placeholder="John Smith"
+                className={`w-full rounded-lg border bg-[#0a0a0a] px-3 py-2.5 text-sm text-white placeholder-[#666] outline-none focus:border-[#3b82f6] ${fieldErrors.fullName ? "border-[#ef4444]" : "border-[#333]"}`} />
+              {fieldErrors.fullName && <p className="mt-1 text-[10px] text-[#ef4444]">{fieldErrors.fullName}</p>}
             </div>
             <div>
               <label htmlFor="company" className="mb-1.5 block text-xs font-medium text-[#888]">Company Name</label>
@@ -109,8 +119,9 @@ export default function SignupPage() {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label htmlFor="email" className="mb-1.5 block text-xs font-medium text-[#888]">Email *</label>
-              <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" placeholder="you@company.com"
-                className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] px-3 py-2.5 text-sm text-white placeholder-[#666] outline-none focus:border-[#3b82f6]" />
+              <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} onBlur={() => markTouched("email")} required autoComplete="email" placeholder="you@company.com"
+                className={`w-full rounded-lg border bg-[#0a0a0a] px-3 py-2.5 text-sm text-white placeholder-[#666] outline-none focus:border-[#3b82f6] ${fieldErrors.email ? "border-[#ef4444]" : "border-[#333]"}`} />
+              {fieldErrors.email && <p className="mt-1 text-[10px] text-[#ef4444]">{fieldErrors.email}</p>}
             </div>
             <div>
               <label htmlFor="phone" className="mb-1.5 block text-xs font-medium text-[#888]">Phone</label>
@@ -121,8 +132,9 @@ export default function SignupPage() {
 
           <div>
             <label htmlFor="password" className="mb-1.5 block text-xs font-medium text-[#888]">Password *</label>
-            <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="new-password" placeholder="Min 8 characters"
-              className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] px-3 py-2.5 text-sm text-white placeholder-[#666] outline-none focus:border-[#3b82f6]" />
+            <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} onBlur={() => markTouched("password")} required autoComplete="new-password" placeholder="Min 8 characters"
+              className={`w-full rounded-lg border bg-[#0a0a0a] px-3 py-2.5 text-sm text-white placeholder-[#666] outline-none focus:border-[#3b82f6] ${fieldErrors.password ? "border-[#ef4444]" : "border-[#333]"}`} />
+            {fieldErrors.password && <p className="mt-1 text-[10px] text-[#ef4444]">{fieldErrors.password}</p>}
             {password.length > 0 && (
               <div className="mt-2 flex gap-1">
                 {[1, 2, 3].map((level) => (
@@ -138,8 +150,9 @@ export default function SignupPage() {
 
           <div>
             <label htmlFor="confirm-password" className="mb-1.5 block text-xs font-medium text-[#888]">Confirm Password *</label>
-            <input id="confirm-password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required autoComplete="new-password" placeholder="Repeat password"
-              className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] px-3 py-2.5 text-sm text-white placeholder-[#666] outline-none focus:border-[#3b82f6]" />
+            <input id="confirm-password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} onBlur={() => markTouched("confirmPassword")} required autoComplete="new-password" placeholder="Repeat password"
+              className={`w-full rounded-lg border bg-[#0a0a0a] px-3 py-2.5 text-sm text-white placeholder-[#666] outline-none focus:border-[#3b82f6] ${fieldErrors.confirmPassword ? "border-[#ef4444]" : "border-[#333]"}`} />
+            {fieldErrors.confirmPassword && <p className="mt-1 text-[10px] text-[#ef4444]">{fieldErrors.confirmPassword}</p>}
           </div>
 
           <button type="submit" disabled={loading}
