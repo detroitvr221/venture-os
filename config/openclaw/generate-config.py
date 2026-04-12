@@ -74,10 +74,7 @@ config = {
     "mcp":{"servers":mcp}
 }
 
-json.dump(config, open("/data/.openclaw/openclaw.json","w"), indent=2)
-print(f"[CONFIG] Written with {len(mcp)} MCP servers: {', '.join(mcp.keys())}")
-
-# Write MoChat credentials for the mochat plugin
+# Write MoChat credentials BEFORE main config (plugin reads these on load)
 mt = env("MOCHAT_TOKEN")
 mb = env("MOCHAT_BOT_USER_ID")
 if mt and mb:
@@ -86,4 +83,24 @@ if mt and mb:
     _os.makedirs(cred_dir, exist_ok=True)
     creds = {"token":mt,"botUserId":mb,"workspaceId":"claw_square","groupId":"69882e3eeff6dfbac6a4f2a5","agentName":"Atlas-OpenClaw"}
     json.dump(creds, open(f"{cred_dir}/credentials.json","w"), indent=2)
-    print(f"[CONFIG] MoChat credentials written")
+    print(f"[CONFIG] MoChat credentials written to {cred_dir}/credentials.json")
+
+    # Also write the plugin's own config file that it reads at startup
+    plugin_dir = "/data/.openclaw/plugins/mochat"
+    _os.makedirs(plugin_dir, exist_ok=True)
+    plugin_cfg = {
+        "baseUrl":"https://mochat.io",
+        "socketUrl":"https://mochat.io",
+        "clawToken":mt,
+        "agentUserId":mb,
+        "sessions":["*"],
+        "panels":["*"],
+        "refreshIntervalMs":30000,
+        "replyDelayMode":"non-mention",
+        "replyDelayMs":5000
+    }
+    json.dump(plugin_cfg, open(f"{plugin_dir}/config.json","w"), indent=2)
+    print(f"[CONFIG] MoChat plugin config written")
+
+json.dump(config, open("/data/.openclaw/openclaw.json","w"), indent=2)
+print(f"[CONFIG] Written with {len(mcp)} MCP servers: {', '.join(mcp.keys())}")
