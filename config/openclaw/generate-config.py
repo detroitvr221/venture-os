@@ -58,7 +58,7 @@ config = {
         ]}
     }},
     "agents":{"defaults":{
-        "model":{"primary":"minimax/MiniMax-M2.7","secondary":"openai/gpt-5.4-mini"},
+        "model":{"primary":"minimax/MiniMax-M2.7"},
         "workspace":"/data/.openclaw/workspace",
         "compaction":{"mode":"safeguard"},
         "heartbeat":{"every":"30m","target":"last","activeHours":{"start":"08:00","end":"22:00","timezone":"America/New_York"}}
