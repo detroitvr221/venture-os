@@ -25,10 +25,10 @@ type CalEvent = {
 };
 
 const TYPE_CONFIG = {
-  meeting: { icon: Users, color: "bg-[#3b82f6]/20 text-[#3b82f6]", label: "Meeting" },
+  meeting: { icon: Users, color: "bg-[#4FC3F7]/20 text-[#4FC3F7]", label: "Meeting" },
   deadline: { icon: Clock, color: "bg-[#ef4444]/20 text-[#ef4444]", label: "Deadline" },
   follow_up: { icon: Mail, color: "bg-[#f59e0b]/20 text-[#f59e0b]", label: "Follow-up" },
-  review: { icon: FileText, color: "bg-[#8b5cf6]/20 text-[#8b5cf6]", label: "Review" },
+  review: { icon: FileText, color: "bg-[#F5C542]/20 text-[#F5C542]", label: "Review" },
   task: { icon: CheckCircle2, color: "bg-[#10b981]/20 text-[#10b981]", label: "Task" },
 };
 
@@ -180,7 +180,7 @@ export default function CalendarPage() {
             <CalendarIcon className="h-3.5 w-3.5" /> Cal.com
           </a>
           <button onClick={() => { setShowAdd(true); setNewEvent({ ...newEvent, date: selectedDate || todayStr }); }}
-            className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-3 py-2 text-xs font-medium text-white">
+            className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-3 py-2 text-xs font-medium text-white">
             <Plus className="h-3.5 w-3.5" /> Add Event
           </button>
         </div>
@@ -198,18 +198,18 @@ export default function CalendarPage() {
               <div>
                 <label className="mb-1 block text-xs text-[#888]">Title *</label>
                 <input value={newEvent.title} onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })} placeholder="Client meeting, deadline..."
-                  className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder:text-[#555] focus:border-[#3b82f6] focus:outline-none" />
+                  className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder:text-[#555] focus:border-[#4FC3F7] focus:outline-none" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="mb-1 block text-xs text-[#888]">Date *</label>
                   <input type="date" value={newEvent.date} onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })}
-                    className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white focus:border-[#3b82f6] focus:outline-none" />
+                    className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white focus:border-[#4FC3F7] focus:outline-none" />
                 </div>
                 <div>
                   <label className="mb-1 block text-xs text-[#888]">Time</label>
                   <input type="time" value={newEvent.time} onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })}
-                    className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white focus:border-[#3b82f6] focus:outline-none" />
+                    className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white focus:border-[#4FC3F7] focus:outline-none" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -231,13 +231,13 @@ export default function CalendarPage() {
               <div>
                 <label className="mb-1 block text-xs text-[#888]">Description</label>
                 <textarea value={newEvent.description} onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })} rows={2} placeholder="Optional notes..."
-                  className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder:text-[#555] focus:border-[#3b82f6] focus:outline-none" />
+                  className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder:text-[#555] focus:border-[#4FC3F7] focus:outline-none" />
               </div>
             </div>
             <div className="mt-4 flex justify-end gap-2">
               <button onClick={() => setShowAdd(false)} className="px-3 py-1.5 text-xs text-[#888]">Cancel</button>
               <button onClick={handleAddEvent} disabled={!newEvent.title || !newEvent.date}
-                className="rounded-lg bg-[#3b82f6] px-4 py-1.5 text-xs font-medium text-white disabled:opacity-50">Create Event</button>
+                className="rounded-lg bg-[#4FC3F7] px-4 py-1.5 text-xs font-medium text-white disabled:opacity-50">Create Event</button>
             </div>
           </div>
         </div>
@@ -280,12 +280,12 @@ export default function CalendarPage() {
                   onClick={() => setSelectedDate(dateStr === selectedDate ? null : dateStr)}
                   className={`relative flex min-h-[72px] flex-col items-start rounded-lg p-1.5 text-left transition ${
                     !d.isCurrentMonth ? "text-[#444]" :
-                    isSelected ? "bg-[#3b82f6]/10 ring-1 ring-[#3b82f6]" :
+                    isSelected ? "bg-[#4FC3F7]/10 ring-1 ring-[#4FC3F7]" :
                     isToday ? "bg-[#1a1a2e]" :
                     "text-[#ccc] hover:bg-[#111]"
                   }`}
                 >
-                  <span className={`text-xs font-medium ${isToday ? "flex h-6 w-6 items-center justify-center rounded-full bg-[#3b82f6] text-white" : ""}`}>
+                  <span className={`text-xs font-medium ${isToday ? "flex h-6 w-6 items-center justify-center rounded-full bg-[#4FC3F7] text-white" : ""}`}>
                     {d.day}
                   </span>
                   {hasItems && (
@@ -294,7 +294,7 @@ export default function CalendarPage() {
                         const cfg = TYPE_CONFIG[e.type] || TYPE_CONFIG.task;
                         return <div key={e.id} className={`h-1.5 w-1.5 rounded-full ${cfg.color.split(" ")[0].replace("/20", "")}`} />;
                       })}
-                      {dayBookings.map((b) => <div key={b.id} className="h-1.5 w-1.5 rounded-full bg-[#8b5cf6]" />)}
+                      {dayBookings.map((b) => <div key={b.id} className="h-1.5 w-1.5 rounded-full bg-[#F5C542]" />)}
                     </div>
                   )}
                 </button>
@@ -316,8 +316,8 @@ export default function CalendarPage() {
               ) : (
                 <div className="space-y-2">
                   {selectedBookings.map((b) => (
-                    <div key={b.id} className="flex items-center gap-2 rounded-lg bg-[#8b5cf6]/10 px-3 py-2">
-                      <Users className="h-3.5 w-3.5 text-[#8b5cf6]" />
+                    <div key={b.id} className="flex items-center gap-2 rounded-lg bg-[#F5C542]/10 px-3 py-2">
+                      <Users className="h-3.5 w-3.5 text-[#F5C542]" />
                       <div>
                         <p className="text-xs font-medium text-white">{b.title}</p>
                         <p className="text-[10px] text-[#888]">Cal.com booking</p>
@@ -340,7 +340,7 @@ export default function CalendarPage() {
                 </div>
               )}
               <button onClick={() => { setShowAdd(true); setNewEvent({ ...newEvent, date: selectedDate }); }}
-                className="mt-3 flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-[#333] py-2 text-xs text-[#888] hover:border-[#3b82f6] hover:text-[#3b82f6]">
+                className="mt-3 flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-[#333] py-2 text-xs text-[#888] hover:border-[#4FC3F7] hover:text-[#4FC3F7]">
                 <Plus className="h-3 w-3" /> Add event
               </button>
             </div>

@@ -184,10 +184,10 @@ export default function LandingPage() {
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-[#ffffff08] bg-[#0a0a0a]/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6]">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#4FC3F7] to-[#F5C542]">
               <span className="text-sm font-bold text-white">NB</span>
             </div>
-            <span className="bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] bg-clip-text text-lg font-bold text-transparent">
+            <span className="bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] bg-clip-text text-lg font-bold text-transparent">
               Northbridge Digital
             </span>
           </div>
@@ -201,7 +201,7 @@ export default function LandingPage() {
             <button onClick={() => scrollTo("pricing")} className="text-sm text-[#888] transition-colors hover:text-white">Pricing</button>
             <button onClick={() => scrollTo("how-it-works")} className="text-sm text-[#888] transition-colors hover:text-white">How It Works</button>
             <button onClick={() => scrollTo("ventures")} className="text-sm text-[#888] transition-colors hover:text-white">Ventures</button>
-            <Link href="/login" className="rounded-lg bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90">
+            <Link href="/login" className="rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90">
               Sign In
             </Link>
           </div>
@@ -215,7 +215,7 @@ export default function LandingPage() {
               <button onClick={() => scrollTo("how-it-works")} className="text-left text-sm text-[#888] hover:text-white">How It Works</button>
               <button onClick={() => scrollTo("ventures")} className="text-left text-sm text-[#888] hover:text-white">Ventures</button>
               <Link href="/book" className="text-left text-sm text-[#888] hover:text-white" onClick={() => setMobileNav(false)}>Book a Call</Link>
-              <Link href="/login" className="mt-2 rounded-lg bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-4 py-2 text-center text-sm font-medium text-white" onClick={() => setMobileNav(false)}>
+              <Link href="/login" className="mt-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2 text-center text-sm font-medium text-white" onClick={() => setMobileNav(false)}>
                 Sign In
               </Link>
             </div>
@@ -225,8 +225,8 @@ export default function LandingPage() {
 
       {/* ── Hero ───────────────────────────────────────────────────────── */}
       <section className="relative flex min-h-screen flex-col items-center justify-center px-6 pt-16 text-center">
-        <div className="pointer-events-none absolute top-1/4 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#3b82f6] opacity-[0.07] blur-[120px]" />
-        <div className="pointer-events-none absolute top-1/3 left-1/2 h-[400px] w-[400px] -translate-x-1/2 translate-y-0 rounded-full bg-[#8b5cf6] opacity-[0.05] blur-[100px]" />
+        <div className="pointer-events-none absolute top-1/4 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#4FC3F7] opacity-[0.07] blur-[120px]" />
+        <div className="pointer-events-none absolute top-1/3 left-1/2 h-[400px] w-[400px] -translate-x-1/2 translate-y-0 rounded-full bg-[#F5C542] opacity-[0.05] blur-[100px]" />
 
         <div className="relative z-10 mx-auto max-w-4xl">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#222] bg-[#111] px-4 py-1.5">
@@ -237,7 +237,7 @@ export default function LandingPage() {
           <h1 className="text-5xl font-extrabold leading-tight tracking-tight sm:text-6xl lg:text-7xl">
             <span className="text-white">Build. Launch.</span>
             <br />
-            <span className="bg-gradient-to-r from-[#3b82f6] via-[#6366f1] to-[#8b5cf6] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#4FC3F7] via-[#7DD6C0] to-[#F5C542] bg-clip-text text-transparent">
               Grow Online.
             </span>
           </h1>
@@ -257,7 +257,7 @@ export default function LandingPage() {
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link
               href="/signup"
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-[#3b82f620] transition-all hover:shadow-[#3b82f640] hover:scale-[1.02]"
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-[#4FC3F720] transition-all hover:shadow-[#4FC3F740] hover:scale-[1.02]"
             >
               Get Started Free
               <ArrowRight className="h-4 w-4" />
@@ -282,7 +282,7 @@ export default function LandingPage() {
       {/* ── Services ───────────────────────────────────────────────────── */}
       <section id="services" className="mx-auto max-w-6xl px-6 py-24">
         <div className="text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest text-[#3b82f6]">What We Do</p>
+          <p className="text-sm font-semibold uppercase tracking-widest text-[#4FC3F7]">What We Do</p>
           <h2 className="mt-3 text-3xl font-bold sm:text-4xl">Everything You Need to Grow Online</h2>
           <p className="mx-auto mt-4 max-w-xl text-[#888]">
             Strategy, design, development, and growth — all from one team. No juggling vendors. No gaps.
@@ -294,8 +294,8 @@ export default function LandingPage() {
             const Icon = cap.icon;
             return (
               <div key={cap.title} className="group rounded-2xl border border-[#1a1a1a] bg-[#111] p-7 transition-all hover:border-[#333] hover:bg-[#141414]">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#3b82f610] transition-colors group-hover:bg-[#3b82f620]">
-                  <Icon className="h-6 w-6 text-[#3b82f6]" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#4FC3F710] transition-colors group-hover:bg-[#4FC3F720]">
+                  <Icon className="h-6 w-6 text-[#4FC3F7]" />
                 </div>
                 <h3 className="mt-5 text-lg font-semibold text-white">{cap.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-[#888]">{cap.description}</p>
@@ -309,7 +309,7 @@ export default function LandingPage() {
       <section id="pricing" className="border-y border-[#1a1a1a] bg-[#0d0d0d]">
         <div className="mx-auto max-w-6xl px-6 py-24">
           <div className="text-center">
-            <p className="text-sm font-semibold uppercase tracking-widest text-[#8b5cf6]">Pricing</p>
+            <p className="text-sm font-semibold uppercase tracking-widest text-[#F5C542]">Pricing</p>
             <h2 className="mt-3 text-3xl font-bold sm:text-4xl">Simple, Transparent Packages</h2>
             <p className="mx-auto mt-4 max-w-xl text-[#888]">
               Two tracks. Three tiers each. Pick what fits. All plans include a 12-month commitment.
@@ -322,7 +322,7 @@ export default function LandingPage() {
               <button
                 onClick={() => setPricingTrack("build")}
                 className={`rounded-lg px-6 py-2.5 text-sm font-medium transition ${
-                  pricingTrack === "build" ? "bg-gradient-to-r from-[#3b82f6] to-[#6366f1] text-white" : "text-[#888] hover:text-white"
+                  pricingTrack === "build" ? "bg-gradient-to-r from-[#4FC3F7] to-[#38B2AC] text-white" : "text-[#888] hover:text-white"
                 }`}
               >
                 <Globe className="mr-2 inline h-4 w-4" />
@@ -331,7 +331,7 @@ export default function LandingPage() {
               <button
                 onClick={() => setPricingTrack("growth")}
                 className={`rounded-lg px-6 py-2.5 text-sm font-medium transition ${
-                  pricingTrack === "growth" ? "bg-gradient-to-r from-[#8b5cf6] to-[#a855f7] text-white" : "text-[#888] hover:text-white"
+                  pricingTrack === "growth" ? "bg-gradient-to-r from-[#F5C542] to-[#F7A541] text-white" : "text-[#888] hover:text-white"
                 }`}
               >
                 <TrendingUp className="mr-2 inline h-4 w-4" />
@@ -351,12 +351,12 @@ export default function LandingPage() {
                 key={pkg.name}
                 className={`relative rounded-2xl border p-7 transition-all ${
                   pkg.popular
-                    ? "border-[#3b82f6] bg-[#111] shadow-lg shadow-[#3b82f610]"
+                    ? "border-[#4FC3F7] bg-[#111] shadow-lg shadow-[#4FC3F710]"
                     : "border-[#1a1a1a] bg-[#111] hover:border-[#333]"
                 }`}
               >
                 {pkg.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-4 py-1 text-xs font-medium text-white">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-1 text-xs font-medium text-white">
                     Most Popular
                   </div>
                 )}
@@ -378,7 +378,7 @@ export default function LandingPage() {
                   href="/signup"
                   className={`mt-8 block w-full rounded-xl py-3 text-center text-sm font-semibold transition ${
                     pkg.popular
-                      ? "bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] text-white hover:opacity-90"
+                      ? "bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] text-white hover:opacity-90"
                       : "border border-[#333] text-[#ccc] hover:bg-[#1a1a1a] hover:text-white"
                   }`}
                 >
@@ -393,7 +393,7 @@ export default function LandingPage() {
       {/* ── How It Works ───────────────────────────────────────────────── */}
       <section id="how-it-works" className="mx-auto max-w-6xl px-6 py-24">
         <div className="text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest text-[#3b82f6]">Our Process</p>
+          <p className="text-sm font-semibold uppercase tracking-widest text-[#4FC3F7]">Our Process</p>
           <h2 className="mt-3 text-3xl font-bold sm:text-4xl">How It Works</h2>
           <p className="mx-auto mt-4 max-w-xl text-[#888]">
             Three steps to a stronger online presence. We handle the execution so you can focus on your business.
@@ -405,10 +405,10 @@ export default function LandingPage() {
             const Icon = item.icon;
             return (
               <div key={item.step} className="relative text-center">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6]">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#4FC3F7] to-[#F5C542]">
                   <Icon className="h-7 w-7 text-white" />
                 </div>
-                <span className="mt-5 block text-xs font-bold uppercase tracking-widest text-[#3b82f6]">Step {item.step}</span>
+                <span className="mt-5 block text-xs font-bold uppercase tracking-widest text-[#4FC3F7]">Step {item.step}</span>
                 <h3 className="mt-2 text-xl font-bold text-white">{item.title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-[#888]">{item.description}</p>
               </div>
@@ -422,7 +422,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-6xl px-6 py-24">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-widest text-[#8b5cf6]">Beyond Client Work</p>
+              <p className="text-sm font-semibold uppercase tracking-widest text-[#F5C542]">Beyond Client Work</p>
               <h2 className="mt-3 text-3xl font-bold sm:text-4xl">
                 We Build Businesses Too.
               </h2>
@@ -439,7 +439,7 @@ export default function LandingPage() {
                   "Build long-term digital assets under one umbrella",
                 ].map((point) => (
                   <div key={point} className="flex items-start gap-2">
-                    <Building2 className="mt-0.5 h-4 w-4 shrink-0 text-[#8b5cf6]" />
+                    <Building2 className="mt-0.5 h-4 w-4 shrink-0 text-[#F5C542]" />
                     <span className="text-sm text-[#ccc]">{point}</span>
                   </div>
                 ))}
@@ -449,11 +449,11 @@ export default function LandingPage() {
               <h3 className="text-lg font-semibold text-white">The Northbridge Model</h3>
               <div className="mt-6 space-y-4">
                 <div className="rounded-lg border border-[#222] bg-[#0d0d0d] p-4">
-                  <p className="text-sm font-medium text-[#3b82f6]">Client Services</p>
+                  <p className="text-sm font-medium text-[#4FC3F7]">Client Services</p>
                   <p className="mt-1 text-xs text-[#888]">Web, SEO, social, content, and digital systems for outside businesses</p>
                 </div>
                 <div className="rounded-lg border border-[#222] bg-[#0d0d0d] p-4">
-                  <p className="text-sm font-medium text-[#8b5cf6]">Internal Ventures</p>
+                  <p className="text-sm font-medium text-[#F5C542]">Internal Ventures</p>
                   <p className="mt-1 text-xs text-[#888]">Our own brands designed for long-term digital growth</p>
                 </div>
                 <div className="rounded-lg border border-[#222] bg-[#0d0d0d] p-4">
@@ -515,7 +515,7 @@ export default function LandingPage() {
             { value: "MI", label: "Based in Michigan" },
           ].map((stat) => (
             <div key={stat.label} className="rounded-xl border border-[#1a1a1a] bg-[#111] p-5">
-              <p className="text-3xl font-extrabold bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] bg-clip-text text-transparent">{stat.value}</p>
+              <p className="text-3xl font-extrabold bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] bg-clip-text text-transparent">{stat.value}</p>
               <p className="mt-1 text-sm text-[#888]">{stat.label}</p>
             </div>
           ))}
@@ -546,8 +546,8 @@ export default function LandingPage() {
               const Icon = stat.icon;
               return (
                 <div key={stat.label} className="text-center">
-                  <Icon className="mx-auto h-6 w-6 text-[#3b82f6]" />
-                  <p className="mt-3 text-4xl font-extrabold bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] bg-clip-text text-transparent">{stat.value}</p>
+                  <Icon className="mx-auto h-6 w-6 text-[#4FC3F7]" />
+                  <p className="mt-3 text-4xl font-extrabold bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] bg-clip-text text-transparent">{stat.value}</p>
                   <p className="mt-1 text-sm font-medium text-white">{stat.label}</p>
                   <p className="mt-0.5 text-xs text-[#666]">{stat.sublabel}</p>
                 </div>
@@ -560,7 +560,7 @@ export default function LandingPage() {
       {/* ── FAQ ────────────────────────────────────────────────────────── */}
       <section className="mx-auto max-w-3xl px-6 py-24">
         <div className="text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest text-[#3b82f6]">FAQ</p>
+          <p className="text-sm font-semibold uppercase tracking-widest text-[#4FC3F7]">FAQ</p>
           <h2 className="mt-3 text-3xl font-bold">Common Questions</h2>
         </div>
         <div className="mt-12 space-y-4">
@@ -598,11 +598,11 @@ export default function LandingPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
-              className="flex-1 rounded-xl border border-[#333] bg-[#0a0a0a] px-5 py-3 text-sm text-white placeholder-[#666] outline-none transition-colors focus:border-[#3b82f6]"
+              className="flex-1 rounded-xl border border-[#333] bg-[#0a0a0a] px-5 py-3 text-sm text-white placeholder-[#666] outline-none transition-colors focus:border-[#4FC3F7]"
             />
             <Link
               href={email ? `/signup?email=${encodeURIComponent(email)}` : "/signup"}
-              className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+              className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
             >
               Get Started Free
               <ArrowRight className="h-4 w-4" />
@@ -615,7 +615,7 @@ export default function LandingPage() {
       <footer className="border-t border-[#1a1a1a]">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 sm:flex-row">
           <div className="flex items-center gap-3">
-            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6]">
+            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-[#4FC3F7] to-[#F5C542]">
               <span className="text-[10px] font-bold text-white">NB</span>
             </div>
             <span className="text-sm text-[#888]">

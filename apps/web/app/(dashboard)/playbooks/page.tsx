@@ -46,7 +46,7 @@ export default function PlaybooksPage() {
       <div className="relative mb-4">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#666]" />
         <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search playbooks..."
-          className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] py-2 pl-10 pr-4 text-sm text-white placeholder:text-[#666] focus:border-[#3b82f6] focus:outline-none" />
+          className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] py-2 pl-10 pr-4 text-sm text-white placeholder:text-[#666] focus:border-[#4FC3F7] focus:outline-none" />
       </div>
 
       {loading ? (
@@ -71,7 +71,7 @@ export default function PlaybooksPage() {
                         className="flex w-full items-center justify-between px-5 py-3 text-left"
                       >
                         <div className="flex items-center gap-3">
-                          <BookOpen className="h-4 w-4 text-[#3b82f6]" />
+                          <BookOpen className="h-4 w-4 text-[#4FC3F7]" />
                           <span className="text-sm font-medium text-white">{pb.name}</span>
                           <span className="rounded-full bg-[#222] px-2 py-0.5 text-[10px] text-[#888]">v{pb.version}</span>
                         </div>
@@ -82,7 +82,7 @@ export default function PlaybooksPage() {
                           <div className="prose prose-invert max-w-none text-sm">
                             {pb.content.split("\n").map((line, i) => {
                               if (line.startsWith("# ")) return <h1 key={i} className="text-lg font-bold text-white mt-0">{line.slice(2)}</h1>;
-                              if (line.startsWith("## ")) return <h2 key={i} className="text-sm font-semibold text-[#3b82f6] mt-4 mb-1">{line.slice(3)}</h2>;
+                              if (line.startsWith("## ")) return <h2 key={i} className="text-sm font-semibold text-[#4FC3F7] mt-4 mb-1">{line.slice(3)}</h2>;
                               if (line.startsWith("- ")) return <p key={i} className="text-[#ccc] ml-4">&bull; {line.slice(2)}</p>;
                               if (line.match(/^\d+\./)) return <p key={i} className="text-[#ccc] ml-2">{line}</p>;
                               if (line.trim() === "") return <br key={i} />;

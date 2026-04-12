@@ -21,7 +21,7 @@ type Project = {
 
 const STATUS_CONFIG: Record<string, { color: string; icon: React.ElementType }> = {
   planning: { color: "text-[#f59e0b] bg-[#f59e0b]/20", icon: Clock },
-  active: { color: "text-[#3b82f6] bg-[#3b82f6]/20", icon: AlertCircle },
+  active: { color: "text-[#4FC3F7] bg-[#4FC3F7]/20", icon: AlertCircle },
   on_hold: { color: "text-[#888] bg-[#888]/20", icon: Pause },
   completed: { color: "text-[#10b981] bg-[#10b981]/20", icon: CheckCircle2 },
   cancelled: { color: "text-[#ef4444] bg-[#ef4444]/20", icon: AlertCircle },
@@ -83,7 +83,7 @@ export default function ProjectsPage() {
         </div>
         <button
           onClick={() => setShowAdd(!showAdd)}
-          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-4 py-2 text-sm font-medium text-white"
+          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2 text-sm font-medium text-white"
         >
           <Plus className="h-4 w-4" />
           New Project
@@ -100,7 +100,7 @@ export default function ProjectsPage() {
                 value={newProject.name}
                 onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
                 placeholder="Website Redesign"
-                className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder:text-[#555] focus:border-[#3b82f6] focus:outline-none"
+                className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder:text-[#555] focus:border-[#4FC3F7] focus:outline-none"
               />
             </div>
             <div>
@@ -108,7 +108,7 @@ export default function ProjectsPage() {
               <select
                 value={newProject.status}
                 onChange={(e) => setNewProject({ ...newProject, status: e.target.value })}
-                className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white focus:border-[#3b82f6] focus:outline-none"
+                className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white focus:border-[#4FC3F7] focus:outline-none"
               >
                 <option value="planning">Planning</option>
                 <option value="active">Active</option>
@@ -121,13 +121,13 @@ export default function ProjectsPage() {
                 value={newProject.description}
                 onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
                 placeholder="Brief project description..."
-                className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder:text-[#555] focus:border-[#3b82f6] focus:outline-none"
+                className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder:text-[#555] focus:border-[#4FC3F7] focus:outline-none"
               />
             </div>
           </div>
           <div className="mt-4 flex justify-end gap-2">
             <button onClick={() => setShowAdd(false)} className="px-3 py-1.5 text-xs text-[#888]">Cancel</button>
-            <button onClick={handleCreateProject} className="rounded-lg bg-[#3b82f6] px-4 py-1.5 text-xs font-medium text-white">Create</button>
+            <button onClick={handleCreateProject} className="rounded-lg bg-[#4FC3F7] px-4 py-1.5 text-xs font-medium text-white">Create</button>
           </div>
         </div>
       )}
@@ -135,8 +135,8 @@ export default function ProjectsPage() {
       {/* Stats */}
       <div className="mb-6 grid grid-cols-3 gap-4">
         {[
-          { label: "Total", value: stats.total, color: "from-[#3b82f6] to-[#8b5cf6]" },
-          { label: "Active", value: stats.active, color: "from-[#3b82f6] to-[#06b6d4]" },
+          { label: "Total", value: stats.total, color: "from-[#4FC3F7] to-[#F5C542]" },
+          { label: "Active", value: stats.active, color: "from-[#4FC3F7] to-[#06b6d4]" },
           { label: "Completed", value: stats.completed, color: "from-[#10b981] to-[#059669]" },
         ].map((s) => (
           <div key={s.label} className="rounded-xl border border-[#222] bg-[#0a0a0a] p-4">
@@ -153,7 +153,7 @@ export default function ProjectsPage() {
             key={f}
             onClick={() => setFilter(f)}
             className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
-              filter === f ? "bg-[#3b82f6] text-white" : "bg-[#1a1a1a] text-[#888] hover:text-white"
+              filter === f ? "bg-[#4FC3F7] text-white" : "bg-[#1a1a1a] text-[#888] hover:text-white"
             }`}
           >
             {f === "all" ? "All" : f.replace("_", " ").replace(/\b\w/g, (c) => c.toUpperCase())}

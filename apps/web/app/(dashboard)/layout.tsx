@@ -100,11 +100,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Logo */}
       <div className="flex h-16 items-center justify-between border-b border-[#222] px-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6]">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#4FC3F7] to-[#F5C542]">
             <span className="text-sm font-bold text-white">NB</span>
           </div>
           {!collapsed && (
-            <span className="bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] bg-clip-text text-lg font-bold text-transparent">
+            <span className="bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] bg-clip-text text-lg font-bold text-transparent">
               Northbridge
             </span>
           )}
@@ -137,13 +137,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       <Link
                         href={item.href}
                         className={`group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
-                          isActive ? "bg-[#1a1a2e] text-white" : "text-[#888] hover:bg-[#111] hover:text-[#ccc]"
+                          isActive ? "bg-[#1a1a2a] text-white" : "text-[#888] hover:bg-[#111] hover:text-[#ccc]"
                         }`}
                         title={collapsed ? item.name : undefined}
                       >
-                        <Icon className={`h-4.5 w-4.5 shrink-0 ${isActive ? "text-[#3b82f6]" : "text-[#666] group-hover:text-[#999]"}`} />
+                        <Icon className={`h-4.5 w-4.5 shrink-0 ${isActive ? "text-[#4FC3F7]" : "text-[#666] group-hover:text-[#999]"}`} />
                         {!collapsed && <span>{item.name}</span>}
-                        {isActive && !collapsed && <div className="ml-auto h-1.5 w-1.5 rounded-full bg-[#3b82f6]" />}
+                        {isActive && !collapsed && <div className="ml-auto h-1.5 w-1.5 rounded-full bg-[#4FC3F7]" />}
                       </Link>
                     </li>
                   );
@@ -207,13 +207,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <button onClick={() => setMobileOpen(true)} className="rounded p-1.5 text-[#888] hover:text-white" aria-label="Open menu">
             <Menu className="h-5 w-5" />
           </button>
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6]">
+          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-[#4FC3F7] to-[#F5C542]">
             <span className="text-[10px] font-bold text-white">NB</span>
           </div>
           <span className="flex-1 text-sm font-medium text-white">Northbridge</span>
           <button className="relative rounded p-1.5 text-[#888] hover:text-white" aria-label="Notifications">
             <Bell className="h-5 w-5" />
-            <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#3b82f6] text-[8px] font-bold text-white">3</span>
+            <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#4FC3F7] text-[8px] font-bold text-white">3</span>
           </button>
         </div>
         <div className="mx-auto max-w-[1400px] p-4 sm:p-6 lg:p-8">{children}</div>

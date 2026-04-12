@@ -135,7 +135,7 @@ export default async function AgentsPage() {
               {/* Agent header */}
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6]">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[#4FC3F7] to-[#F5C542]">
                     <Bot className="h-5 w-5 text-white" />
                   </div>
                   <div>

@@ -43,7 +43,7 @@ export default function NewCompanyPage() {
     industry: "",
     website: "",
     description: "",
-    primaryColor: "#3b82f6",
+    primaryColor: "#4FC3F7",
     voiceGuidelines: "",
   });
   const [submitting, setSubmitting] = useState(false);
@@ -142,7 +142,7 @@ export default function NewCompanyPage() {
           {/* Basic Info */}
           <div className="rounded-xl border border-[#222] bg-[#0a0a0a] p-6">
             <div className="flex items-center gap-2 mb-5">
-              <Building2 className="h-5 w-5 text-[#3b82f6]" />
+              <Building2 className="h-5 w-5 text-[#4FC3F7]" />
               <h3 className="text-lg font-semibold text-white">
                 Company Details
               </h3>
@@ -156,7 +156,7 @@ export default function NewCompanyPage() {
                   value={form.name}
                   onChange={(e) => handleNameChange(e.target.value)}
                   required
-                  className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2.5 text-sm text-white placeholder-[#666] focus:border-[#3b82f6] focus:outline-none"
+                  className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2.5 text-sm text-white placeholder-[#666] focus:border-[#4FC3F7] focus:outline-none"
                   placeholder="AeroVista Labs"
                 />
               </div>
@@ -171,7 +171,7 @@ export default function NewCompanyPage() {
                   }
                   required
                   pattern="[a-z0-9-]+"
-                  className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2.5 text-sm text-white placeholder-[#666] focus:border-[#3b82f6] focus:outline-none font-mono"
+                  className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2.5 text-sm text-white placeholder-[#666] focus:border-[#4FC3F7] focus:outline-none font-mono"
                   placeholder="aerovista-labs"
                 />
               </div>
@@ -184,7 +184,7 @@ export default function NewCompanyPage() {
                   onChange={(e) =>
                     setForm((prev) => ({ ...prev, industry: e.target.value }))
                   }
-                  className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2.5 text-sm text-white placeholder-[#666] focus:border-[#3b82f6] focus:outline-none"
+                  className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2.5 text-sm text-white placeholder-[#666] focus:border-[#4FC3F7] focus:outline-none"
                   placeholder="AI / Drone Analytics"
                 />
               </div>
@@ -198,7 +198,7 @@ export default function NewCompanyPage() {
                     setForm((prev) => ({ ...prev, website: e.target.value }))
                   }
                   type="url"
-                  className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2.5 text-sm text-white placeholder-[#666] focus:border-[#3b82f6] focus:outline-none"
+                  className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2.5 text-sm text-white placeholder-[#666] focus:border-[#4FC3F7] focus:outline-none"
                   placeholder="https://aerovista.com"
                 />
               </div>
@@ -215,7 +215,7 @@ export default function NewCompanyPage() {
                     }))
                   }
                   rows={3}
-                  className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2.5 text-sm text-white placeholder-[#666] focus:border-[#3b82f6] focus:outline-none resize-none"
+                  className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2.5 text-sm text-white placeholder-[#666] focus:border-[#4FC3F7] focus:outline-none resize-none"
                   placeholder="Brief description of this company..."
                 />
               </div>
@@ -225,7 +225,7 @@ export default function NewCompanyPage() {
           {/* Brand Settings */}
           <div className="rounded-xl border border-[#222] bg-[#0a0a0a] p-6">
             <div className="flex items-center gap-2 mb-5">
-              <Palette className="h-5 w-5 text-[#8b5cf6]" />
+              <Palette className="h-5 w-5 text-[#F5C542]" />
               <h3 className="text-lg font-semibold text-white">
                 Brand Settings
               </h3>
@@ -255,7 +255,7 @@ export default function NewCompanyPage() {
                         primaryColor: e.target.value,
                       }))
                     }
-                    className="flex-1 rounded-lg border border-[#333] bg-[#111] px-3 py-2.5 text-sm text-white font-mono focus:border-[#3b82f6] focus:outline-none"
+                    className="flex-1 rounded-lg border border-[#333] bg-[#111] px-3 py-2.5 text-sm text-white font-mono focus:border-[#4FC3F7] focus:outline-none"
                   />
                 </div>
               </div>
@@ -272,7 +272,7 @@ export default function NewCompanyPage() {
                     }))
                   }
                   rows={3}
-                  className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2.5 text-sm text-white placeholder-[#666] focus:border-[#3b82f6] focus:outline-none resize-none"
+                  className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2.5 text-sm text-white placeholder-[#666] focus:border-[#4FC3F7] focus:outline-none resize-none"
                   placeholder="Professional, innovative, and results-driven..."
                 />
               </div>
@@ -289,7 +289,7 @@ export default function NewCompanyPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-6 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-6 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
             >
               {submitting ? (
                 <>
@@ -324,13 +324,13 @@ export default function NewCompanyPage() {
                   icon: Building2,
                   label: "Company",
                   detail: form.name || "Company name",
-                  color: "#3b82f6",
+                  color: "#4FC3F7",
                 },
                 {
                   icon: Palette,
                   label: "Brand",
                   detail: "Logo, colors, voice",
-                  color: "#8b5cf6",
+                  color: "#F5C542",
                 },
                 {
                   icon: BarChart3,
@@ -384,7 +384,7 @@ export default function NewCompanyPage() {
               <h3 className="text-sm font-medium text-[#888] mb-2">
                 Company Slug
               </h3>
-              <p className="font-mono text-sm text-[#3b82f6]">
+              <p className="font-mono text-sm text-[#4FC3F7]">
                 /{form.slug}
               </p>
             </div>

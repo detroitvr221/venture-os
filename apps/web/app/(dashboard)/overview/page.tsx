@@ -164,8 +164,8 @@ function actionLabel(action: string, resourceType: string): string {
 }
 
 function activityTypeColor(resourceType: string): string {
-  if (resourceType.includes("lead")) return "bg-[#3b82f6]";
-  if (resourceType.includes("agent")) return "bg-[#8b5cf6]";
+  if (resourceType.includes("lead")) return "bg-[#4FC3F7]";
+  if (resourceType.includes("agent")) return "bg-[#F5C542]";
   if (resourceType.includes("invoice") || resourceType.includes("billing")) return "bg-[#22c55e]";
   if (resourceType.includes("approval")) return "bg-[#eab308]";
   return "bg-[#888]";
@@ -181,14 +181,14 @@ export default async function OverviewPage() {
       label: "Total Leads",
       value: data.leadCount.toString(),
       icon: Filter,
-      color: "#3b82f6",
+      color: "#4FC3F7",
       href: "/leads",
     },
     {
       label: "Active Clients",
       value: data.clientCount.toString(),
       icon: Users,
-      color: "#8b5cf6",
+      color: "#F5C542",
       href: "/clients",
     },
     {
@@ -310,7 +310,7 @@ export default async function OverviewPage() {
                 key={agent.name}
                 className="flex items-center gap-3 rounded-lg border border-[#1a1a1a] bg-[#111] p-3.5"
               >
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6] text-xs font-bold text-white">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#4FC3F7] to-[#F5C542] text-xs font-bold text-white">
                   {i + 1}
                 </div>
                 <div className="min-w-0 flex-1">

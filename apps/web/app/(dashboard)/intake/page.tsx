@@ -147,7 +147,7 @@ export default function IntakePage() {
     return (
       <div className="mx-auto max-w-3xl">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6]">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#4FC3F7] to-[#F5C542]">
             <ClipboardList className="h-8 w-8 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-white">Customer Intake</h1>
@@ -163,7 +163,7 @@ export default function IntakePage() {
                 onClick={() => toggleService(svc.id)}
                 className={`flex items-center gap-3 rounded-xl border p-4 text-left transition ${
                   selected
-                    ? "border-[#3b82f6] bg-[#3b82f6]/10"
+                    ? "border-[#4FC3F7] bg-[#4FC3F7]/10"
                     : "border-[#222] bg-[#0a0a0a] hover:border-[#333]"
                 }`}
               >
@@ -171,7 +171,7 @@ export default function IntakePage() {
                 <div className="flex-1">
                   <p className={`text-sm font-medium ${selected ? "text-white" : "text-[#ccc]"}`}>{svc.label}</p>
                 </div>
-                {selected && <CheckCircle2 className="h-5 w-5 text-[#3b82f6]" />}
+                {selected && <CheckCircle2 className="h-5 w-5 text-[#4FC3F7]" />}
               </button>
             );
           })}
@@ -184,7 +184,7 @@ export default function IntakePage() {
           <button
             onClick={() => setStep(1)}
             disabled={selectedServices.length === 0}
-            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-6 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-6 py-2.5 text-sm font-medium text-white disabled:opacity-50"
           >
             Continue <ArrowRight className="h-4 w-4" />
           </button>
@@ -210,7 +210,7 @@ export default function IntakePage() {
             {selectedServices.map((s) => {
               const svc = SERVICES.find((sv) => sv.id === s);
               return (
-                <span key={s} className="rounded-full bg-[#3b82f6]/20 px-2.5 py-0.5 text-xs text-[#3b82f6]">
+                <span key={s} className="rounded-full bg-[#4FC3F7]/20 px-2.5 py-0.5 text-xs text-[#4FC3F7]">
                   {svc?.icon} {svc?.label}
                 </span>
               );
@@ -221,7 +221,7 @@ export default function IntakePage() {
         {/* Progress */}
         <div className="mb-6 h-1 rounded-full bg-[#222]">
           <div
-            className="h-1 rounded-full bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] transition-all"
+            className="h-1 rounded-full bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] transition-all"
             style={{ width: `${(Object.keys(answers).length / activeQuestions.length) * 100}%` }}
           />
         </div>
@@ -239,13 +239,13 @@ export default function IntakePage() {
                   onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })}
                   placeholder={q.placeholder}
                   rows={3}
-                  className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] px-3 py-2 text-sm text-white placeholder:text-[#555] focus:border-[#3b82f6] focus:outline-none"
+                  className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] px-3 py-2 text-sm text-white placeholder:text-[#555] focus:border-[#4FC3F7] focus:outline-none"
                 />
               ) : q.type === "select" ? (
                 <select
                   value={answers[q.id] || ""}
                   onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })}
-                  className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] px-3 py-2 text-sm text-white focus:border-[#3b82f6] focus:outline-none"
+                  className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] px-3 py-2 text-sm text-white focus:border-[#4FC3F7] focus:outline-none"
                 >
                   <option value="" className="bg-[#0a0a0a] text-[#555]">Select...</option>
                   {q.options?.map((o) => (
@@ -258,7 +258,7 @@ export default function IntakePage() {
                   value={answers[q.id] || ""}
                   onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })}
                   placeholder={q.placeholder}
-                  className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] px-3 py-2 text-sm text-white placeholder:text-[#555] focus:border-[#3b82f6] focus:outline-none"
+                  className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] px-3 py-2 text-sm text-white placeholder:text-[#555] focus:border-[#4FC3F7] focus:outline-none"
                 />
               )}
             </div>
@@ -270,7 +270,7 @@ export default function IntakePage() {
           <button
             onClick={() => setStep(2)}
             disabled={!answers.company_name || !answers.contact_name || !answers.contact_email || !answers.budget_range}
-            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-6 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-6 py-2.5 text-sm font-medium text-white disabled:opacity-50"
           >
             Review <ArrowRight className="h-4 w-4" />
           </button>
@@ -296,7 +296,7 @@ export default function IntakePage() {
               {selectedServices.map((s) => {
                 const svc = SERVICES.find((sv) => sv.id === s);
                 return (
-                  <span key={s} className="rounded-full bg-[#3b82f6]/20 px-3 py-1 text-xs text-[#3b82f6]">
+                  <span key={s} className="rounded-full bg-[#4FC3F7]/20 px-3 py-1 text-xs text-[#4FC3F7]">
                     {svc?.icon} {svc?.label}
                   </span>
                 );
@@ -355,7 +355,7 @@ export default function IntakePage() {
         </button>
         <button
           onClick={() => { setStep(0); setSelectedServices([]); setAnswers({}); }}
-          className="rounded-lg bg-[#3b82f6] px-4 py-2 text-sm text-white"
+          className="rounded-lg bg-[#4FC3F7] px-4 py-2 text-sm text-white"
         >
           New Intake
         </button>

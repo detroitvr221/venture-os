@@ -66,7 +66,7 @@ const statusConfig: Record<
   { text: string; bg: string; icon: typeof FileText }
 > = {
   draft: { text: "#888", bg: "#88888815", icon: Edit3 },
-  sent: { text: "#3b82f6", bg: "#3b82f615", icon: Send },
+  sent: { text: "#4FC3F7", bg: "#4FC3F715", icon: Send },
   accepted: { text: "#22c55e", bg: "#22c55e15", icon: CheckCircle2 },
   rejected: { text: "#ef4444", bg: "#ef444415", icon: XCircle },
 };
@@ -172,7 +172,7 @@ export default function ProposalsPage() {
         </div>
         <Link
           href="/proposals/new"
-          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
         >
           <FileText className="h-4 w-4" />
           New Proposal
@@ -184,7 +184,7 @@ export default function ProposalsPage() {
         {(
           [
             { label: "Draft", count: stats.draft, color: "#888" },
-            { label: "Sent", count: stats.sent, color: "#3b82f6" },
+            { label: "Sent", count: stats.sent, color: "#4FC3F7" },
             { label: "Accepted", count: stats.accepted, color: "#22c55e" },
             { label: "Rejected", count: stats.rejected, color: "#ef4444" },
           ] as const
@@ -269,7 +269,7 @@ export default function ProposalsPage() {
                     <td className="px-5 py-4">
                       <Link
                         href={`/proposals/${p.id}`}
-                        className="text-sm font-medium text-white hover:text-[#3b82f6] transition-colors"
+                        className="text-sm font-medium text-white hover:text-[#4FC3F7] transition-colors"
                       >
                         {p.title}
                       </Link>

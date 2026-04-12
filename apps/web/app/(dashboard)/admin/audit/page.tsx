@@ -47,9 +47,9 @@ export default function AuditPage() {
 
   const actionColors: Record<string, string> = {
     create: "bg-[#10b981]/20 text-[#10b981]",
-    update: "bg-[#3b82f6]/20 text-[#3b82f6]",
+    update: "bg-[#4FC3F7]/20 text-[#4FC3F7]",
     delete: "bg-[#ef4444]/20 text-[#ef4444]",
-    invite: "bg-[#8b5cf6]/20 text-[#8b5cf6]",
+    invite: "bg-[#F5C542]/20 text-[#F5C542]",
     update_role: "bg-[#f59e0b]/20 text-[#f59e0b]",
     admin_view_chat: "bg-[#ef4444]/20 text-[#ef4444]",
   };
@@ -69,7 +69,7 @@ export default function AuditPage() {
       {/* Tabs */}
       <div className="mb-4 flex gap-2">
         <button onClick={() => setTab("general")}
-          className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium ${tab === "general" ? "bg-[#3b82f6] text-white" : "bg-[#1a1a1a] text-[#888]"}`}>
+          className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium ${tab === "general" ? "bg-[#4FC3F7] text-white" : "bg-[#1a1a1a] text-[#888]"}`}>
           <FileText className="h-3.5 w-3.5" /> General ({logs.length})
         </button>
         <button onClick={() => setTab("chat_access")}

@@ -42,8 +42,8 @@ export default function ClientDetailPage() {
     setLoading(false);
   }
 
-  if (loading) return <div className="flex items-center justify-center py-32"><div className="h-6 w-6 animate-spin rounded-full border-2 border-[#3b82f6] border-t-transparent" /></div>;
-  if (!client) return <div className="py-16 text-center"><p className="text-[#666]">Client not found</p><Link href="/clients" className="mt-2 text-sm text-[#3b82f6]">Back to clients</Link></div>;
+  if (loading) return <div className="flex items-center justify-center py-32"><div className="h-6 w-6 animate-spin rounded-full border-2 border-[#4FC3F7] border-t-transparent" /></div>;
+  if (!client) return <div className="py-16 text-center"><p className="text-[#666]">Client not found</p><Link href="/clients" className="mt-2 text-sm text-[#4FC3F7]">Back to clients</Link></div>;
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -53,8 +53,8 @@ export default function ClientDetailPage() {
 
       {/* Header */}
       <div className="mb-6 flex items-start gap-4">
-        <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[#3b82f6]/20">
-          <Building2 className="h-7 w-7 text-[#3b82f6]" />
+        <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[#4FC3F7]/20">
+          <Building2 className="h-7 w-7 text-[#4FC3F7]" />
         </div>
         <div>
           <h1 className="text-2xl font-bold text-white">{client.name}</h1>
@@ -74,7 +74,7 @@ export default function ClientDetailPage() {
             <div className="space-y-2">
               {client.email && <div className="flex items-center gap-2 text-sm"><Mail className="h-4 w-4 text-[#666]" /><span className="text-white">{client.email}</span></div>}
               {client.phone && <div className="flex items-center gap-2 text-sm"><Phone className="h-4 w-4 text-[#666]" /><span className="text-white">{client.phone}</span></div>}
-              {client.website && <div className="flex items-center gap-2 text-sm"><ExternalLink className="h-4 w-4 text-[#666]" /><a href={client.website} target="_blank" className="text-[#3b82f6] hover:underline">{client.website}</a></div>}
+              {client.website && <div className="flex items-center gap-2 text-sm"><ExternalLink className="h-4 w-4 text-[#666]" /><a href={client.website} target="_blank" className="text-[#4FC3F7] hover:underline">{client.website}</a></div>}
             </div>
           </div>
 
@@ -86,7 +86,7 @@ export default function ClientDetailPage() {
                 {projects.map((p) => (
                   <Link key={p.id} href={`/projects/${p.id}`} className="flex items-center justify-between rounded-lg border border-[#1a1a1a] p-3 hover:border-[#333]">
                     <span className="text-sm text-white">{p.name}</span>
-                    <span className="rounded-full bg-[#3b82f6]/20 px-2 py-0.5 text-[10px] text-[#3b82f6]">{p.status}</span>
+                    <span className="rounded-full bg-[#4FC3F7]/20 px-2 py-0.5 text-[10px] text-[#4FC3F7]">{p.status}</span>
                   </Link>
                 ))}
               </div>
@@ -103,7 +103,7 @@ export default function ClientDetailPage() {
                     <span className="text-sm text-white">{p.title}</span>
                     <div className="flex items-center gap-2">
                       {p.total_value && <span className="text-xs text-[#888]">${p.total_value.toLocaleString()}</span>}
-                      <span className="rounded-full bg-[#8b5cf6]/20 px-2 py-0.5 text-[10px] text-[#8b5cf6]">{p.status}</span>
+                      <span className="rounded-full bg-[#F5C542]/20 px-2 py-0.5 text-[10px] text-[#F5C542]">{p.status}</span>
                     </div>
                   </Link>
                 ))}

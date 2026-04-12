@@ -84,8 +84,8 @@ const statusSteps = ["draft", "sent", "accepted"] as const;
 
 const statusColors: Record<string, { text: string; bg: string }> = {
   draft: { text: "#888", bg: "#88888815" },
-  sent: { text: "#3b82f6", bg: "#3b82f615" },
-  viewed: { text: "#8b5cf6", bg: "#8b5cf615" },
+  sent: { text: "#4FC3F7", bg: "#4FC3F715" },
+  viewed: { text: "#F5C542", bg: "#F5C54215" },
   accepted: { text: "#22c55e", bg: "#22c55e15" },
   rejected: { text: "#ef4444", bg: "#ef444415" },
 };
@@ -215,7 +215,7 @@ export default function ProposalDetailPage() {
         <p className="text-[#888]">Proposal not found</p>
         <Link
           href="/proposals"
-          className="text-[#3b82f6] hover:underline text-sm"
+          className="text-[#4FC3F7] hover:underline text-sm"
         >
           Back to Proposals
         </Link>
@@ -288,7 +288,7 @@ export default function ProposalDetailPage() {
             <button
               onClick={handleSend}
               disabled={acting}
-              className="flex items-center gap-2 rounded-lg bg-[#3b82f6] px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg bg-[#4FC3F7] px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
             >
               <Send className="h-4 w-4" />
               {acting ? "Sending..." : "Send Proposal"}
@@ -317,7 +317,7 @@ export default function ProposalDetailPage() {
           {proposal.status === "accepted" && (
             <button
               onClick={() => router.push("/projects")}
-              className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+              className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
             >
               <Briefcase className="h-4 w-4" />
               View Project
@@ -358,7 +358,7 @@ export default function ProposalDetailPage() {
                 <div
                   className={`flex flex-1 flex-col items-center rounded-lg px-3 py-3 transition-all ${
                     isCurrent
-                      ? "bg-[#3b82f615] ring-1 ring-[#3b82f6]"
+                      ? "bg-[#4FC3F715] ring-1 ring-[#4FC3F7]"
                       : isPast
                         ? "bg-[#22c55e10]"
                         : "bg-[#111]"
@@ -367,7 +367,7 @@ export default function ProposalDetailPage() {
                   <Icon
                     className={`h-5 w-5 ${
                       isCurrent
-                        ? "text-[#3b82f6]"
+                        ? "text-[#4FC3F7]"
                         : isPast
                           ? "text-[#22c55e]"
                           : "text-[#666]"

@@ -68,7 +68,7 @@ const statusConfig: Record<
   { text: string; bg: string; icon: typeof FileText; strikethrough?: boolean }
 > = {
   draft: { text: "#888", bg: "#88888815", icon: FileText },
-  sent: { text: "#3b82f6", bg: "#3b82f615", icon: Send },
+  sent: { text: "#4FC3F7", bg: "#4FC3F715", icon: Send },
   paid: { text: "#22c55e", bg: "#22c55e15", icon: CheckCircle2 },
   overdue: { text: "#ef4444", bg: "#ef444415", icon: AlertTriangle },
   void: { text: "#888", bg: "#88888815", icon: Ban, strikethrough: true },
@@ -162,7 +162,7 @@ export default async function InvoicesPage({
         </div>
         <button
           disabled
-          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-4 py-2.5 text-sm font-medium text-white opacity-60 cursor-not-allowed"
+          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2.5 text-sm font-medium text-white opacity-60 cursor-not-allowed"
           title="Coming soon"
         >
           <Plus className="h-4 w-4" />
@@ -174,7 +174,7 @@ export default async function InvoicesPage({
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {([
           { label: "Draft", count: stats.draft, color: "#888" },
-          { label: "Sent", count: stats.sent, color: "#3b82f6" },
+          { label: "Sent", count: stats.sent, color: "#4FC3F7" },
           { label: "Paid", count: stats.paid, color: "#22c55e" },
           { label: "Overdue", count: stats.overdue, color: "#ef4444" },
         ] as const).map((s) => (
@@ -257,7 +257,7 @@ export default async function InvoicesPage({
                     <td className="px-5 py-4">
                       <Link
                         href={`/billing/invoices/${inv.id}`}
-                        className={`text-sm font-mono font-medium transition-colors hover:text-[#3b82f6] ${
+                        className={`text-sm font-mono font-medium transition-colors hover:text-[#4FC3F7] ${
                           cfg.strikethrough ? "line-through text-[#666]" : "text-white"
                         }`}
                       >

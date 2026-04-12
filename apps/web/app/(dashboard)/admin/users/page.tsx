@@ -17,7 +17,7 @@ type Member = {
 const ROLES = [
   { value: "owner", label: "Owner", color: "bg-[#f59e0b]/20 text-[#f59e0b]" },
   { value: "admin", label: "Admin", color: "bg-[#ef4444]/20 text-[#ef4444]" },
-  { value: "agent", label: "Manager", color: "bg-[#3b82f6]/20 text-[#3b82f6]" },
+  { value: "agent", label: "Manager", color: "bg-[#4FC3F7]/20 text-[#4FC3F7]" },
   { value: "viewer", label: "Employee", color: "bg-[#10b981]/20 text-[#10b981]" },
 ];
 
@@ -74,7 +74,7 @@ export default function UsersPage() {
           <p className="text-xs text-[#888]">{members.length} team members</p>
         </div>
         <button onClick={() => setShowInvite(!showInvite)}
-          className="flex items-center gap-1.5 rounded-lg bg-[#3b82f6] px-3 py-2 text-xs font-medium text-white hover:bg-[#2563eb]">
+          className="flex items-center gap-1.5 rounded-lg bg-[#4FC3F7] px-3 py-2 text-xs font-medium text-white hover:bg-[#38B2D8]">
           <Plus className="h-3.5 w-3.5" /> Invite User
         </button>
       </div>
@@ -85,7 +85,7 @@ export default function UsersPage() {
           <div className="flex gap-3">
             <input value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)}
               placeholder="Email address" type="email"
-              className="flex-1 rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder:text-[#555] focus:border-[#3b82f6] focus:outline-none" />
+              className="flex-1 rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder:text-[#555] focus:border-[#4FC3F7] focus:outline-none" />
             <select value={inviteRole} onChange={(e) => setInviteRole(e.target.value)}
               className="rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white focus:outline-none">
               <option value="viewer">Employee</option>
@@ -93,7 +93,7 @@ export default function UsersPage() {
               <option value="admin">Admin</option>
             </select>
             <button onClick={handleInvite} disabled={inviting || !inviteEmail}
-              className="rounded-lg bg-[#3b82f6] px-4 py-2 text-xs font-medium text-white disabled:opacity-50">
+              className="rounded-lg bg-[#4FC3F7] px-4 py-2 text-xs font-medium text-white disabled:opacity-50">
               {inviting ? "Inviting..." : "Send Invite"}
             </button>
           </div>
@@ -111,7 +111,7 @@ export default function UsersPage() {
               return (
                 <div key={m.id} className="flex items-center gap-4 px-5 py-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1a1a1a]">
-                    {isPending ? <Mail className="h-4 w-4 text-[#666]" /> : <UserCheck className="h-4 w-4 text-[#3b82f6]" />}
+                    {isPending ? <Mail className="h-4 w-4 text-[#666]" /> : <UserCheck className="h-4 w-4 text-[#4FC3F7]" />}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">

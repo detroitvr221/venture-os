@@ -14,7 +14,7 @@ const FROM_OPTIONS = [
 
 export default function ComposePage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center py-32"><div className="h-6 w-6 animate-spin rounded-full border-2 border-[#3b82f6] border-t-transparent" /></div>}>
+    <Suspense fallback={<div className="flex items-center justify-center py-32"><div className="h-6 w-6 animate-spin rounded-full border-2 border-[#4FC3F7] border-t-transparent" /></div>}>
       <ComposeForm />
     </Suspense>
   );
@@ -188,7 +188,7 @@ function ComposeForm() {
             <button
               onClick={handleSend}
               disabled={sending}
-              className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-5 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-5 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
             >
               <Send className="h-4 w-4" />
               {sending ? "Sending..." : "Send"}

@@ -103,7 +103,7 @@ const statusColors: Record<string, { text: string; bg: string }> = {
   draft: { text: "#888", bg: "#88888815" },
   active: { text: "#22c55e", bg: "#22c55e15" },
   paused: { text: "#eab308", bg: "#eab30815" },
-  completed: { text: "#3b82f6", bg: "#3b82f615" },
+  completed: { text: "#4FC3F7", bg: "#4FC3F715" },
   cancelled: { text: "#ef4444", bg: "#ef444415" },
 };
 
@@ -227,7 +227,7 @@ export default function CampaignDetailPage() {
         <p className="text-[#888]">Campaign not found</p>
         <Link
           href="/campaigns"
-          className="text-[#3b82f6] hover:underline text-sm"
+          className="text-[#4FC3F7] hover:underline text-sm"
         >
           Back to Campaigns
         </Link>
@@ -326,9 +326,9 @@ export default function CampaignDetailPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
         {[
-          { label: "Sent", value: stats.sent ?? 0, icon: Mail, color: "#3b82f6" },
+          { label: "Sent", value: stats.sent ?? 0, icon: Mail, color: "#4FC3F7" },
           { label: "Opened", value: stats.opened ?? 0, icon: Mail, color: "#22c55e" },
-          { label: "Clicked", value: stats.clicked ?? 0, icon: MousePointerClick, color: "#8b5cf6" },
+          { label: "Clicked", value: stats.clicked ?? 0, icon: MousePointerClick, color: "#F5C542" },
           { label: "Replied", value: stats.replied ?? 0, icon: Send, color: "#eab308" },
           { label: "Bounced", value: stats.bounced ?? 0, icon: AlertTriangle, color: "#ef4444" },
         ].map((s) => {

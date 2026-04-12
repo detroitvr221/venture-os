@@ -76,10 +76,10 @@ const meterConfig: Record<
   string,
   { icon: typeof Zap; color: string; threshold: number; unit: string }
 > = {
-  agent_tokens: { icon: Zap, color: "#3b82f6", threshold: 1000000, unit: "tokens" },
-  api_calls: { icon: Zap, color: "#3b82f6", threshold: 100000, unit: "calls" },
+  agent_tokens: { icon: Zap, color: "#4FC3F7", threshold: 1000000, unit: "tokens" },
+  api_calls: { icon: Zap, color: "#4FC3F7", threshold: 100000, unit: "calls" },
   crawl_pages: { icon: Globe, color: "#eab308", threshold: 5000, unit: "pages" },
-  storage_gb: { icon: Database, color: "#8b5cf6", threshold: 100, unit: "GB" },
+  storage_gb: { icon: Database, color: "#F5C542", threshold: 100, unit: "GB" },
   compute_hours: { icon: Cpu, color: "#22c55e", threshold: 500, unit: "hrs" },
   email_sends: { icon: Zap, color: "#f97316", threshold: 10000, unit: "emails" },
   workflow_runs: { icon: Zap, color: "#ec4899", threshold: 1000, unit: "runs" },
@@ -200,7 +200,7 @@ export default async function UsagePage() {
         <div className="rounded-xl border border-[#222] bg-[#0a0a0a] p-5">
           <div className="flex items-center justify-between">
             <p className="text-sm text-[#888]">Active Agents</p>
-            <Bot className="h-4 w-4 text-[#8b5cf6]" />
+            <Bot className="h-4 w-4 text-[#F5C542]" />
           </div>
           <p className="mt-2 text-2xl font-bold text-white">
             {data.agentCostGroups.length}
@@ -209,7 +209,7 @@ export default async function UsagePage() {
         <div className="rounded-xl border border-[#222] bg-[#0a0a0a] p-5">
           <div className="flex items-center justify-between">
             <p className="text-sm text-[#888]">Usage Meters</p>
-            <BarChart3 className="h-4 w-4 text-[#3b82f6]" />
+            <BarChart3 className="h-4 w-4 text-[#4FC3F7]" />
           </div>
           <p className="mt-2 text-2xl font-bold text-white">
             {uniqueMeters.length}
@@ -347,7 +347,7 @@ export default async function UsagePage() {
                     >
                       <td className="py-3">
                         <div className="flex items-center gap-2">
-                          <Bot className="h-4 w-4 text-[#8b5cf6]" />
+                          <Bot className="h-4 w-4 text-[#F5C542]" />
                           <span className="text-sm font-medium text-white">
                             {group.agent_slug}
                           </span>
@@ -393,7 +393,7 @@ export default async function UsagePage() {
             </h2>
             <p className="text-xs text-[#888]">Last 6 months</p>
           </div>
-          <TrendingUp className="h-5 w-5 text-[#3b82f6]" />
+          <TrendingUp className="h-5 w-5 text-[#4FC3F7]" />
         </div>
 
         <div className="flex items-end gap-3 h-40">
@@ -417,7 +417,7 @@ export default async function UsagePage() {
                       height: `${Math.max(heightPct, 2)}%`,
                       background:
                         idx === data.monthlyTrend.length - 1
-                          ? "linear-gradient(to top, #3b82f6, #8b5cf6)"
+                          ? "linear-gradient(to top, #4FC3F7, #F5C542)"
                           : "#1a1a1a",
                     }}
                   />

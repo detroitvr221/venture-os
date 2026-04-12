@@ -6,10 +6,10 @@ export default function PrivacyPolicy() {
       <nav className="border-b border-[#ffffff08] bg-[#0a0a0a]/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-4xl items-center px-6">
           <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6]">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#4FC3F7] to-[#F5C542]">
               <span className="text-sm font-bold text-white">NB</span>
             </div>
-            <span className="bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] bg-clip-text text-lg font-bold text-transparent">
+            <span className="bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] bg-clip-text text-lg font-bold text-transparent">
               Northbridge Digital
             </span>
           </Link>
@@ -105,7 +105,7 @@ export default function PrivacyPolicy() {
 
           <section>
             <h2 className="mb-3 text-lg font-semibold text-white">11. Contact</h2>
-            <p>For privacy-related questions or to exercise your data rights, contact us at <a href="mailto:hello@thenorthbridgemi.org" className="text-[#3b82f6] hover:underline">hello@thenorthbridgemi.org</a>.</p>
+            <p>For privacy-related questions or to exercise your data rights, contact us at <a href="mailto:hello@thenorthbridgemi.org" className="text-[#4FC3F7] hover:underline">hello@thenorthbridgemi.org</a>.</p>
             <p className="mt-2">Northbridge Digital<br />Michigan, USA</p>
           </section>
         </div>

@@ -87,7 +87,7 @@ export default function ClientsPage() {
         </div>
         <button
           onClick={() => setShowAdd(!showAdd)}
-          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-4 py-2 text-sm font-medium text-white"
+          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2 text-sm font-medium text-white"
         >
           <Plus className="h-4 w-4" />
           Add Client
@@ -110,14 +110,14 @@ export default function ClientsPage() {
                   value={form[f.key as keyof typeof form]}
                   onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
                   placeholder={f.placeholder}
-                  className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder:text-[#555] focus:border-[#3b82f6] focus:outline-none"
+                  className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder:text-[#555] focus:border-[#4FC3F7] focus:outline-none"
                 />
               </div>
             ))}
           </div>
           <div className="mt-4 flex justify-end gap-2">
             <button onClick={() => setShowAdd(false)} className="px-3 py-1.5 text-xs text-[#888]">Cancel</button>
-            <button onClick={handleAdd} className="rounded-lg bg-[#3b82f6] px-4 py-1.5 text-xs font-medium text-white">Save Client</button>
+            <button onClick={handleAdd} className="rounded-lg bg-[#4FC3F7] px-4 py-1.5 text-xs font-medium text-white">Save Client</button>
           </div>
         </div>
       )}
@@ -129,7 +129,7 @@ export default function ClientsPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search clients..."
-          className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] py-2 pl-10 pr-4 text-sm text-white placeholder:text-[#666] focus:border-[#3b82f6] focus:outline-none"
+          className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] py-2 pl-10 pr-4 text-sm text-white placeholder:text-[#666] focus:border-[#4FC3F7] focus:outline-none"
         />
       </div>
 
@@ -150,8 +150,8 @@ export default function ClientsPage() {
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#3b82f6]/20">
-                    <Building2 className="h-5 w-5 text-[#3b82f6]" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#4FC3F7]/20">
+                    <Building2 className="h-5 w-5 text-[#4FC3F7]" />
                   </div>
                   <div>
                     <h3 className="font-medium text-white">{client.name}</h3>

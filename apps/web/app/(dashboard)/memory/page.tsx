@@ -68,8 +68,8 @@ export default function MemoryPage() {
       {/* Stats */}
       <div className="mb-6 grid grid-cols-3 gap-4">
         {[
-          { label: "Memories", value: memories.length, icon: Brain, color: "text-[#8b5cf6]" },
-          { label: "Entities", value: entities.length, icon: Database, color: "text-[#3b82f6]" },
+          { label: "Memories", value: memories.length, icon: Brain, color: "text-[#F5C542]" },
+          { label: "Entities", value: entities.length, icon: Database, color: "text-[#4FC3F7]" },
           { label: "Connections", value: edges.length, icon: Link2, color: "text-[#10b981]" },
         ].map((s) => (
           <div key={s.label} className="rounded-xl border border-[#222] bg-[#0a0a0a] p-4">
@@ -86,7 +86,7 @@ export default function MemoryPage() {
       <div className="mb-4 flex gap-2">
         {(["memories", "entities"] as const).map((t) => (
           <button key={t} onClick={() => setTab(t)}
-            className={`rounded-lg px-3 py-1.5 text-xs font-medium ${tab === t ? "bg-[#3b82f6] text-white" : "bg-[#1a1a1a] text-[#888] hover:text-white"}`}
+            className={`rounded-lg px-3 py-1.5 text-xs font-medium ${tab === t ? "bg-[#4FC3F7] text-white" : "bg-[#1a1a1a] text-[#888] hover:text-white"}`}
           >
             {t.charAt(0).toUpperCase() + t.slice(1)}
           </button>
@@ -98,7 +98,7 @@ export default function MemoryPage() {
           <div className="relative mb-4">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#666]" />
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search memories..."
-              className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] py-2 pl-10 pr-4 text-sm text-white placeholder:text-[#666] focus:border-[#3b82f6] focus:outline-none"
+              className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] py-2 pl-10 pr-4 text-sm text-white placeholder:text-[#666] focus:border-[#4FC3F7] focus:outline-none"
             />
           </div>
           <div className="space-y-2">
@@ -115,8 +115,8 @@ export default function MemoryPage() {
                 <div key={m.id} className="rounded-lg border border-[#222] bg-[#0a0a0a] p-3">
                   <p className="text-sm text-[#ddd]">{m.content}</p>
                   <div className="mt-2 flex items-center gap-3 text-[10px] text-[#666]">
-                    {m.agent_id && <span className="rounded bg-[#8b5cf6]/20 px-1.5 py-0.5 text-[#8b5cf6]">{m.agent_id}</span>}
-                    {m.category && <span className="rounded bg-[#3b82f6]/20 px-1.5 py-0.5 text-[#3b82f6]">{m.category}</span>}
+                    {m.agent_id && <span className="rounded bg-[#F5C542]/20 px-1.5 py-0.5 text-[#F5C542]">{m.agent_id}</span>}
+                    {m.category && <span className="rounded bg-[#4FC3F7]/20 px-1.5 py-0.5 text-[#4FC3F7]">{m.category}</span>}
                     {m.confidence && <span>{Math.round(m.confidence * 100)}% confidence</span>}
                     <span>{new Date(m.created_at).toLocaleDateString()}</span>
                   </div>

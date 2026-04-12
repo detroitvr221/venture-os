@@ -93,7 +93,7 @@ export default function OnboardingPage() {
 
   const statusConfig: Record<string, { color: string; icon: React.ElementType }> = {
     pending: { color: "bg-[#888]/20 text-[#888]", icon: Clock },
-    in_progress: { color: "bg-[#3b82f6]/20 text-[#3b82f6]", icon: AlertCircle },
+    in_progress: { color: "bg-[#4FC3F7]/20 text-[#4FC3F7]", icon: AlertCircle },
     completed: { color: "bg-[#10b981]/20 text-[#10b981]", icon: CheckCircle2 },
   };
 
@@ -108,7 +108,7 @@ export default function OnboardingPage() {
           <button onClick={loadData} className="flex items-center gap-1.5 rounded-lg border border-[#333] bg-[#1a1a1a] px-3 py-2 text-xs text-[#ccc] hover:bg-[#222]">
             <RefreshCw className="h-3.5 w-3.5" /> Refresh
           </button>
-          <button onClick={() => setShowNew(!showNew)} className="flex items-center gap-1.5 rounded-lg bg-[#3b82f6] px-3 py-2 text-xs font-medium text-white hover:bg-[#2563eb]">
+          <button onClick={() => setShowNew(!showNew)} className="flex items-center gap-1.5 rounded-lg bg-[#4FC3F7] px-3 py-2 text-xs font-medium text-white hover:bg-[#38B2D8]">
             <UserPlus className="h-3.5 w-3.5" /> New Onboarding
           </button>
         </div>
@@ -161,7 +161,7 @@ export default function OnboardingPage() {
                       {ob.status}
                     </span>
                     {ob.service_templates && (
-                      <span className="rounded-full bg-[#8b5cf6]/20 px-2 py-0.5 text-[10px] text-[#8b5cf6]">
+                      <span className="rounded-full bg-[#F5C542]/20 px-2 py-0.5 text-[10px] text-[#F5C542]">
                         {ob.service_templates.track} — {ob.service_templates.name}
                       </span>
                     )}
@@ -171,7 +171,7 @@ export default function OnboardingPage() {
 
                 {/* Progress bar */}
                 <div className="mb-3 h-1.5 rounded-full bg-[#222]">
-                  <div className="h-1.5 rounded-full bg-gradient-to-r from-[#3b82f6] to-[#10b981] transition-all" style={{ width: `${progress}%` }} />
+                  <div className="h-1.5 rounded-full bg-gradient-to-r from-[#4FC3F7] to-[#10b981] transition-all" style={{ width: `${progress}%` }} />
                 </div>
 
                 {/* Steps */}

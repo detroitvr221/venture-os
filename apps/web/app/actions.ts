@@ -357,7 +357,7 @@ export async function createSubCompany(formData: FormData): Promise<ActionResult
     company_id: data.id,
     name: name.trim(),
     voice_guidelines: `Professional, innovative, and results-driven. Speak as ${name.trim()}.`,
-    colors: { primary: '#3b82f6', secondary: '#8b5cf6' },
+    colors: { primary: '#4FC3F7', secondary: '#F5C542' },
     logo_url: null,
     fonts: { heading: 'Inter', body: 'Inter' },
   });

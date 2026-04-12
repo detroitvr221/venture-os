@@ -77,7 +77,7 @@ function formatDate(d: string | null): string {
 
 const statusColors: Record<string, { text: string; bg: string }> = {
   draft: { text: "#888", bg: "#88888815" },
-  sent: { text: "#3b82f6", bg: "#3b82f615" },
+  sent: { text: "#4FC3F7", bg: "#4FC3F715" },
   paid: { text: "#22c55e", bg: "#22c55e15" },
   overdue: { text: "#ef4444", bg: "#ef444415" },
   void: { text: "#888", bg: "#88888815" },
@@ -176,7 +176,7 @@ export default function InvoiceDetailPage() {
         <p className="text-[#888]">Invoice not found</p>
         <Link
           href="/billing/invoices"
-          className="text-[#3b82f6] hover:underline text-sm"
+          className="text-[#4FC3F7] hover:underline text-sm"
         >
           Back to Invoices
         </Link>
@@ -248,7 +248,7 @@ export default function InvoiceDetailPage() {
             <button
               onClick={handleMarkSent}
               disabled={acting}
-              className="flex items-center gap-2 rounded-lg bg-[#3b82f6] px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg bg-[#4FC3F7] px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
             >
               <Send className="h-4 w-4" />
               {acting ? "Updating..." : "Mark as Sent"}

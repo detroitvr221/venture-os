@@ -42,7 +42,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     checkRole();
   }, [router]);
 
-  if (loading) return <div className="flex items-center justify-center py-32"><div className="h-6 w-6 animate-spin rounded-full border-2 border-[#3b82f6] border-t-transparent" /></div>;
+  if (loading) return <div className="flex items-center justify-center py-32"><div className="h-6 w-6 animate-spin rounded-full border-2 border-[#4FC3F7] border-t-transparent" /></div>;
   if (!authorized) return null;
 
   return (
@@ -64,7 +64,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           return (
             <Link key={item.href} href={item.href}
               className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition ${
-                isActive ? "bg-[#3b82f6] text-white" : "bg-[#1a1a1a] text-[#888] hover:text-white"
+                isActive ? "bg-[#4FC3F7] text-white" : "bg-[#1a1a1a] text-[#888] hover:text-white"
               }`}>
               <Icon className="h-3.5 w-3.5" /> {item.name}
             </Link>

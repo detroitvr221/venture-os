@@ -122,7 +122,7 @@ export default function EmailDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-32">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#3b82f6] border-t-transparent" />
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#4FC3F7] border-t-transparent" />
       </div>
     );
   }
@@ -132,7 +132,7 @@ export default function EmailDetailPage() {
       <div className="py-16 text-center">
         <Mail className="mx-auto mb-3 h-10 w-10 text-[#333]" />
         <p className="text-[#666]">Email not found</p>
-        <Link href="/email" className="mt-2 text-sm text-[#3b82f6] hover:underline">
+        <Link href="/email" className="mt-2 text-sm text-[#4FC3F7] hover:underline">
           Back to inbox
         </Link>
       </div>
@@ -178,8 +178,8 @@ export default function EmailDetailPage() {
           <div className="mt-2 flex items-center gap-3 text-xs text-[#666]">
             <span className={`rounded-full px-2 py-0.5 ${
               email.direction === "inbound"
-                ? "bg-[#3b82f6]/20 text-[#3b82f6]"
-                : "bg-[#8b5cf6]/20 text-[#8b5cf6]"
+                ? "bg-[#4FC3F7]/20 text-[#4FC3F7]"
+                : "bg-[#F5C542]/20 text-[#F5C542]"
             }`}>
               {email.direction === "inbound" ? "Received" : "Sent"}
             </span>
@@ -296,7 +296,7 @@ export default function EmailDetailPage() {
             onChange={(e) => setReplyText(e.target.value)}
             placeholder="Type your reply..."
             rows={6}
-            className="w-full rounded-lg border border-[#333] bg-[#111] p-3 text-sm text-white placeholder:text-[#666] focus:border-[#3b82f6] focus:outline-none"
+            className="w-full rounded-lg border border-[#333] bg-[#111] p-3 text-sm text-white placeholder:text-[#666] focus:border-[#4FC3F7] focus:outline-none"
           />
           <div className="mt-3 flex items-center justify-end gap-2">
             <button
@@ -308,7 +308,7 @@ export default function EmailDetailPage() {
             <button
               onClick={handleReply}
               disabled={sending || !replyText.trim()}
-              className="flex items-center gap-1.5 rounded-lg bg-[#3b82f6] px-4 py-1.5 text-xs font-medium text-white transition hover:bg-[#2563eb] disabled:opacity-50"
+              className="flex items-center gap-1.5 rounded-lg bg-[#4FC3F7] px-4 py-1.5 text-xs font-medium text-white transition hover:bg-[#38B2D8] disabled:opacity-50"
             >
               <Send className="h-3.5 w-3.5" />
               {sending ? "Sending..." : "Send Reply"}

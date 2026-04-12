@@ -83,7 +83,7 @@ export default function SignupPage() {
           <p className="mt-2 text-sm text-[#888]">
             We sent a confirmation link to <span className="font-medium text-white">{email}</span>. Click the link to activate your account.
           </p>
-          <Link href="/login" className="mt-6 inline-block text-sm font-medium text-[#3b82f6] hover:text-[#60a5fa] transition-colors">
+          <Link href="/login" className="mt-6 inline-block text-sm font-medium text-[#4FC3F7] hover:text-[#60a5fa] transition-colors">
             Back to sign in
           </Link>
         </div>
@@ -106,13 +106,13 @@ export default function SignupPage() {
             <div>
               <label htmlFor="fullName" className="mb-1.5 block text-xs font-medium text-[#888]">Full Name *</label>
               <input id="fullName" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} onBlur={() => markTouched("fullName")} required autoComplete="name" placeholder="John Smith"
-                className={`w-full rounded-lg border bg-[#0a0a0a] px-3 py-2.5 text-sm text-white placeholder-[#666] outline-none focus:border-[#3b82f6] ${fieldErrors.fullName ? "border-[#ef4444]" : "border-[#333]"}`} />
+                className={`w-full rounded-lg border bg-[#0a0a0a] px-3 py-2.5 text-sm text-white placeholder-[#666] outline-none focus:border-[#4FC3F7] ${fieldErrors.fullName ? "border-[#ef4444]" : "border-[#333]"}`} />
               {fieldErrors.fullName && <p className="mt-1 text-[10px] text-[#ef4444]">{fieldErrors.fullName}</p>}
             </div>
             <div>
               <label htmlFor="company" className="mb-1.5 block text-xs font-medium text-[#888]">Company Name</label>
               <input id="company" type="text" value={companyName} onChange={(e) => setCompanyName(e.target.value)} autoComplete="organization" placeholder="Acme Corp"
-                className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] px-3 py-2.5 text-sm text-white placeholder-[#666] outline-none focus:border-[#3b82f6]" />
+                className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] px-3 py-2.5 text-sm text-white placeholder-[#666] outline-none focus:border-[#4FC3F7]" />
             </div>
           </div>
 
@@ -120,20 +120,20 @@ export default function SignupPage() {
             <div>
               <label htmlFor="email" className="mb-1.5 block text-xs font-medium text-[#888]">Email *</label>
               <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} onBlur={() => markTouched("email")} required autoComplete="email" placeholder="you@company.com"
-                className={`w-full rounded-lg border bg-[#0a0a0a] px-3 py-2.5 text-sm text-white placeholder-[#666] outline-none focus:border-[#3b82f6] ${fieldErrors.email ? "border-[#ef4444]" : "border-[#333]"}`} />
+                className={`w-full rounded-lg border bg-[#0a0a0a] px-3 py-2.5 text-sm text-white placeholder-[#666] outline-none focus:border-[#4FC3F7] ${fieldErrors.email ? "border-[#ef4444]" : "border-[#333]"}`} />
               {fieldErrors.email && <p className="mt-1 text-[10px] text-[#ef4444]">{fieldErrors.email}</p>}
             </div>
             <div>
               <label htmlFor="phone" className="mb-1.5 block text-xs font-medium text-[#888]">Phone</label>
               <input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" placeholder="+1 555 0123"
-                className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] px-3 py-2.5 text-sm text-white placeholder-[#666] outline-none focus:border-[#3b82f6]" />
+                className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] px-3 py-2.5 text-sm text-white placeholder-[#666] outline-none focus:border-[#4FC3F7]" />
             </div>
           </div>
 
           <div>
             <label htmlFor="password" className="mb-1.5 block text-xs font-medium text-[#888]">Password *</label>
             <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} onBlur={() => markTouched("password")} required autoComplete="new-password" placeholder="Min 8 characters"
-              className={`w-full rounded-lg border bg-[#0a0a0a] px-3 py-2.5 text-sm text-white placeholder-[#666] outline-none focus:border-[#3b82f6] ${fieldErrors.password ? "border-[#ef4444]" : "border-[#333]"}`} />
+              className={`w-full rounded-lg border bg-[#0a0a0a] px-3 py-2.5 text-sm text-white placeholder-[#666] outline-none focus:border-[#4FC3F7] ${fieldErrors.password ? "border-[#ef4444]" : "border-[#333]"}`} />
             {fieldErrors.password && <p className="mt-1 text-[10px] text-[#ef4444]">{fieldErrors.password}</p>}
             {password.length > 0 && (
               <div className="mt-2 flex gap-1">
@@ -151,25 +151,25 @@ export default function SignupPage() {
           <div>
             <label htmlFor="confirm-password" className="mb-1.5 block text-xs font-medium text-[#888]">Confirm Password *</label>
             <input id="confirm-password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} onBlur={() => markTouched("confirmPassword")} required autoComplete="new-password" placeholder="Repeat password"
-              className={`w-full rounded-lg border bg-[#0a0a0a] px-3 py-2.5 text-sm text-white placeholder-[#666] outline-none focus:border-[#3b82f6] ${fieldErrors.confirmPassword ? "border-[#ef4444]" : "border-[#333]"}`} />
+              className={`w-full rounded-lg border bg-[#0a0a0a] px-3 py-2.5 text-sm text-white placeholder-[#666] outline-none focus:border-[#4FC3F7] ${fieldErrors.confirmPassword ? "border-[#ef4444]" : "border-[#333]"}`} />
             {fieldErrors.confirmPassword && <p className="mt-1 text-[10px] text-[#ef4444]">{fieldErrors.confirmPassword}</p>}
           </div>
 
           <button type="submit" disabled={loading}
-            className="w-full rounded-lg bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50">
+            className="w-full rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50">
             {loading ? "Creating account..." : "Create Account"}
           </button>
 
           <p className="text-center text-[10px] text-[#666]">
             By creating an account, you agree to our{" "}
-            <Link href="/terms" className="text-[#3b82f6] hover:underline">Terms</Link> and{" "}
-            <Link href="/privacy" className="text-[#3b82f6] hover:underline">Privacy Policy</Link>.
+            <Link href="/terms" className="text-[#4FC3F7] hover:underline">Terms</Link> and{" "}
+            <Link href="/privacy" className="text-[#4FC3F7] hover:underline">Privacy Policy</Link>.
           </p>
         </form>
 
         <p className="mt-4 text-center text-sm text-[#888]">
           Already have an account?{" "}
-          <Link href="/login" className="font-medium text-[#3b82f6] hover:text-[#60a5fa] transition-colors">Sign in</Link>
+          <Link href="/login" className="font-medium text-[#4FC3F7] hover:text-[#60a5fa] transition-colors">Sign in</Link>
         </p>
       </div>
     </div>

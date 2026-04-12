@@ -27,8 +27,8 @@ export default function AdminOverview() {
   }, []);
 
   const cards = [
-    { label: "Team Members", value: stats.users, icon: Users, color: "text-[#3b82f6]" },
-    { label: "Chat Threads", value: stats.threads, icon: MessageSquare, color: "text-[#8b5cf6]" },
+    { label: "Team Members", value: stats.users, icon: Users, color: "text-[#4FC3F7]" },
+    { label: "Chat Threads", value: stats.threads, icon: MessageSquare, color: "text-[#F5C542]" },
     { label: "Total Messages", value: stats.messages, icon: Activity, color: "text-[#10b981]" },
     { label: "Audit Events", value: stats.auditEntries, icon: Shield, color: "text-[#f59e0b]" },
   ];

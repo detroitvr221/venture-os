@@ -65,7 +65,7 @@ const statusConfig: Record<string, { text: string; bg: string; icon: typeof Cloc
   draft: { text: "#888", bg: "#88888815", icon: Clock },
   active: { text: "#22c55e", bg: "#22c55e15", icon: Play },
   paused: { text: "#eab308", bg: "#eab30815", icon: Pause },
-  completed: { text: "#3b82f6", bg: "#3b82f615", icon: CheckCircle2 },
+  completed: { text: "#4FC3F7", bg: "#4FC3F715", icon: CheckCircle2 },
   cancelled: { text: "#ef4444", bg: "#ef444415", icon: CheckCircle2 },
 };
 
@@ -164,7 +164,7 @@ export default function CampaignsPage() {
         </div>
         <button
           onClick={() => setShowCreate(!showCreate)}
-          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
         >
           <Plus className="h-4 w-4" />
           New Campaign
@@ -174,9 +174,9 @@ export default function CampaignsPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[
-          { label: "Total Campaigns", value: stats.total, icon: Send, color: "#3b82f6" },
+          { label: "Total Campaigns", value: stats.total, icon: Send, color: "#4FC3F7" },
           { label: "Active", value: stats.active, icon: Play, color: "#22c55e" },
-          { label: "Total Contacts", value: stats.totalContacts, icon: Users, color: "#8b5cf6" },
+          { label: "Total Contacts", value: stats.totalContacts, icon: Users, color: "#F5C542" },
           { label: "Emails Sent", value: stats.totalSent, icon: Mail, color: "#eab308" },
         ].map((s) => {
           const Icon = s.icon;
@@ -209,7 +209,7 @@ export default function CampaignsPage() {
               <input
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
-                className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2.5 text-sm text-white placeholder-[#666] focus:border-[#3b82f6] focus:outline-none"
+                className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2.5 text-sm text-white placeholder-[#666] focus:border-[#4FC3F7] focus:outline-none"
                 placeholder="Q2 Re-engagement Campaign"
               />
             </div>
@@ -218,7 +218,7 @@ export default function CampaignsPage() {
               <select
                 value={formType}
                 onChange={(e) => setFormType(e.target.value)}
-                className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2.5 text-sm text-white focus:border-[#3b82f6] focus:outline-none"
+                className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2.5 text-sm text-white focus:border-[#4FC3F7] focus:outline-none"
               >
                 <option value="email">Email</option>
                 <option value="sms">SMS</option>
@@ -231,7 +231,7 @@ export default function CampaignsPage() {
             <button
               onClick={handleCreate}
               disabled={submitting}
-              className="rounded-lg bg-[#3b82f6] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#2563eb] disabled:opacity-50"
+              className="rounded-lg bg-[#4FC3F7] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#38B2D8] disabled:opacity-50"
             >
               {submitting ? "Creating..." : "Create Campaign"}
             </button>
@@ -317,7 +317,7 @@ export default function CampaignsPage() {
                     <td className="px-5 py-4">
                       <Link
                         href={`/campaigns/${c.id}`}
-                        className="text-sm font-medium text-white hover:text-[#3b82f6] transition-colors"
+                        className="text-sm font-medium text-white hover:text-[#4FC3F7] transition-colors"
                       >
                         {c.name}
                       </Link>
@@ -346,7 +346,7 @@ export default function CampaignsPage() {
                         {c.stats?.opened ?? 0}
                       </span>{" "}
                       /{" "}
-                      <span className="text-[#3b82f6]">
+                      <span className="text-[#4FC3F7]">
                         {c.stats?.replied ?? 0}
                       </span>
                     </td>

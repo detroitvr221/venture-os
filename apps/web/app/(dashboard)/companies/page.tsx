@@ -138,7 +138,7 @@ export default function CompaniesPage() {
         </div>
         <button
           onClick={() => setShowCreate(!showCreate)}
-          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
         >
           <Plus className="h-4 w-4" />
           Create Company
@@ -153,22 +153,22 @@ export default function CompaniesPage() {
             <input type="hidden" name="organization_id" value={ORG_ID} />
             <div>
               <label className="text-xs text-[#888] block mb-1">Company Name *</label>
-              <input name="name" required className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder-[#666] focus:border-[#3b82f6] focus:outline-none" placeholder="AeroVista Labs" />
+              <input name="name" required className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder-[#666] focus:border-[#4FC3F7] focus:outline-none" placeholder="AeroVista Labs" />
             </div>
             <div>
               <label className="text-xs text-[#888] block mb-1">Slug *</label>
-              <input name="slug" required pattern="[a-z0-9-]+" className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder-[#666] focus:border-[#3b82f6] focus:outline-none" placeholder="aerovista-labs" />
+              <input name="slug" required pattern="[a-z0-9-]+" className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder-[#666] focus:border-[#4FC3F7] focus:outline-none" placeholder="aerovista-labs" />
             </div>
             <div>
               <label className="text-xs text-[#888] block mb-1">Industry</label>
-              <input name="industry" className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder-[#666] focus:border-[#3b82f6] focus:outline-none" placeholder="AI / Drone Analytics" />
+              <input name="industry" className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder-[#666] focus:border-[#4FC3F7] focus:outline-none" placeholder="AI / Drone Analytics" />
             </div>
             <div>
               <label className="text-xs text-[#888] block mb-1">Website</label>
-              <input name="website" type="url" className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder-[#666] focus:border-[#3b82f6] focus:outline-none" placeholder="https://aerovista.com" />
+              <input name="website" type="url" className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder-[#666] focus:border-[#4FC3F7] focus:outline-none" placeholder="https://aerovista.com" />
             </div>
             <div className="sm:col-span-2 flex items-center gap-3">
-              <button type="submit" className="rounded-lg bg-[#3b82f6] px-4 py-2 text-sm font-medium text-white hover:bg-[#2563eb]">
+              <button type="submit" className="rounded-lg bg-[#4FC3F7] px-4 py-2 text-sm font-medium text-white hover:bg-[#38B2D8]">
                 Create Company
               </button>
               <button type="button" onClick={() => setShowCreate(false)} className="rounded-lg border border-[#333] px-4 py-2 text-sm text-[#888] hover:text-white">
@@ -188,12 +188,12 @@ export default function CompaniesPage() {
             <div
               key={company.id}
               className={`group relative rounded-xl border bg-[#0a0a0a] p-6 transition-all hover:border-[#333] ${
-                master ? "border-[#3b82f640]" : "border-[#222]"
+                master ? "border-[#4FC3F740]" : "border-[#222]"
               }`}
             >
               {/* Master badge */}
               {master && (
-                <div className="absolute -top-2.5 left-4 flex items-center gap-1 rounded-full bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-2.5 py-0.5">
+                <div className="absolute -top-2.5 left-4 flex items-center gap-1 rounded-full bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-2.5 py-0.5">
                   <Crown className="h-3 w-3 text-white" />
                   <span className="text-[10px] font-semibold text-white">
                     MASTER
@@ -207,7 +207,7 @@ export default function CompaniesPage() {
                   <div
                     className={`flex h-11 w-11 items-center justify-center rounded-lg ${
                       master
-                        ? "bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6]"
+                        ? "bg-gradient-to-br from-[#4FC3F7] to-[#F5C542]"
                         : "bg-[#1a1a1a]"
                     }`}
                   >
@@ -255,7 +255,7 @@ export default function CompaniesPage() {
                     href={company.website.startsWith("http") ? company.website : `https://${company.website}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-xs text-[#3b82f6] hover:text-[#60a5fa] transition-colors"
+                    className="flex items-center gap-1 text-xs text-[#4FC3F7] hover:text-[#60a5fa] transition-colors"
                   >
                     <Globe className="h-3 w-3" />
                     {company.website.replace(/^https?:\/\//, "")}
@@ -270,7 +270,7 @@ export default function CompaniesPage() {
         {/* Add Company Card */}
         <button
           onClick={() => setShowCreate(!showCreate)}
-          className="flex min-h-[250px] flex-col items-center justify-center rounded-xl border border-dashed border-[#333] bg-[#0a0a0a] transition-all hover:border-[#3b82f6] hover:bg-[#111]"
+          className="flex min-h-[250px] flex-col items-center justify-center rounded-xl border border-dashed border-[#333] bg-[#0a0a0a] transition-all hover:border-[#4FC3F7] hover:bg-[#111]"
         >
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#1a1a1a]">
             <Plus className="h-6 w-6 text-[#666]" />

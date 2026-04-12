@@ -79,8 +79,8 @@ interface AuditLogRow {
 // ─── Constants ──────────────────────────────────────────────────────────────
 
 const stages: { key: LeadStage; label: string; color: string }[] = [
-  { key: "new", label: "New", color: "#3b82f6" },
-  { key: "contacted", label: "Contacted", color: "#8b5cf6" },
+  { key: "new", label: "New", color: "#4FC3F7" },
+  { key: "contacted", label: "Contacted", color: "#F5C542" },
   { key: "qualified", label: "Qualified", color: "#22c55e" },
   { key: "proposal", label: "Proposal", color: "#eab308" },
   { key: "negotiation", label: "Negotiation", color: "#f97316" },
@@ -249,7 +249,7 @@ export default function LeadDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4">
         <p className="text-[#888]">Lead not found</p>
-        <Link href="/leads" className="text-[#3b82f6] hover:underline text-sm">
+        <Link href="/leads" className="text-[#4FC3F7] hover:underline text-sm">
           Back to Leads
         </Link>
       </div>
@@ -309,7 +309,7 @@ export default function LeadDetailPage() {
           <button
             onClick={handleGenerateProposal}
             disabled={generating}
-            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             <Sparkles className="h-4 w-4" />
             {generating ? "Generating..." : "Generate Proposal"}
@@ -374,7 +374,7 @@ export default function LeadDetailPage() {
               <div className="space-y-1">
                 <p className="text-xs text-[#666]">Score</p>
                 <p className="flex items-center gap-2 text-sm text-white">
-                  <BarChart3 className="h-4 w-4 text-[#3b82f6]" />
+                  <BarChart3 className="h-4 w-4 text-[#4FC3F7]" />
                   <span
                     className={
                       lead.score > 70
@@ -400,7 +400,7 @@ export default function LeadDetailPage() {
               <div className="space-y-1">
                 <p className="text-xs text-[#666]">Assigned Agent</p>
                 <p className="flex items-center gap-2 text-sm text-white">
-                  <User className="h-4 w-4 text-[#8b5cf6]" />
+                  <User className="h-4 w-4 text-[#F5C542]" />
                   {lead.assigned_agent ?? "Unassigned"}
                 </p>
               </div>
@@ -448,7 +448,7 @@ export default function LeadDetailPage() {
               <button
                 onClick={handleSaveNotes}
                 disabled={saving}
-                className="flex items-center gap-1.5 rounded-lg border border-[#333] px-3 py-1.5 text-xs font-medium text-[#888] transition-colors hover:text-white hover:border-[#3b82f6] disabled:opacity-50"
+                className="flex items-center gap-1.5 rounded-lg border border-[#333] px-3 py-1.5 text-xs font-medium text-[#888] transition-colors hover:text-white hover:border-[#4FC3F7] disabled:opacity-50"
               >
                 <Save className="h-3.5 w-3.5" />
                 {saving ? "Saving..." : "Save"}
@@ -458,7 +458,7 @@ export default function LeadDetailPage() {
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={5}
-              className="w-full rounded-lg border border-[#333] bg-[#111] px-4 py-3 text-sm text-white placeholder-[#666] focus:border-[#3b82f6] focus:outline-none resize-none"
+              className="w-full rounded-lg border border-[#333] bg-[#111] px-4 py-3 text-sm text-white placeholder-[#666] focus:border-[#4FC3F7] focus:outline-none resize-none"
               placeholder="Add notes about this lead..."
             />
           </div>
@@ -480,7 +480,7 @@ export default function LeadDetailPage() {
                 {proposals.map((p) => {
                   const statusColors: Record<string, { text: string; bg: string }> = {
                     draft: { text: "#888", bg: "#88888815" },
-                    sent: { text: "#3b82f6", bg: "#3b82f615" },
+                    sent: { text: "#4FC3F7", bg: "#4FC3F715" },
                     accepted: { text: "#22c55e", bg: "#22c55e15" },
                     rejected: { text: "#ef4444", bg: "#ef444415" },
                   };

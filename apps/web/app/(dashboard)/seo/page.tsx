@@ -182,7 +182,7 @@ export default function SeoAuditsPage() {
         </div>
         <button
           onClick={() => setShowNewAudit(!showNewAudit)}
-          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
         >
           <Plus className="h-4 w-4" />
           New Audit
@@ -213,7 +213,7 @@ export default function SeoAuditsPage() {
             <button
               onClick={handleRunAudit}
               disabled={submitting || !auditUrl.trim()}
-              className="rounded-lg bg-[#3b82f6] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#2563eb] disabled:opacity-50"
+              className="rounded-lg bg-[#4FC3F7] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#38B2D8] disabled:opacity-50"
             >
               {submitting ? "Running..." : "Run Audit"}
             </button>
@@ -274,7 +274,7 @@ export default function SeoAuditsPage() {
                     <td className="px-5 py-4">
                       <Link
                         href={`/seo/${audit.id}`}
-                        className="flex items-center gap-2 text-sm font-medium text-white hover:text-[#3b82f6] transition-colors"
+                        className="flex items-center gap-2 text-sm font-medium text-white hover:text-[#4FC3F7] transition-colors"
                       >
                         <Globe className="h-4 w-4 text-[#666]" />
                         {site?.url ?? "Unknown"}

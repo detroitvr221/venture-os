@@ -197,7 +197,7 @@ export default function ChatPage() {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#222] px-4 py-3">
           <h2 className="text-sm font-semibold text-white">Chat</h2>
-          <button onClick={handleNewThread} className="flex items-center gap-1.5 rounded-lg bg-[#3b82f6] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#2563eb]">
+          <button onClick={handleNewThread} className="flex items-center gap-1.5 rounded-lg bg-[#4FC3F7] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#38B2D8]">
             <Plus className="h-3.5 w-3.5" /> New
           </button>
         </div>
@@ -209,7 +209,7 @@ export default function ChatPage() {
             <input
               value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search threads..."
-              className="w-full rounded-lg border border-[#222] bg-[#111] py-1.5 pl-8 pr-3 text-xs text-white placeholder:text-[#555] focus:border-[#3b82f6] focus:outline-none"
+              className="w-full rounded-lg border border-[#222] bg-[#111] py-1.5 pl-8 pr-3 text-xs text-white placeholder:text-[#555] focus:border-[#4FC3F7] focus:outline-none"
             />
           </div>
         </div>
@@ -222,7 +222,7 @@ export default function ChatPage() {
             <div className="flex flex-col items-center py-12">
               <MessageSquare className="mb-2 h-8 w-8 text-[#333]" />
               <p className="text-xs text-[#666]">No conversations yet</p>
-              <button onClick={handleNewThread} className="mt-2 text-xs text-[#3b82f6] hover:underline">Start your first chat</button>
+              <button onClick={handleNewThread} className="mt-2 text-xs text-[#4FC3F7] hover:underline">Start your first chat</button>
             </div>
           ) : (
             <>
@@ -278,12 +278,12 @@ export default function ChatPage() {
       <div className={`${!activeThreadId ? "hidden md:flex" : "flex"} flex-1 flex-col bg-[#111]`}>
         {!activeThreadId ? (
           <div className="flex flex-1 flex-col items-center justify-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#3b82f6]/20 to-[#8b5cf6]/20">
-              <MessageSquare className="h-8 w-8 text-[#3b82f6]" />
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#4FC3F7]/20 to-[#F5C542]/20">
+              <MessageSquare className="h-8 w-8 text-[#4FC3F7]" />
             </div>
             <h2 className="mt-4 text-lg font-semibold text-white">Your Workspace</h2>
             <p className="mt-1 text-sm text-[#888]">Start a conversation or select an existing thread</p>
-            <button onClick={handleNewThread} className="mt-4 flex items-center gap-2 rounded-lg bg-[#3b82f6] px-4 py-2 text-sm font-medium text-white hover:bg-[#2563eb]">
+            <button onClick={handleNewThread} className="mt-4 flex items-center gap-2 rounded-lg bg-[#4FC3F7] px-4 py-2 text-sm font-medium text-white hover:bg-[#38B2D8]">
               <Plus className="h-4 w-4" /> New Chat
             </button>
           </div>
@@ -325,13 +325,13 @@ export default function ChatPage() {
                   {messages.map((msg) => (
                     <div key={msg.id} className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                       {msg.role !== "user" && (
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#8b5cf6]/20">
-                          <Bot className="h-4 w-4 text-[#8b5cf6]" />
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#F5C542]/20">
+                          <Bot className="h-4 w-4 text-[#F5C542]" />
                         </div>
                       )}
                       <div className={`max-w-[70%] rounded-2xl px-4 py-2.5 ${
                         msg.role === "user"
-                          ? "bg-[#3b82f6] text-white"
+                          ? "bg-[#4FC3F7] text-white"
                           : "bg-[#1a1a1a] text-[#ddd]"
                       }`}>
                         <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
@@ -341,16 +341,16 @@ export default function ChatPage() {
                         </p>
                       </div>
                       {msg.role === "user" && (
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#3b82f6]/20">
-                          <User className="h-4 w-4 text-[#3b82f6]" />
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#4FC3F7]/20">
+                          <User className="h-4 w-4 text-[#4FC3F7]" />
                         </div>
                       )}
                     </div>
                   ))}
                   {sending && (
                     <div className="flex gap-3">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#8b5cf6]/20">
-                        <Bot className="h-4 w-4 text-[#8b5cf6]" />
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#F5C542]/20">
+                        <Bot className="h-4 w-4 text-[#F5C542]" />
                       </div>
                       <div className="rounded-2xl bg-[#1a1a1a] px-4 py-3">
                         <div className="flex gap-1">
@@ -376,13 +376,13 @@ export default function ChatPage() {
                   onKeyDown={handleKeyDown}
                   placeholder="Type a message... (Enter to send, Shift+Enter for new line)"
                   rows={1}
-                  className="flex-1 resize-none rounded-xl border border-[#333] bg-[#111] px-4 py-2.5 text-sm text-white placeholder:text-[#555] focus:border-[#3b82f6] focus:outline-none"
+                  className="flex-1 resize-none rounded-xl border border-[#333] bg-[#111] px-4 py-2.5 text-sm text-white placeholder:text-[#555] focus:border-[#4FC3F7] focus:outline-none"
                   style={{ minHeight: "40px", maxHeight: "120px" }}
                 />
                 <button
                   onClick={handleSend}
                   disabled={!input.trim() || sending}
-                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#3b82f6] text-white transition hover:bg-[#2563eb] disabled:opacity-40"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#4FC3F7] text-white transition hover:bg-[#38B2D8] disabled:opacity-40"
                 >
                   <Send className="h-4 w-4" />
                 </button>
@@ -420,11 +420,11 @@ function ThreadItem({ thread, active, onClick, onArchive, onPin, onDelete, onRen
   return (
     <div
       className={`group relative mb-0.5 flex items-center gap-2 rounded-lg px-2 py-2 text-sm transition cursor-pointer ${
-        active ? "bg-[#1a1a2e] text-white" : "text-[#999] hover:bg-[#111] hover:text-white"
+        active ? "bg-[#1a1a2a] text-white" : "text-[#999] hover:bg-[#111] hover:text-white"
       }`}
       onClick={onClick}
     >
-      <MessageSquare className={`h-4 w-4 shrink-0 ${active ? "text-[#3b82f6]" : "text-[#555]"}`} />
+      <MessageSquare className={`h-4 w-4 shrink-0 ${active ? "text-[#4FC3F7]" : "text-[#555]"}`} />
       <div className="min-w-0 flex-1">
         {editing ? (
           <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)}

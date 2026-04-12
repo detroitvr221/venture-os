@@ -48,12 +48,12 @@ export default function ProjectDetailPage() {
     setLoading(false);
   }
 
-  if (loading) return <div className="flex items-center justify-center py-32"><div className="h-6 w-6 animate-spin rounded-full border-2 border-[#3b82f6] border-t-transparent" /></div>;
-  if (!project) return <div className="py-16 text-center"><p className="text-[#666]">Project not found</p><Link href="/projects" className="mt-2 text-sm text-[#3b82f6]">Back to projects</Link></div>;
+  if (loading) return <div className="flex items-center justify-center py-32"><div className="h-6 w-6 animate-spin rounded-full border-2 border-[#4FC3F7] border-t-transparent" /></div>;
+  if (!project) return <div className="py-16 text-center"><p className="text-[#666]">Project not found</p><Link href="/projects" className="mt-2 text-sm text-[#4FC3F7]">Back to projects</Link></div>;
 
   const statusColors: Record<string, string> = {
     planning: "bg-[#f59e0b]/20 text-[#f59e0b]",
-    active: "bg-[#3b82f6]/20 text-[#3b82f6]",
+    active: "bg-[#4FC3F7]/20 text-[#4FC3F7]",
     on_hold: "bg-[#888]/20 text-[#888]",
     completed: "bg-[#10b981]/20 text-[#10b981]",
     cancelled: "bg-[#ef4444]/20 text-[#ef4444]",
@@ -74,7 +74,7 @@ export default function ProjectDetailPage() {
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-3">
-          <FolderKanban className="h-6 w-6 text-[#3b82f6]" />
+          <FolderKanban className="h-6 w-6 text-[#4FC3F7]" />
           <h1 className="text-2xl font-bold text-white">{project.name}</h1>
           <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${statusColors[project.status] || statusColors.planning}`}>{project.status}</span>
         </div>
@@ -94,7 +94,7 @@ export default function ProjectDetailPage() {
         </div>
         <div className="rounded-xl border border-[#222] bg-[#0a0a0a] p-4">
           <p className="text-xs text-[#888]">In Progress</p>
-          <p className="mt-1 text-2xl font-bold text-[#3b82f6]">{taskStats.inProgress}</p>
+          <p className="mt-1 text-2xl font-bold text-[#4FC3F7]">{taskStats.inProgress}</p>
         </div>
         <div className="rounded-xl border border-[#222] bg-[#0a0a0a] p-4">
           <p className="text-xs text-[#888]">Completed</p>
@@ -121,14 +121,14 @@ export default function ProjectDetailPage() {
                 <div className="flex-1">
                   <p className={`text-sm ${task.status === "completed" || task.status === "done" ? "text-[#666] line-through" : "text-white"}`}>{task.title}</p>
                   <div className="mt-0.5 flex items-center gap-2 text-[10px] text-[#666]">
-                    {task.assigned_agent && <span className="rounded bg-[#8b5cf6]/20 px-1.5 py-0.5 text-[#8b5cf6]">{task.assigned_agent}</span>}
+                    {task.assigned_agent && <span className="rounded bg-[#F5C542]/20 px-1.5 py-0.5 text-[#F5C542]">{task.assigned_agent}</span>}
                     {task.priority && <span>{task.priority}</span>}
                     {task.due_date && <span>Due {new Date(task.due_date).toLocaleDateString()}</span>}
                   </div>
                 </div>
                 <span className={`rounded-full px-2 py-0.5 text-[10px] ${
                   task.status === "completed" || task.status === "done" ? "bg-[#10b981]/20 text-[#10b981]"
-                  : task.status === "in_progress" ? "bg-[#3b82f6]/20 text-[#3b82f6]"
+                  : task.status === "in_progress" ? "bg-[#4FC3F7]/20 text-[#4FC3F7]"
                   : "bg-[#666]/20 text-[#666]"
                 }`}>{task.status}</span>
               </div>

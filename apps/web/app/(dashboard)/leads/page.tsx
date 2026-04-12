@@ -32,8 +32,8 @@ interface LeadRow {
 }
 
 const columns: { key: LeadStage; label: string; color: string }[] = [
-  { key: "new", label: "New", color: "#3b82f6" },
-  { key: "contacted", label: "Contacted", color: "#8b5cf6" },
+  { key: "new", label: "New", color: "#4FC3F7" },
+  { key: "contacted", label: "Contacted", color: "#F5C542" },
   { key: "qualified", label: "Qualified", color: "#22c55e" },
   { key: "proposal", label: "Proposal", color: "#eab308" },
   { key: "negotiation", label: "Negotiation", color: "#f97316" },
@@ -154,7 +154,7 @@ export default function LeadsPage() {
         </div>
         <button
           onClick={() => setShowAddModal(!showAddModal)}
-          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
         >
           <Plus className="h-4 w-4" />
           Add Lead
@@ -170,19 +170,19 @@ export default function LeadsPage() {
             <input type="hidden" name="company_id" value={ORG_ID} />
             <div>
               <label className="text-xs text-[#888] block mb-1">Contact Name *</label>
-              <input name="contact_name" required className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder-[#666] focus:border-[#3b82f6] focus:outline-none" placeholder="Jane Smith" />
+              <input name="contact_name" required className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder-[#666] focus:border-[#4FC3F7] focus:outline-none" placeholder="Jane Smith" />
             </div>
             <div>
               <label className="text-xs text-[#888] block mb-1">Email *</label>
-              <input name="contact_email" type="email" required className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder-[#666] focus:border-[#3b82f6] focus:outline-none" placeholder="jane@company.com" />
+              <input name="contact_email" type="email" required className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder-[#666] focus:border-[#4FC3F7] focus:outline-none" placeholder="jane@company.com" />
             </div>
             <div>
               <label className="text-xs text-[#888] block mb-1">Phone</label>
-              <input name="contact_phone" className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder-[#666] focus:border-[#3b82f6] focus:outline-none" placeholder="+1234567890" />
+              <input name="contact_phone" className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder-[#666] focus:border-[#4FC3F7] focus:outline-none" placeholder="+1234567890" />
             </div>
             <div>
               <label className="text-xs text-[#888] block mb-1">Source</label>
-              <select name="source" className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white focus:border-[#3b82f6] focus:outline-none">
+              <select name="source" className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white focus:border-[#4FC3F7] focus:outline-none">
                 <option value="">Select source</option>
                 <option value="website">Website</option>
                 <option value="referral">Referral</option>
@@ -194,14 +194,14 @@ export default function LeadsPage() {
             </div>
             <div>
               <label className="text-xs text-[#888] block mb-1">Expected Value ($)</label>
-              <input name="expected_value" type="number" min="0" className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder-[#666] focus:border-[#3b82f6] focus:outline-none" placeholder="10000" />
+              <input name="expected_value" type="number" min="0" className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder-[#666] focus:border-[#4FC3F7] focus:outline-none" placeholder="10000" />
             </div>
             <div>
               <label className="text-xs text-[#888] block mb-1">Notes</label>
-              <input name="notes" className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder-[#666] focus:border-[#3b82f6] focus:outline-none" placeholder="Interested in AI integration..." />
+              <input name="notes" className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder-[#666] focus:border-[#4FC3F7] focus:outline-none" placeholder="Interested in AI integration..." />
             </div>
             <div className="sm:col-span-2 flex items-center gap-3">
-              <button type="submit" className="rounded-lg bg-[#3b82f6] px-4 py-2 text-sm font-medium text-white hover:bg-[#2563eb]">
+              <button type="submit" className="rounded-lg bg-[#4FC3F7] px-4 py-2 text-sm font-medium text-white hover:bg-[#38B2D8]">
                 Create Lead
               </button>
               <button type="button" onClick={() => setShowAddModal(false)} className="rounded-lg border border-[#333] px-4 py-2 text-sm text-[#888] hover:text-white">
@@ -291,7 +291,7 @@ export default function LeadsPage() {
                           {lead.source}
                         </span>
                         {lead.assigned_agent && (
-                          <span className="rounded-md bg-[#3b82f615] px-2 py-0.5 text-[10px] font-medium text-[#3b82f6]">
+                          <span className="rounded-md bg-[#4FC3F715] px-2 py-0.5 text-[10px] font-medium text-[#4FC3F7]">
                             {lead.assigned_agent}
                           </span>
                         )}

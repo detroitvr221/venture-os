@@ -56,7 +56,7 @@ export default function SettingsPage() {
             return (
               <button key={t.key} onClick={() => setActiveTab(t.key)}
                 className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition ${
-                  activeTab === t.key ? "bg-[#1a1a2e] text-[#3b82f6]" : "text-[#888] hover:bg-[#1a1a1a] hover:text-[#ccc]"
+                  activeTab === t.key ? "bg-[#1a1a2a] text-[#4FC3F7]" : "text-[#888] hover:bg-[#1a1a1a] hover:text-[#ccc]"
                 }`}
               >
                 <Icon className="h-4 w-4" /> {t.label}
@@ -75,7 +75,7 @@ export default function SettingsPage() {
                   <div>
                     <label className="mb-1 block text-xs text-[#888]">Organization Name</label>
                     <input value={orgName} onChange={(e) => setOrgName(e.target.value)}
-                      className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white focus:border-[#3b82f6] focus:outline-none" />
+                      className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white focus:border-[#4FC3F7] focus:outline-none" />
                   </div>
                   <div>
                     <label className="mb-1 block text-xs text-[#888]">Account Email</label>
@@ -103,7 +103,7 @@ export default function SettingsPage() {
                       setSaving(false);
                     }}
                     disabled={saving}
-                    className="flex items-center gap-2 rounded-lg bg-[#3b82f6] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#2563eb] disabled:opacity-50"
+                    className="flex items-center gap-2 rounded-lg bg-[#4FC3F7] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#38B2D8] disabled:opacity-50"
                   >
                     <Save className="h-4 w-4" />
                     {saving ? "Saving..." : "Save Changes"}

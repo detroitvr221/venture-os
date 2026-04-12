@@ -10,7 +10,7 @@ const steps = [
     title: "Welcome to Northbridge Digital",
     description:
       "We're excited to have you onboard. Let's get your account set up in a few simple steps so we can start building your digital presence.",
-    color: "#3b82f6",
+    color: "#4FC3F7",
   },
   {
     icon: FileText,
@@ -19,7 +19,7 @@ const steps = [
       "Tell us about your business, goals, and current digital presence so we can tailor our approach.",
     href: "/intake",
     cta: "Go to Intake Form",
-    color: "#8b5cf6",
+    color: "#F5C542",
   },
   {
     icon: Phone,
@@ -57,7 +57,7 @@ export default function WelcomePage() {
               onClick={() => setCurrentStep(i)}
               className={`h-2 rounded-full transition-all ${
                 i === currentStep
-                  ? "w-8 bg-[#3b82f6]"
+                  ? "w-8 bg-[#4FC3F7]"
                   : i < currentStep
                     ? "w-2 bg-[#22c55e]"
                     : "w-2 bg-[#333]"
@@ -84,7 +84,7 @@ export default function WelcomePage() {
             {step.href ? (
               <Link
                 href={step.href}
-                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90"
               >
                 {step.cta}
                 <ArrowRight className="h-4 w-4" />
@@ -92,7 +92,7 @@ export default function WelcomePage() {
             ) : (
               <button
                 onClick={() => setCurrentStep(1)}
-                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90"
               >
                 Get Started
                 <ArrowRight className="h-4 w-4" />

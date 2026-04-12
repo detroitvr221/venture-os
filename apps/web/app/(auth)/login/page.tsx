@@ -66,7 +66,7 @@ export default function LoginPage() {
               required
               autoComplete="email"
               placeholder="you@company.com"
-              className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] px-4 py-2.5 text-sm text-white placeholder-[#666] outline-none transition-colors focus:border-[#3b82f6]"
+              className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] px-4 py-2.5 text-sm text-white placeholder-[#666] outline-none transition-colors focus:border-[#4FC3F7]"
             />
           </div>
 
@@ -85,14 +85,14 @@ export default function LoginPage() {
               required
               autoComplete="current-password"
               placeholder="••••••••"
-              className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] px-4 py-2.5 text-sm text-white placeholder-[#666] outline-none transition-colors focus:border-[#3b82f6]"
+              className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] px-4 py-2.5 text-sm text-white placeholder-[#666] outline-none transition-colors focus:border-[#4FC3F7]"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="w-full rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {loading ? "Signing in..." : "Sign In"}
           </button>
@@ -109,7 +109,7 @@ export default function LoginPage() {
               if (resetError) setError(resetError.message);
               else setResetSent(true);
             }}
-            className="text-xs text-[#666] hover:text-[#3b82f6] transition-colors"
+            className="text-xs text-[#666] hover:text-[#4FC3F7] transition-colors"
           >
             Forgot your password?
           </button>
@@ -122,7 +122,7 @@ export default function LoginPage() {
           Don&apos;t have an account?{" "}
           <Link
             href="/signup"
-            className="font-medium text-[#3b82f6] hover:text-[#60a5fa] transition-colors"
+            className="font-medium text-[#4FC3F7] hover:text-[#60a5fa] transition-colors"
           >
             Sign up
           </Link>

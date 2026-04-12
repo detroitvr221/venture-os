@@ -144,10 +144,10 @@ const statusColors: Record<string, { text: string; bg: string }> = {
 };
 
 const meterConfig: Record<string, { icon: typeof Zap; color: string; limit: number; unit: string }> = {
-  agent_tokens: { icon: Zap, color: "#3b82f6", limit: 1000000, unit: "tokens" },
-  api_calls: { icon: Zap, color: "#3b82f6", limit: 100000, unit: "calls" },
+  agent_tokens: { icon: Zap, color: "#4FC3F7", limit: 1000000, unit: "tokens" },
+  api_calls: { icon: Zap, color: "#4FC3F7", limit: 100000, unit: "calls" },
   crawl_pages: { icon: Globe, color: "#eab308", limit: 5000, unit: "pages" },
-  storage_gb: { icon: Database, color: "#8b5cf6", limit: 100, unit: "GB" },
+  storage_gb: { icon: Database, color: "#F5C542", limit: 100, unit: "GB" },
   compute_hours: { icon: Cpu, color: "#22c55e", limit: 500, unit: "hrs" },
 };
 

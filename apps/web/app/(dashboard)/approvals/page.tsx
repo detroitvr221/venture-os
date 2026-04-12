@@ -69,8 +69,8 @@ const typeIcons: Record<string, typeof FileText> = {
 
 const typeColors: Record<string, string> = {
   financial: "#22c55e",
-  agent: "#8b5cf6",
-  sub_company: "#3b82f6",
+  agent: "#F5C542",
+  sub_company: "#4FC3F7",
   contract: "#eab308",
   deployment: "#f97316",
   proposal: "#eab308",

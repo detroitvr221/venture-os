@@ -129,7 +129,7 @@ export default function EmailPage() {
           </button>
           <Link
             href="/email/compose"
-            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#3b82f6] to-[#8b5cf6] px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
+            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
           >
             <PenSquare className="h-4 w-4" />
             Compose
@@ -149,7 +149,7 @@ export default function EmailPage() {
                 onClick={() => setFolder(f.key)}
                 className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition ${
                   isActive
-                    ? "bg-[#1a1a2e] text-[#3b82f6]"
+                    ? "bg-[#1a1a2a] text-[#4FC3F7]"
                     : "text-[#888] hover:bg-[#1a1a1a] hover:text-[#ccc]"
                 }`}
               >
@@ -159,7 +159,7 @@ export default function EmailPage() {
                 </span>
                 {f.count !== undefined && f.count > 0 && (
                   <span className={`rounded-full px-1.5 py-0.5 text-xs ${
-                    isActive ? "bg-[#3b82f6]/20 text-[#3b82f6]" : "bg-[#222] text-[#666]"
+                    isActive ? "bg-[#4FC3F7]/20 text-[#4FC3F7]" : "bg-[#222] text-[#666]"
                   }`}>
                     {f.count}
                   </span>
@@ -180,7 +180,7 @@ export default function EmailPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && loadEmails()}
-              className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] py-2 pl-10 pr-4 text-sm text-white placeholder:text-[#666] focus:border-[#3b82f6] focus:outline-none"
+              className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] py-2 pl-10 pr-4 text-sm text-white placeholder:text-[#666] focus:border-[#4FC3F7] focus:outline-none"
             />
           </div>
 
@@ -218,8 +218,8 @@ export default function EmailPage() {
                       {/* Avatar */}
                       <div className={`mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
                         email.direction === "outbound"
-                          ? "bg-[#8b5cf6]/20 text-[#8b5cf6]"
-                          : "bg-[#3b82f6]/20 text-[#3b82f6]"
+                          ? "bg-[#F5C542]/20 text-[#F5C542]"
+                          : "bg-[#4FC3F7]/20 text-[#4FC3F7]"
                       }`}>
                         {email.direction === "outbound" ? (
                           <Send className="h-4 w-4" />
@@ -246,7 +246,7 @@ export default function EmailPage() {
                         {/* Tags */}
                         <div className="mt-1 flex items-center gap-2">
                           {isUnread && (
-                            <span className="rounded-full bg-[#3b82f6]/20 px-2 py-0.5 text-[10px] font-medium text-[#3b82f6]">
+                            <span className="rounded-full bg-[#4FC3F7]/20 px-2 py-0.5 text-[10px] font-medium text-[#4FC3F7]">
                               New
                             </span>
                           )}

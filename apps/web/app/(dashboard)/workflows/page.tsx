@@ -16,7 +16,7 @@ type WorkflowRun = {
 };
 
 const STATUS_ICONS: Record<string, { icon: React.ElementType; color: string }> = {
-  running: { icon: Play, color: "text-[#3b82f6] bg-[#3b82f6]/20" },
+  running: { icon: Play, color: "text-[#4FC3F7] bg-[#4FC3F7]/20" },
   paused: { icon: Pause, color: "text-[#f59e0b] bg-[#f59e0b]/20" },
   completed: { icon: CheckCircle2, color: "text-[#10b981] bg-[#10b981]/20" },
   failed: { icon: XCircle, color: "text-[#ef4444] bg-[#ef4444]/20" },
@@ -69,7 +69,7 @@ export default function WorkflowsPage() {
       {/* Stats */}
       <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {[
-          { label: "Workflows", value: stats.total, color: "text-[#3b82f6]" },
+          { label: "Workflows", value: stats.total, color: "text-[#4FC3F7]" },
           { label: "Running", value: stats.running, color: "text-[#f59e0b]" },
           { label: "Completed", value: stats.completed, color: "text-[#10b981]" },
           { label: "Failed", value: stats.failed, color: "text-[#ef4444]" },
@@ -89,7 +89,7 @@ export default function WorkflowsPage() {
             {workflows.map((wf) => (
               <div key={wf.id} className="rounded-xl border border-[#222] bg-[#0a0a0a] p-4">
                 <div className="flex items-center gap-2">
-                  <GitBranch className="h-4 w-4 text-[#8b5cf6]" />
+                  <GitBranch className="h-4 w-4 text-[#F5C542]" />
                   <h3 className="font-medium text-white">{wf.name}</h3>
                 </div>
                 <p className="mt-1 text-xs text-[#888]">{wf.type} &middot; {wf.description || "No description"}</p>
