@@ -34,6 +34,8 @@ export default function EmailPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [showMailboxes, setShowMailboxes] = useState(true);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selectMode, setSelectMode] = useState(false);
 
   // Load all emails
   const loadEmails = useCallback(async () => {
@@ -99,6 +101,36 @@ export default function EmailPage() {
     return e.direction === "inbound" && e.status !== "archived" && getMailboxName(e) === activeFolder;
   });
 
+  function toggleSelect(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  function selectAll() {
+    if (selected.size === filteredEmails.length) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(filteredEmails.map((e) => e.id)));
+    }
+  }
+
+  async function handleBulkDelete() {
+    const supabase = createClient();
+    const ids = Array.from(selected);
+    const { error } = await supabase.from("emails").delete().in("id", ids);
+    if (error) {
+      toast.error("Failed to delete emails");
+    } else {
+      toast.success(`${ids.length} email${ids.length > 1 ? "s" : ""} deleted`);
+      setEmails((prev) => prev.filter((e) => !selected.has(e.id)));
+      setSelected(new Set());
+      setSelectMode(false);
+    }
+  }
+
   // Delete email
   async function handleDelete(id: string) {
     const supabase = createClient();
@@ -140,6 +172,10 @@ export default function EmailPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <button onClick={() => { setSelectMode(!selectMode); setSelected(new Set()); }}
+            className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition ${selectMode ? "border-[#4FC3F7] bg-[#4FC3F7]/10 text-[#4FC3F7]" : "border-[#333] bg-[#1a1a1a] text-[#ccc] hover:bg-[#222]"}`}>
+            {selectMode ? "Cancel" : "Select"}
+          </button>
           <button onClick={loadEmails} className="flex items-center gap-2 rounded-lg border border-[#333] bg-[#1a1a1a] px-3 py-2 text-sm text-[#ccc] hover:bg-[#222]">
             <RefreshCw className="h-4 w-4" /> Refresh
           </button>
@@ -212,6 +248,21 @@ export default function EmailPage() {
               className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] py-2 pl-10 pr-4 text-sm text-white placeholder:text-[#666] focus:border-[#4FC3F7] focus:outline-none" />
           </div>
 
+          {/* Bulk action bar */}
+          {selectMode && (
+            <div className="mb-3 flex items-center gap-3 rounded-lg border border-[#333] bg-[#1a1a1a] px-4 py-2">
+              <button onClick={selectAll} className="text-xs text-[#4FC3F7] hover:underline">
+                {selected.size === filteredEmails.length ? "Deselect all" : "Select all"}
+              </button>
+              <span className="text-xs text-[#666]">{selected.size} selected</span>
+              {selected.size > 0 && (
+                <button onClick={handleBulkDelete} className="ml-auto flex items-center gap-1 rounded-lg bg-[#ef4444] px-3 py-1 text-xs font-medium text-white hover:bg-[#dc2626]">
+                  <Trash2 className="h-3 w-3" /> Delete {selected.size}
+                </button>
+              )}
+            </div>
+          )}
+
           {/* Active mailbox header */}
           {activeFolder !== "all_inbox" && activeFolder !== "sent" && activeFolder !== "archived" && activeFolder !== "all" && (
             <div className="mb-3 flex items-center gap-2">
@@ -248,7 +299,15 @@ export default function EmailPage() {
                   const mailbox = getMailboxName(email);
 
                   return (
-                    <div key={email.id} className={`group flex items-start gap-3 px-4 py-3 transition hover:bg-[#111] ${isUnread ? "bg-[#0d1117]" : ""}`}>
+                    <div key={email.id} className={`group flex items-start gap-3 px-4 py-3 transition hover:bg-[#111] ${isUnread ? "bg-[#0d1117]" : ""} ${selected.has(email.id) ? "bg-[#4FC3F7]/5" : ""}`}>
+                      {/* Checkbox in select mode */}
+                      {selectMode && (
+                        <button onClick={() => toggleSelect(email.id)} className="mt-2 shrink-0" aria-label="Select email">
+                          <div className={`flex h-5 w-5 items-center justify-center rounded border ${selected.has(email.id) ? "border-[#4FC3F7] bg-[#4FC3F7]" : "border-[#444] bg-transparent"}`}>
+                            {selected.has(email.id) && <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>}
+                          </div>
+                        </button>
+                      )}
                       {/* Avatar */}
                       <div className={`mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
                         email.direction === "outbound" ? "bg-[#F5C542]/20 text-[#F5C542]" : "bg-[#4FC3F7]/20 text-[#4FC3F7]"
