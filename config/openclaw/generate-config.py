@@ -68,7 +68,7 @@ config = {
     },
     "tools":{"profile":"coding","elevated":{"enabled":True},"web":{"search":{"enabled":True},"fetch":{"enabled":True}}},
     "browser":{"headless":True,"noSandbox":True},
-    "plugins":{"allow":["browser","slack","mochat"],"entries":{"browser":{"enabled":True},"slack":{"enabled":True},"mochat":{"enabled":True,"baseUrl":"https://mochat.io","socketUrl":"https://mochat.io","clawToken":env("MOCHAT_TOKEN"),"agentUserId":env("MOCHAT_BOT_USER_ID"),"sessions":["*"],"panels":["*"],"refreshIntervalMs":30000,"replyDelayMode":"non-mention","replyDelayMs":5000}}},
+    "plugins":{"allow":["browser","slack","mochat"],"entries":{"browser":{"enabled":True},"slack":{"enabled":True},"mochat":{"enabled":True}}},
     "hooks":{"enabled":True,"token":"vos-hooks-token-2026"},
     "update":{"channel":"stable","checkOnStart":False},
     "mcp":{"servers":mcp}
@@ -76,3 +76,14 @@ config = {
 
 json.dump(config, open("/data/.openclaw/openclaw.json","w"), indent=2)
 print(f"[CONFIG] Written with {len(mcp)} MCP servers: {', '.join(mcp.keys())}")
+
+# Write MoChat credentials for the mochat plugin
+mt = env("MOCHAT_TOKEN")
+mb = env("MOCHAT_BOT_USER_ID")
+if mt and mb:
+    import os as _os
+    cred_dir = _os.path.expanduser("~/.config/mochat")
+    _os.makedirs(cred_dir, exist_ok=True)
+    creds = {"token":mt,"botUserId":mb,"workspaceId":"claw_square","groupId":"69882e3eeff6dfbac6a4f2a5","agentName":"Atlas-OpenClaw"}
+    json.dump(creds, open(f"{cred_dir}/credentials.json","w"), indent=2)
+    print(f"[CONFIG] MoChat credentials written")
