@@ -4,11 +4,13 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { Settings, Key, Globe, Bot, Mail, Bell, Shield, Save, CheckCircle2 } from "lucide-react";
+import { useOrgId } from "@/lib/useOrgId";
 
 export default function SettingsPage() {
   const [userEmail, setUserEmail] = useState("");
   const [orgName, setOrgName] = useState("Northbridge Digital");
   const [saving, setSaving] = useState(false);
+  const orgId = useOrgId();
   const [activeTab, setActiveTab] = useState("general");
 
   useEffect(() => {
@@ -92,7 +94,7 @@ export default function SettingsPage() {
                       const { error } = await supabase
                         .from("organizations")
                         .update({ name: orgName })
-                        .neq("id", "00000000-0000-0000-0000-000000000000");
+                        .eq("id", orgId);
                       if (error) {
                         toast.error("Failed to save settings");
                       } else {

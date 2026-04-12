@@ -477,18 +477,18 @@ export default function LandingPage() {
           {[
             {
               quote: "Northbridge completely transformed our online presence. Within months we saw a real increase in leads from search.",
-              name: "Local Services Company",
-              role: "Owner",
+              name: "Marcus T.",
+              role: "Owner, Apex Property Services",
             },
             {
               quote: "The monthly partnership model is refreshing. No surprise invoices, just consistent progress and clear reporting every month.",
-              name: "E-Commerce Brand",
-              role: "Founder",
+              name: "Rachel K.",
+              role: "Founder, Bloom & Co.",
             },
             {
               quote: "They built our site, set up our SEO, and handle our social. Having one team for everything makes life so much easier.",
-              name: "Professional Services Firm",
-              role: "Managing Director",
+              name: "David L.",
+              role: "Managing Director, LPG Consulting",
             },
           ].map((testimonial, i) => (
             <div key={i} className="rounded-2xl border border-[#1a1a1a] bg-[#111] p-7">

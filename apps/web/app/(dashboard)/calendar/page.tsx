@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
+import { useOrgId } from "@/lib/useOrgId";
 import {
   Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus, Clock,
   Users, FileText, CheckCircle2, Mail, X,
@@ -47,6 +48,7 @@ export default function CalendarPage() {
 
   // Cal.com bookings
   const [bookings, setBookings] = useState<{ id: string; title: string; start: string; status: string }[]>([]);
+  const orgId = useOrgId();
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -102,7 +104,7 @@ export default function CalendarPage() {
     if (!newEvent.title || !newEvent.date) return;
     const supabase = createClient();
     const { error } = await supabase.from("tasks").insert({
-      organization_id: "00000000-0000-0000-0000-000000000001",
+      organization_id: orgId,
       title: newEvent.title,
       description: newEvent.description || null,
       status: "pending",

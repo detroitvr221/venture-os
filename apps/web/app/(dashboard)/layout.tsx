@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Filter, Users, FolderKanban, Bot, GitBranch, Brain,
   CheckCircle2, CreditCard, Building2, Settings, ChevronLeft, ChevronRight,
   FileText, Search, Send, LogOut, Mail, ClipboardList, MessageSquare,
-  ShieldCheck, UserPlus, BookOpen, Menu, X, Calendar,
+  ShieldCheck, UserPlus, BookOpen, Menu, X, Calendar, Bell,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -204,13 +204,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <main className="flex-1 overflow-y-auto bg-[#111]">
         {/* Mobile header */}
         <div className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-[#222] bg-[#0a0a0a] px-4 md:hidden">
-          <button onClick={() => setMobileOpen(true)} className="rounded p-1.5 text-[#888] hover:text-white">
+          <button onClick={() => setMobileOpen(true)} className="rounded p-1.5 text-[#888] hover:text-white" aria-label="Open menu">
             <Menu className="h-5 w-5" />
           </button>
           <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6]">
             <span className="text-[10px] font-bold text-white">NB</span>
           </div>
-          <span className="text-sm font-medium text-white">Northbridge</span>
+          <span className="flex-1 text-sm font-medium text-white">Northbridge</span>
+          <button className="relative rounded p-1.5 text-[#888] hover:text-white" aria-label="Notifications">
+            <Bell className="h-5 w-5" />
+            <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#3b82f6] text-[8px] font-bold text-white">3</span>
+          </button>
         </div>
         <div className="mx-auto max-w-[1400px] p-4 sm:p-6 lg:p-8">{children}</div>
       </main>

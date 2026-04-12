@@ -157,9 +157,11 @@ export default function ChatPage() {
     await pinChatThread(id, !pinned);
     loadThreads();
   }
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   async function handleDelete(id: string) {
     await deleteChatThread(id);
     if (activeThreadId === id) { setActiveThreadId(null); setMessages([]); }
+    setDeleteConfirm(null);
     loadThreads();
   }
   async function handleRename(id: string) {
@@ -231,7 +233,7 @@ export default function ChatPage() {
                   {pinnedThreads.map((t) => (
                     <ThreadItem key={t.id} thread={t} active={t.id === activeThreadId}
                       onClick={() => setActiveThreadId(t.id)} onArchive={() => handleArchive(t.id)}
-                      onPin={() => handlePin(t.id, t.is_pinned)} onDelete={() => handleDelete(t.id)}
+                      onPin={() => handlePin(t.id, t.is_pinned)} onDelete={() => setDeleteConfirm(t.id)}
                       onRename={() => { setEditingTitle(t.id); setEditTitle(t.title || ""); }}
                       timeAgo={timeAgo} editing={editingTitle === t.id} editTitle={editTitle}
                       setEditTitle={setEditTitle} onSaveTitle={() => handleRename(t.id)} />
@@ -245,7 +247,7 @@ export default function ChatPage() {
                   {recentThreads.map((t) => (
                     <ThreadItem key={t.id} thread={t} active={t.id === activeThreadId}
                       onClick={() => setActiveThreadId(t.id)} onArchive={() => handleArchive(t.id)}
-                      onPin={() => handlePin(t.id, t.is_pinned)} onDelete={() => handleDelete(t.id)}
+                      onPin={() => handlePin(t.id, t.is_pinned)} onDelete={() => setDeleteConfirm(t.id)}
                       onRename={() => { setEditingTitle(t.id); setEditTitle(t.title || ""); }}
                       timeAgo={timeAgo} editing={editingTitle === t.id} editTitle={editTitle}
                       setEditTitle={setEditTitle} onSaveTitle={() => handleRename(t.id)} />
@@ -262,7 +264,7 @@ export default function ChatPage() {
                   {showArchived && archivedThreads.map((t) => (
                     <ThreadItem key={t.id} thread={t} active={t.id === activeThreadId}
                       onClick={() => setActiveThreadId(t.id)} onArchive={() => handleArchive(t.id)}
-                      onPin={() => handlePin(t.id, t.is_pinned)} onDelete={() => handleDelete(t.id)}
+                      onPin={() => handlePin(t.id, t.is_pinned)} onDelete={() => setDeleteConfirm(t.id)}
                       onRename={() => {}} timeAgo={timeAgo} editing={false} editTitle="" setEditTitle={() => {}} onSaveTitle={() => {}} />
                   ))}
                 </div>
@@ -389,6 +391,19 @@ export default function ChatPage() {
           </>
         )}
       </div>
+      {/* Delete confirmation modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" role="dialog" aria-modal="true" aria-labelledby="delete-title" onClick={() => setDeleteConfirm(null)}>
+          <div className="w-full max-w-sm rounded-xl border border-[#333] bg-[#0a0a0a] p-6" onClick={(e) => e.stopPropagation()}>
+            <h3 id="delete-title" className="text-lg font-semibold text-white">Delete Thread</h3>
+            <p className="mt-1 text-sm text-[#888]">This conversation will be permanently deleted. This cannot be undone.</p>
+            <div className="mt-4 flex justify-end gap-2">
+              <button onClick={() => setDeleteConfirm(null)} className="rounded-lg px-4 py-2 text-xs text-[#888] hover:text-white">Cancel</button>
+              <button onClick={() => handleDelete(deleteConfirm)} className="rounded-lg bg-[#ef4444] px-4 py-2 text-xs font-medium text-white hover:bg-[#dc2626]">Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
