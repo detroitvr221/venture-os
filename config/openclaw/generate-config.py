@@ -63,10 +63,13 @@ config = {
         "compaction":{"mode":"safeguard"},
         "heartbeat":{"every":"30m","target":"last","activeHours":{"start":"08:00","end":"22:00","timezone":"America/New_York"}}
     },"list":agents},
-    "channels":{"slack":{"mode":"socket","enabled":True,"requireMention":False,"groupPolicy":"open","dmPolicy":"open","allowFrom":["*"],"streaming":{"mode":"partial","nativeTransport":True}}},
+    "channels":{
+        "slack":{"mode":"socket","enabled":True,"requireMention":False,"groupPolicy":"open","dmPolicy":"open","allowFrom":["*"],"streaming":{"mode":"partial","nativeTransport":True}},
+        "mochat":{"baseUrl":"https://mochat.io","socketUrl":"https://mochat.io","clawToken":env("MOCHAT_TOKEN"),"agentUserId":env("MOCHAT_BOT_USER_ID"),"sessions":["*"],"panels":["*"],"refreshIntervalMs":30000,"replyDelayMode":"non-mention","replyDelayMs":5000}
+    },
     "tools":{"profile":"coding","elevated":{"enabled":True},"web":{"search":{"enabled":True},"fetch":{"enabled":True}}},
     "browser":{"headless":True,"noSandbox":True},
-    "plugins":{"allow":["browser","slack"],"entries":{"browser":{"enabled":True},"slack":{"enabled":True}}},
+    "plugins":{"allow":["browser","slack","mochat"],"entries":{"browser":{"enabled":True},"slack":{"enabled":True},"mochat":{"enabled":True}}},
     "hooks":{"enabled":True,"token":"vos-hooks-token-2026"},
     "update":{"channel":"stable","checkOnStart":False},
     "mcp":{"servers":mcp}
