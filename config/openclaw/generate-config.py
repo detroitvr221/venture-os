@@ -49,12 +49,16 @@ config = {
             {"id":"gpt-4.1-mini","name":"GPT-4.1 Mini","reasoning":True,"input":["text","image"],"contextWindow":1047576,"maxTokens":32768},
             {"id":"o4-mini","name":"o4-mini","reasoning":True,"input":["text","image"],"contextWindow":200000,"maxTokens":100000}
         ]},
+        "minimax":{"baseUrl":"https://api.minimax.io/v1","auth":"api-key","api":"openai-completions","models":[
+            {"id":"MiniMax-M2.7","name":"MiniMax M2.7","reasoning":True,"input":["text","image"],"contextWindow":204800,"maxTokens":131072,"cost":{"input":0.30,"output":1.20}},
+            {"id":"MiniMax-M2.7-highspeed","name":"MiniMax M2.7 Fast","reasoning":True,"input":["text","image"],"contextWindow":204800,"maxTokens":131072,"cost":{"input":0.15,"output":0.60}}
+        ]},
         "nexos":{"baseUrl":"https://api.nexos.ai/v1","auth":"api-key","api":"openai-completions","models":[
             {"id":"5b24e76b-7ac9-4f11-b6d0-f9c6a3a1fafd","name":"Nexos GPT 5.4","reasoning":True,"input":["text","image"],"cost":{"input":0,"output":0},"contextWindow":200000,"maxTokens":8192}
         ]}
     }},
     "agents":{"defaults":{
-        "model":{"primary":"openai/gpt-5.4-mini"},
+        "model":{"primary":"minimax/MiniMax-M2.7","secondary":"openai/gpt-5.4-mini"},
         "workspace":"/data/.openclaw/workspace",
         "compaction":{"mode":"safeguard"},
         "heartbeat":{"every":"30m","target":"last","activeHours":{"start":"08:00","end":"22:00","timezone":"America/New_York"}}
