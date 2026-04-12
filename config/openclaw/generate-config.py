@@ -49,7 +49,7 @@ config = {
             {"id":"gpt-4.1-mini","name":"GPT-4.1 Mini","reasoning":True,"input":["text","image"],"contextWindow":1047576,"maxTokens":32768},
             {"id":"o4-mini","name":"o4-mini","reasoning":True,"input":["text","image"],"contextWindow":200000,"maxTokens":100000}
         ]},
-        "minimax":{"baseUrl":"https://api.minimax.io/v1","auth":"api-key","api":"openai-completions","models":[
+        "minimax":{"baseUrl":"https://api.minimax.io/anthropic","auth":"api-key","api":"anthropic-messages","models":[
             {"id":"MiniMax-M2.7","name":"MiniMax M2.7","reasoning":True,"input":["text","image"],"contextWindow":204800,"maxTokens":200000,"cost":{"input":0.30,"output":1.20}},
             {"id":"MiniMax-M2.7-highspeed","name":"MiniMax M2.7 Fast","reasoning":True,"input":["text","image"],"contextWindow":204800,"maxTokens":200000,"cost":{"input":0.15,"output":0.60}}
         ]},
