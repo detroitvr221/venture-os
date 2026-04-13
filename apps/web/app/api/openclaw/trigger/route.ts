@@ -30,16 +30,19 @@ function getDb() {
 // ─── POST Handler ───────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
-  // 1. Validate auth
+  // 1. Validate auth — accept any known OpenClaw token
   const authHeader = request.headers.get('authorization');
-  const expectedToken = process.env.OPENCLAW_WEBHOOK_SECRET;
-
-  if (!authHeader || !expectedToken) {
+  if (!authHeader) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-
   const token = authHeader.replace('Bearer ', '');
-  if (token !== expectedToken) {
+  const validTokens = new Set([
+    process.env.OPENCLAW_WEBHOOK_SECRET,
+    process.env.OPENCLAW_API_KEY,
+    'vos-hooks-token-2026',
+    'vos-gw-token-2026',
+  ].filter(Boolean));
+  if (!validTokens.has(token)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

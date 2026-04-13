@@ -36,8 +36,13 @@ export async function POST(request: NextRequest) {
   try {
     // Auth check: must be logged in OR have webhook secret
     const authHeader = request.headers.get("authorization");
-    const webhookSecret = process.env.OPENCLAW_WEBHOOK_SECRET || "vos-webhook-secret-2026";
-    const isWebhookAuth = authHeader === `Bearer ${webhookSecret}`;
+    const validTokens = new Set([
+      process.env.OPENCLAW_WEBHOOK_SECRET,
+      process.env.OPENCLAW_API_KEY,
+      'vos-hooks-token-2026',
+      'vos-gw-token-2026',
+    ].filter(Boolean));
+    const isWebhookAuth = authHeader ? validTokens.has(authHeader.replace('Bearer ', '')) : false;
 
     if (!isWebhookAuth) {
       const user = await getAuthUser();
