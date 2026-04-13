@@ -67,6 +67,22 @@ config["channels"]["slack"] = {
     "groupPolicy": "open", "dmPolicy": "open", "allowFrom": ["*"],
     "streaming": {"mode": "partial", "nativeTransport": True}
 }
+# MoChat channel — THE critical config the plugin reads from openclaw.json
+mt = env("MOCHAT_TOKEN")
+mb = env("MOCHAT_BOT_USER_ID")
+if mt and mb:
+    config["channels"]["mochat"] = {
+        "baseUrl": "https://mochat.io",
+        "socketUrl": "https://mochat.io",
+        "clawToken": mt,
+        "agentUserId": mb,
+        "sessions": ["*"],
+        "panels": ["*"],
+        "refreshIntervalMs": 30000,
+        "replyDelayMode": "non-mention",
+        "replyDelayMs": 5000
+    }
+    print(f"[POST-PLUGIN] MoChat channel configured for agent {mb}")
 
 # ── Hooks ──
 config["hooks"] = {"enabled": True, "token": "vos-hooks-token-2026"}
