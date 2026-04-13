@@ -279,6 +279,14 @@ export function InlineReportPreview({
                     Download HTML
                   </button>
                 )}
+                <a
+                  href={`/api/reports/docx?id=${report.id}`}
+                  download
+                  className="flex items-center gap-2 rounded-lg border border-[#333] px-3 py-2 text-xs text-[#ccc] hover:bg-[#1a1a1a] hover:text-white"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  Download Word
+                </a>
               </div>
             </>
           )}

@@ -344,17 +344,27 @@ export default function ReportDetailPage() {
           </div>
         </div>
 
-        {/* Download Button */}
-        {report.storage_path && (
-          <button
-            onClick={handleDownload}
-            disabled={downloading}
-            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50 shrink-0"
+        {/* Download Buttons */}
+        <div className="flex items-center gap-2 shrink-0">
+          <a
+            href={`/api/reports/docx?id=${reportId}`}
+            download
+            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
           >
             <Download className="h-4 w-4" />
-            {downloading ? "Generating..." : "Download Report"}
-          </button>
-        )}
+            Download Word
+          </a>
+          {report.storage_path && (
+            <button
+              onClick={handleDownload}
+              disabled={downloading}
+              className="flex items-center gap-2 rounded-lg border border-[#333] px-4 py-2.5 text-sm text-[#ccc] hover:bg-[#1a1a1a] hover:text-white disabled:opacity-50"
+            >
+              <Download className="h-4 w-4" />
+              {downloading ? "..." : "HTML"}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Summary Cards */}
