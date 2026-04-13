@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { runSeoAudit } from "../../actions";
 import { createClient } from "@/lib/supabase/client";
+import { InlineReportPreview } from "@/components/InlineReportPreview";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -67,6 +68,7 @@ export default function SeoAuditsPage() {
   const [auditUrl, setAuditUrl] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [activeJobId, setActiveJobId] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     const db = createClient();
@@ -113,13 +115,24 @@ export default function SeoAuditsPage() {
     setSubmitting(false);
     if (result.success) {
       setMessage(result.data.message);
+      // Check for the latest job for this URL to show inline preview
+      const db = createClient();
+      const { data: latestJob } = await db
+        .from("audit_jobs")
+        .select("id")
+        .eq("job_type", "seo_audit")
+        .eq("target_url", auditUrl.trim())
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+      if (latestJob) setActiveJobId(latestJob.id);
       setShowNewAudit(false);
       setAuditUrl("");
       fetchData();
     } else {
       setMessage(`Error: ${result.error}`);
     }
-    setTimeout(() => setMessage(null), 5000);
+    setTimeout(() => setMessage(null), 8000);
   };
 
   const avgScore =
@@ -149,6 +162,11 @@ export default function SeoAuditsPage() {
         <div className="fixed top-4 right-4 z-50 rounded-lg border border-[#222] bg-[#0a0a0a] px-4 py-3 text-sm text-white shadow-lg">
           {message}
         </div>
+      )}
+
+      {/* Active Job Preview — shows live audit progress + report */}
+      {activeJobId && (
+        <InlineReportPreview jobId={activeJobId} autoExpand showStatusBar />
       )}
 
       {/* Header */}

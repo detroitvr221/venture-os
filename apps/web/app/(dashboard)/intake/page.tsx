@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { ClipboardList, ArrowRight, ArrowLeft, CheckCircle2, Send, Building2 } from "lucide-react";
+import { ClipboardList, ArrowRight, ArrowLeft, CheckCircle2, Send, Building2, Sparkles } from "lucide-react";
+import { InlineReportPreview } from "@/components/InlineReportPreview";
 
 // ─── Service definitions ────────────────────────────────────────────────────
 
@@ -78,6 +79,7 @@ export default function IntakePage() {
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [analysisJobId, setAnalysisJobId] = useState<string | null>(null);
 
   const activeQuestions = QUESTIONS.filter(
     (q) => q.services.includes("*") || q.services.some((s) => selectedServices.includes(s))
@@ -137,6 +139,38 @@ export default function IntakePage() {
       resource_id: lead?.id || "unknown",
       changes: { services: selectedServices, budget: answers.budget_range },
     });
+
+    // Trigger OpenClaw AI analysis of the intake
+    try {
+      const { data: job } = await supabase.from("audit_jobs").insert({
+        organization_id: "00000000-0000-0000-0000-000000000001",
+        job_type: "intake_analysis",
+        status: "queued",
+        input_payload: {
+          formData: { ...answers, services_requested: selectedServices },
+          lead_id: lead?.id,
+        },
+        target_entity_id: lead?.id || null,
+        target_entity_type: "lead",
+        external_system: "openclaw",
+        started_at: new Date().toISOString(),
+      }).select("id").single();
+
+      if (job?.id) {
+        setAnalysisJobId(job.id);
+        // Fire to OpenClaw async
+        fetch("/api/openclaw/trigger", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": "Bearer vos-hooks-token-2026" },
+          body: JSON.stringify({
+            agent_id: "main",
+            message: `Analyze this client intake form and generate a recommendation report. Client: ${answers.contact_name || "Unknown"}, Company: ${answers.company_name || "Unknown"}, Services requested: ${selectedServices.join(", ")}, Budget: ${answers.budget_range || "Not specified"}, Timeline: ${answers.timeline || "Not specified"}, Goals: ${answers.goals_summary || "Not specified"}. Return JSON with: recommended_services, recommended_tier, estimated_monthly_value, risk_factors, opportunities, next_steps, and executive_summary.`,
+            organization_id: "00000000-0000-0000-0000-000000000001",
+            context: { job_id: job.id, job_type: "intake_analysis", lead_id: lead?.id, callback_url: "https://www.thenorthbridgemi.com/api/openclaw/webhook" },
+          }),
+        }).catch(() => {});
+      }
+    } catch {}
 
     setStep(3);
     setSubmitting(false);
@@ -346,6 +380,18 @@ export default function IntakePage() {
         Thank you! Your information has been received. Our team is reviewing your needs
         and will reach out within 24 hours with a tailored proposal.
       </p>
+
+      {/* AI Analysis Preview — shows live status + report when ready */}
+      {analysisJobId && (
+        <div className="mx-auto mt-6 max-w-2xl text-left">
+          <div className="mb-2 flex items-center gap-2 text-sm text-[#4FC3F7]">
+            <Sparkles className="h-4 w-4" />
+            <span>AI Analysis</span>
+          </div>
+          <InlineReportPreview jobId={analysisJobId} autoExpand showStatusBar />
+        </div>
+      )}
+
       <div className="mt-8 flex justify-center gap-3">
         <button
           onClick={() => router.push("/leads")}
@@ -354,7 +400,7 @@ export default function IntakePage() {
           View in Leads
         </button>
         <button
-          onClick={() => { setStep(0); setSelectedServices([]); setAnswers({}); }}
+          onClick={() => { setStep(0); setSelectedServices([]); setAnswers({}); setAnalysisJobId(null); }}
           className="rounded-lg bg-[#4FC3F7] px-4 py-2 text-sm text-white"
         >
           New Intake
