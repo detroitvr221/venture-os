@@ -641,12 +641,15 @@ export function LandingClient() {
             Websites, SEO, social media, and digital systems. One team, one monthly price, real results.
           </p>
           <div className="mx-auto mt-8 flex max-w-md flex-col gap-3 sm:flex-row">
+            <label htmlFor="cta-email" className="sr-only">Email address</label>
             <input
+              id="cta-email"
               type="email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
-              className="flex-1 rounded-xl border border-[#333] bg-[#0a0a0a] px-5 py-3 text-sm text-white placeholder-[#666] outline-none transition-colors focus:border-[#4FC3F7]"
+              className="flex-1 rounded-xl border border-[#333] bg-[#0a0a0a] px-5 py-3 text-sm text-white placeholder-[#737373] outline-none transition-colors focus:border-[#4FC3F7]"
             />
             <Link
               href={email ? `/signup?email=${encodeURIComponent(email)}` : "/signup"}

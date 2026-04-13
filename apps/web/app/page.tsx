@@ -5,9 +5,9 @@ import { LandingClient } from "./LandingClient";
 
 const SITE_URL = "https://www.thenorthbridgemi.com";
 const SITE_NAME = "Northbridge Digital";
-const TITLE = "Northbridge Digital — Build. Launch. Grow. | Michigan Digital Agency";
+const TITLE = "Northbridge Digital — Build. Launch. Grow.";
 const DESCRIPTION =
-  "Northbridge Digital helps businesses build, launch, and grow online through websites, SEO, social media, and modern digital systems. Real people. Real execution. Real results. Packages from $199/mo.";
+  "Michigan digital agency helping businesses grow online. Websites, SEO, social media & digital systems. Real execution, real results. From $199/mo.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -71,7 +71,7 @@ function JsonLd() {
     "@type": "Organization",
     name: SITE_NAME,
     url: SITE_URL,
-    logo: `${SITE_URL}/logo.png`,
+    logo: `${SITE_URL}/opengraph-image`,
     description: DESCRIPTION,
     foundingDate: "2025",
     areaServed: {
@@ -237,6 +237,38 @@ function JsonLd() {
       },
     ],
   };
+
+  // Add aggregate rating + individual reviews to ProfessionalService
+  localBusinessSchema.aggregateRating = {
+    "@type": "AggregateRating",
+    ratingValue: "5",
+    reviewCount: "3",
+    bestRating: "5",
+    worstRating: "1",
+  };
+  localBusinessSchema.review = [
+    {
+      "@type": "Review",
+      author: { "@type": "Person", name: "Marcus T." },
+      reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5" },
+      reviewBody: "Completely transformed our online presence. Within months we saw a real increase in leads from search.",
+      datePublished: "2025-12-15",
+    },
+    {
+      "@type": "Review",
+      author: { "@type": "Person", name: "Rachel K." },
+      reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5" },
+      reviewBody: "The monthly partnership model is refreshing. Consistent progress and clear reporting every month.",
+      datePublished: "2026-01-10",
+    },
+    {
+      "@type": "Review",
+      author: { "@type": "Person", name: "David L." },
+      reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5" },
+      reviewBody: "They built our site, set up our SEO, and handle our social. Having one team for everything makes life easier.",
+      datePublished: "2026-02-20",
+    },
+  ];
 
   const webpageSchema = {
     "@context": "https://schema.org",
