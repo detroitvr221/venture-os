@@ -7,10 +7,13 @@ import {
   LayoutDashboard, Filter, Users, FolderKanban, Bot, GitBranch, Brain,
   CheckCircle2, CreditCard, Building2, Settings, ChevronLeft, ChevronRight,
   FileText, Search, Send, LogOut, Mail, ClipboardList, MessageSquare,
-  ShieldCheck, UserPlus, BookOpen, Menu, X, Calendar, Bell, HardDrive,
+  ShieldCheck, UserPlus, BookOpen, Menu, X, Calendar, HardDrive,
   BarChart3, Zap, Phone, CheckSquare,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { CompanyProvider } from "@/lib/company-context";
+import CompanySelector from "@/components/CompanySelector";
+import NotificationDropdown from "@/components/NotificationDropdown";
 
 const navGroups = [
   {
@@ -71,7 +74,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
-  const [notifCount, setNotifCount] = useState(0);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -88,20 +90,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         setUserRole(member?.role ?? null);
       }
     });
-
-    // Load real notification count: pending approvals + running/failed jobs
-    async function loadNotifCount() {
-      const { count: pendingApprovals } = await supabase
-        .from("approvals")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "pending");
-      const { count: activeJobs } = await supabase
-        .from("audit_jobs")
-        .select("*", { count: "exact", head: true })
-        .in("status", ["running", "failed"]);
-      setNotifCount((pendingApprovals ?? 0) + (activeJobs ?? 0));
-    }
-    loadNotifCount();
   }, []);
 
   // Close mobile nav on route change
@@ -172,6 +160,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </button>
       </div>
 
+      {/* Company Selector */}
+      {!collapsed && <CompanySelector />}
+
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto px-2 py-3">
         {navGroups.map((group, gi) => {
@@ -237,48 +228,43 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   );
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      {/* Mobile overlay */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-40 bg-black/60 md:hidden" onClick={() => setMobileOpen(false)} />
-      )}
+    <CompanyProvider>
+      <div className="flex h-screen overflow-hidden">
+        {/* Mobile overlay */}
+        {mobileOpen && (
+          <div className="fixed inset-0 z-40 bg-black/60 md:hidden" onClick={() => setMobileOpen(false)} />
+        )}
 
-      {/* Sidebar — desktop */}
-      <aside className={`hidden md:flex flex-col border-r border-[#222] bg-[#0a0a0a] transition-all duration-300 ${
-        collapsed ? "w-[68px]" : "w-[240px]"
-      }`}>
-        {sidebarContent}
-      </aside>
+        {/* Sidebar — desktop */}
+        <aside className={`hidden md:flex flex-col border-r border-[#222] bg-[#0a0a0a] transition-all duration-300 ${
+          collapsed ? "w-[68px]" : "w-[240px]"
+        }`}>
+          {sidebarContent}
+        </aside>
 
-      {/* Sidebar — mobile (slide-in) */}
-      <aside className={`fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col bg-[#0a0a0a] transition-transform duration-300 md:hidden ${
-        mobileOpen ? "translate-x-0" : "-translate-x-full"
-      }`}>
-        {sidebarContent}
-      </aside>
+        {/* Sidebar — mobile (slide-in) */}
+        <aside className={`fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col bg-[#0a0a0a] transition-transform duration-300 md:hidden ${
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        }`}>
+          {sidebarContent}
+        </aside>
 
-      {/* Main content */}
-      <main className="flex-1 overflow-y-auto bg-[#111]">
-        {/* Mobile header */}
-        <div className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-[#222] bg-[#0a0a0a] px-4 md:hidden">
-          <button onClick={() => setMobileOpen(true)} className="rounded p-1.5 text-[#888] hover:text-white" aria-label="Open menu">
-            <Menu className="h-5 w-5" />
-          </button>
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-[#4FC3F7] to-[#F5C542]">
-            <span className="text-[10px] font-bold text-white">NB</span>
+        {/* Main content */}
+        <main className="flex-1 overflow-y-auto bg-[#111]">
+          {/* Mobile header */}
+          <div className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-[#222] bg-[#0a0a0a] px-4 md:hidden">
+            <button onClick={() => setMobileOpen(true)} className="rounded p-1.5 text-[#888] hover:text-white" aria-label="Open menu">
+              <Menu className="h-5 w-5" />
+            </button>
+            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-[#4FC3F7] to-[#F5C542]">
+              <span className="text-[10px] font-bold text-white">NB</span>
+            </div>
+            <span className="flex-1 text-sm font-medium text-white">Northbridge</span>
+            <NotificationDropdown />
           </div>
-          <span className="flex-1 text-sm font-medium text-white">Northbridge</span>
-          <button className="relative rounded p-1.5 text-[#888] hover:text-white" aria-label="Notifications">
-            <Bell className="h-5 w-5" />
-            {notifCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#4FC3F7] text-[8px] font-bold text-white">
-                {notifCount > 99 ? "99+" : notifCount}
-              </span>
-            )}
-          </button>
-        </div>
-        <div className="mx-auto max-w-[1400px] p-4 sm:p-6 lg:p-8">{children}</div>
-      </main>
-    </div>
+          <div className="mx-auto max-w-[1400px] p-4 sm:p-6 lg:p-8">{children}</div>
+        </main>
+      </div>
+    </CompanyProvider>
   );
 }
