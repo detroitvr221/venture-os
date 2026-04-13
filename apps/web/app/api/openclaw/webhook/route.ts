@@ -164,6 +164,133 @@ async function handleLeadUpdate(
   return { processed: true, action: 'lead_update' };
 }
 
+// ─── Job Completion Handler ─────────────────────────────────────────────────
+
+async function handleJobComplete(
+  db: ReturnType<typeof getDb>,
+  payload: WebhookPayload,
+): Promise<Record<string, unknown>> {
+  const { organization_id, data } = payload;
+  const jobId = (data.job_id as string) || (data.context as Record<string, unknown>)?.job_id as string;
+
+  if (!jobId) {
+    // No job_id — try matching by context fields
+    return { processed: false, reason: 'no_job_id' };
+  }
+
+  // Parse the response content
+  const responseText = (data.response || data.message || data.content || '') as string;
+  let parsedResult: Record<string, unknown> = {};
+  let score: number | null = null;
+  let summary = responseText.slice(0, 500);
+
+  // Try to extract JSON from the response
+  try {
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      parsedResult = JSON.parse(jsonMatch[0]);
+      score = typeof parsedResult.overall_score === 'number'
+        ? parsedResult.overall_score
+        : typeof parsedResult.score === 'number'
+        ? parsedResult.score
+        : null;
+      summary = (parsedResult.summary as string) || (parsedResult.executive_summary as string) || summary;
+    }
+  } catch {
+    // Not JSON, treat as plain text
+    parsedResult = { raw_response: responseText };
+  }
+
+  // Get the job to find org_id and target info
+  const { data: job } = await db
+    .from('audit_jobs')
+    .select('*')
+    .eq('id', jobId)
+    .single();
+
+  const orgId = job?.organization_id || organization_id;
+
+  // Create a report
+  const { data: report } = await db
+    .from('reports')
+    .insert({
+      organization_id: orgId,
+      user_id: job?.user_id || '00000000-0000-0000-0000-000000000000',
+      job_id: jobId,
+      title: `${(job?.job_type || 'audit').replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())} — ${job?.target_url || 'Report'}`,
+      report_type: job?.job_type || 'custom',
+      content_html: `<div class="report-content"><h2>Report</h2><pre>${responseText.replace(/</g, '&lt;')}</pre></div>`,
+      content_markdown: responseText,
+      content_json: parsedResult,
+      score,
+      target_url: job?.target_url,
+    })
+    .select('id')
+    .single();
+
+  // Update job to completed
+  await db
+    .from('audit_jobs')
+    .update({
+      status: 'completed',
+      result_summary: summary,
+      result_payload: parsedResult,
+      report_id: report?.id || null,
+      completed_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', jobId);
+
+  // Audit log
+  await db.from('audit_logs').insert({
+    organization_id: orgId,
+    actor_type: 'system',
+    actor_id: 'openclaw-webhook',
+    action: 'create',
+    resource_type: 'report',
+    resource_id: report?.id || jobId,
+    changes: {
+      action: 'job_complete',
+      job_id: jobId,
+      report_id: report?.id,
+      score,
+    },
+  });
+
+  return { processed: true, action: 'job_complete', job_id: jobId, report_id: report?.id };
+}
+
+async function handleJobFailed(
+  db: ReturnType<typeof getDb>,
+  payload: WebhookPayload,
+): Promise<Record<string, unknown>> {
+  const { data } = payload;
+  const jobId = (data.job_id as string) || (data.context as Record<string, unknown>)?.job_id as string;
+
+  if (!jobId) return { processed: false, reason: 'no_job_id' };
+
+  const errorMsg = (data.error as string) || (data.message as string) || 'Unknown error from OpenClaw';
+
+  const { data: job } = await db
+    .from('audit_jobs')
+    .select('retry_count, max_retries')
+    .eq('id', jobId)
+    .single();
+
+  await db
+    .from('audit_jobs')
+    .update({
+      status: 'failed',
+      error_message: errorMsg,
+      retry_count: (job?.retry_count || 0) + 1,
+      completed_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', jobId);
+
+  return { processed: true, action: 'job_failed', job_id: jobId };
+}
+
 // ─── POST Handler ───────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
@@ -211,6 +338,16 @@ export async function POST(request: NextRequest) {
         break;
       case 'lead_update':
         result = await handleLeadUpdate(db, payload);
+        break;
+      case 'job_complete':
+      case 'task_complete':
+      case 'audit_complete':
+        result = await handleJobComplete(db, payload);
+        break;
+      case 'job_failed':
+      case 'task_failed':
+      case 'audit_failed':
+        result = await handleJobFailed(db, payload);
         break;
       default:
         // Generic: store in audit_logs for unknown actions

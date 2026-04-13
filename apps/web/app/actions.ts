@@ -827,13 +827,77 @@ export async function runSeoAudit(
     status: 'pending',
   });
 
+  // ── Trigger OpenClaw to actually run the SEO audit ──
+  const OPENCLAW_URL = process.env.OPENCLAW_GATEWAY_URL || 'https://claw.thenorthbridgemi.com';
+  const OPENCLAW_TOKEN = process.env.OPENCLAW_API_KEY || 'vos-hooks-token-2026';
+  const WEBHOOK_URL = process.env.NEXT_PUBLIC_SITE_URL
+    ? `${process.env.NEXT_PUBLIC_SITE_URL}/api/openclaw/webhook`
+    : 'https://www.thenorthbridgemi.com/api/openclaw/webhook';
+
+  // Create a job record for tracking
+  const { data: job } = await db
+    .from('audit_jobs')
+    .insert({
+      organization_id: orgId,
+      job_type: 'seo_audit',
+      status: 'queued',
+      input_payload: { url, client_id: clientId },
+      target_url: url,
+      target_entity_id: websiteId,
+      target_entity_type: 'website',
+      external_system: 'openclaw',
+      started_at: new Date().toISOString(),
+    })
+    .select('id')
+    .single();
+
+  // Fire and forget to OpenClaw — don't block the UI
+  fetch(`${OPENCLAW_URL}/hooks/agent`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${OPENCLAW_TOKEN}`,
+    },
+    body: JSON.stringify({
+      agent_id: 'seo',
+      message: `Run a comprehensive SEO audit on ${url}. Analyze: meta tags, heading structure, page speed, mobile-friendliness, content quality, internal linking, schema markup, and Core Web Vitals. Score each category 0-100. Return a JSON report with: overall_score, categories (array of {name, score, findings}), summary, and top_priorities.`,
+      context: {
+        job_id: job?.id,
+        audit_id: auditRecord?.id,
+        website_id: websiteId,
+        org_id: orgId,
+        job_type: 'seo_audit',
+        target_url: url,
+        callback_url: WEBHOOK_URL,
+      },
+      max_tokens: 8192,
+    }),
+    signal: AbortSignal.timeout(30000),
+  }).then(async (res) => {
+    const data = await res.json().catch(() => ({}));
+    if (job?.id) {
+      await db
+        .from('audit_jobs')
+        .update({ external_job_id: data.runId || data.run_id || null, status: 'running' })
+        .eq('id', job.id);
+    }
+  }).catch(async (err) => {
+    if (job?.id) {
+      await db
+        .from('audit_jobs')
+        .update({ status: 'failed', error_message: err?.message || 'OpenClaw unreachable' })
+        .eq('id', job.id);
+    }
+  });
+
   revalidatePath('/seo');
   revalidatePath('/overview');
+  revalidatePath('/jobs');
 
   return {
     success: true,
     data: {
-      message: `SEO audit triggered for ${url}. Results will appear in the audits section.`,
+      message: `SEO audit triggered for ${url}. Atlas is running the audit — check Jobs for live status.`,
     },
   };
 }
