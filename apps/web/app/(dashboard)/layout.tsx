@@ -8,6 +8,7 @@ import {
   CheckCircle2, CreditCard, Building2, Settings, ChevronLeft, ChevronRight,
   FileText, Search, Send, LogOut, Mail, ClipboardList, MessageSquare,
   ShieldCheck, UserPlus, BookOpen, Menu, X, Calendar, Bell, HardDrive,
+  BarChart3, Zap,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -34,6 +35,7 @@ const navGroups = [
       { name: "Projects", href: "/projects", icon: FolderKanban },
       { name: "Onboarding", href: "/onboarding", icon: UserPlus },
       { name: "SEO Audits", href: "/seo", icon: Search },
+      { name: "Reports", href: "/reports", icon: BarChart3 },
       { name: "Campaigns", href: "/campaigns", icon: Send },
       { name: "Calendar", href: "/calendar", icon: Calendar },
       { name: "Email", href: "/email", icon: Mail },
@@ -43,6 +45,7 @@ const navGroups = [
     label: "Operations",
     items: [
       { name: "Systems", href: "/agents", icon: Bot },
+      { name: "Jobs", href: "/jobs", icon: Zap },
       { name: "Workflows", href: "/workflows", icon: GitBranch },
       { name: "Knowledge", href: "/memory", icon: Brain },
       { name: "Files", href: "/files", icon: HardDrive },
