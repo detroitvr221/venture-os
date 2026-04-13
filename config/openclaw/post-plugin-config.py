@@ -3,8 +3,11 @@
 Post-plugin config merger for OpenClaw.
 Runs AFTER 'openclaw plugins install/enable' to merge our custom settings
 WITHOUT overwriting the plugin entries that the installer added.
+
+CRITICAL: The 'openclaw plugins enable' command overwrites openclaw.json and
+may strip custom fields like gateway.mode. This script MUST restore them.
 """
-import json, os
+import json, os, sys
 
 CONFIG_PATH = "/data/.openclaw/openclaw.json"
 
@@ -14,19 +17,22 @@ def env(k, d=""): return os.environ.get(k, d)
 if os.path.exists(CONFIG_PATH):
     with open(CONFIG_PATH) as f:
         config = json.load(f)
+    print(f"[POST-PLUGIN] Read existing config: {len(json.dumps(config))} bytes")
+    print(f"[POST-PLUGIN] gateway.mode before merge: {config.get('gateway', {}).get('mode', 'MISSING')}")
 else:
     config = {}
+    print("[POST-PLUGIN] No existing config found, creating fresh")
 
-# Ensure gateway config exists
-config.setdefault("gateway", {})
-config["gateway"]["port"] = 18789
-config["gateway"]["mode"] = "local"
-config["gateway"]["bind"] = "lan"
-config["gateway"].setdefault("controlUi", {"allowInsecureAuth": True, "allowedOrigins": ["https://claw.thenorthbridgemi.com"]})
-config["gateway"].setdefault("auth", {"mode": "token", "token": "vos-gw-token-2026"})
-config["gateway"].setdefault("trustedProxies", ["127.0.0.1/32", "172.17.0.0/16", "172.18.0.0/16"])
+# ── Gateway (FORCE-SET, not setdefault — plugin enable strips these) ──
+gw = config.setdefault("gateway", {})
+gw["port"] = 18789
+gw["mode"] = "local"
+gw["bind"] = "lan"
+gw["controlUi"] = {"allowInsecureAuth": True, "allowedOrigins": ["https://claw.thenorthbridgemi.com"]}
+gw["auth"] = {"mode": "token", "token": "vos-gw-token-2026"}
+gw["trustedProxies"] = ["127.0.0.1/32", "172.17.0.0/16", "172.18.0.0/16", "172.19.0.0/16", "172.20.0.0/16"]
 
-# Merge our model providers
+# ── Model providers ──
 config.setdefault("models", {})
 config["models"]["mode"] = "merge"
 config["models"].setdefault("providers", {})
@@ -41,8 +47,8 @@ config["models"]["providers"]["openai"] = {
 config["models"]["providers"]["minimax"] = {
     "baseUrl": "https://api.minimax.io/anthropic", "auth": "api-key", "api": "anthropic-messages",
     "models": [
-        {"id":"MiniMax-M2.7","name":"MiniMax M2.7","reasoning":True,"input":["text","image"],"contextWindow":204800,"maxTokens":200000},
-        {"id":"MiniMax-M2.7-highspeed","name":"MiniMax M2.7 Fast","reasoning":True,"input":["text","image"],"contextWindow":204800,"maxTokens":200000}
+        {"id":"MiniMax-M2.7","name":"MiniMax M2.7","reasoning":True,"input":["text","image"],"contextWindow":204800,"maxTokens":200000,"cost":{"input":0.30,"output":1.20}},
+        {"id":"MiniMax-M2.7-highspeed","name":"MiniMax M2.7 Fast","reasoning":True,"input":["text","image"],"contextWindow":204800,"maxTokens":200000,"cost":{"input":0.15,"output":0.60}}
     ]
 }
 config["models"]["providers"]["nexos"] = {
@@ -50,11 +56,11 @@ config["models"]["providers"]["nexos"] = {
     "models": [{"id":"5b24e76b-7ac9-4f11-b6d0-f9c6a3a1fafd","name":"Nexos GPT 5.4","reasoning":True,"input":["text","image"],"cost":{"input":0,"output":0},"contextWindow":200000,"maxTokens":8192}]
 }
 
-# Set default model
+# ── Default model ──
 config.setdefault("agents", {}).setdefault("defaults", {})
 config["agents"]["defaults"]["model"] = {"primary": "openai/gpt-5.4-mini"}
 
-# Ensure Slack channel is configured
+# ── Channels ──
 config.setdefault("channels", {})
 config["channels"]["slack"] = {
     "mode": "socket", "enabled": True, "requireMention": False,
@@ -62,10 +68,27 @@ config["channels"]["slack"] = {
     "streaming": {"mode": "partial", "nativeTransport": True}
 }
 
-# Ensure hooks are enabled
+# ── Hooks ──
 config["hooks"] = {"enabled": True, "token": "vos-hooks-token-2026"}
 
-# Ensure MCP servers
+# ── Plugins: FORCE mochat into allow list and entries ──
+plugins = config.setdefault("plugins", {})
+# Merge allow list — keep existing + ensure ours
+existing_allow = set(plugins.get("allow", []))
+existing_allow.update(["browser", "slack", "mochat"])
+plugins["allow"] = sorted(existing_allow)
+# Merge entries — keep existing + ensure ours
+entries = plugins.setdefault("entries", {})
+entries.setdefault("browser", {})["enabled"] = True
+entries.setdefault("slack", {})["enabled"] = True
+entries.setdefault("mochat", {})["enabled"] = True
+
+# ── Tools ──
+config["tools"] = {"profile":"coding","elevated":{"enabled":True},"web":{"search":{"enabled":True},"fetch":{"enabled":True}}}
+config["browser"] = {"headless":True,"noSandbox":True}
+config["update"] = {"channel":"stable","checkOnStart":False}
+
+# ── MCP servers ──
 mcp = {
     "github":{"command":"npx","args":["-y","@modelcontextprotocol/server-github"],"env":{"GITHUB_PERSONAL_ACCESS_TOKEN":env("GITHUB_PERSONAL_ACCESS_TOKEN")}},
     "filesystem":{"command":"npx","args":["-y","@modelcontextprotocol/server-filesystem","/data/.openclaw/workspace","/data/.openclaw/shared","/data/.openclaw/memory"]},
@@ -79,9 +102,18 @@ mcp = {
 }
 config.setdefault("mcp", {})["servers"] = mcp
 
-# Write back — preserving the mochat plugin entry the installer added
+# ── Write back ──
 with open(CONFIG_PATH, "w") as f:
     json.dump(config, f, indent=2)
 
+# Verify write
+with open(CONFIG_PATH) as f:
+    verify = json.load(f)
+    gw_mode = verify.get("gateway", {}).get("mode")
+    p_allow = verify.get("plugins", {}).get("allow", [])
+    p_entries = list(verify.get("plugins", {}).get("entries", {}).keys())
+
 print(f"[POST-PLUGIN] Config merged with {len(mcp)} MCP servers")
-print(f"[POST-PLUGIN] Plugins preserved: {list(config.get('plugins', {}).get('entries', {}).keys())}")
+print(f"[POST-PLUGIN] gateway.mode = {gw_mode}")
+print(f"[POST-PLUGIN] plugins.allow = {p_allow}")
+print(f"[POST-PLUGIN] plugins.entries = {p_entries}")
