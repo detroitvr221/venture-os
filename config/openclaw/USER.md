@@ -16,10 +16,10 @@ Northbridge Digital helps businesses build, launch, and grow online through web 
 ## Service Tracks
 
 **Track 1: Build** — Websites, landing pages, platform builds
-- Launch ($99/mo), Build ($199/mo), Platform ($299/mo)
+- Launch ($199/mo), Build ($399/mo), Platform ($699/mo)
 
 **Track 2: Growth** — SEO, social media, visibility, lead generation
-- Visibility ($99/mo), Growth ($199/mo), Momentum ($299/mo)
+- Visibility ($199/mo), Growth ($399/mo), Momentum ($699/mo)
 
 All packages are 12-month commitments.
 

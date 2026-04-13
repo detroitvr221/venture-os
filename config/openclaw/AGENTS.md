@@ -247,4 +247,4 @@ Internal actions (agent-to-agent, memory writes, research, analysis) do not requ
 
 ## Model Information
 
-Primary model: **gpt-5.4-mini** (200K context). Also available: **gpt-4.1-mini** (1M context) for large tasks, **o4-mini** for deep reasoning. If a task exceeds context, break it into subtasks and persist state in memory between them.
+Primary model: **MiniMax-M2.7-highspeed** (204K context, fast, low cost). Also available: **gpt-5.4-mini** (200K), **gpt-4.1-mini** (1M context) for large tasks, **o4-mini** for deep reasoning. MiniMax uses Anthropic API format. If a task exceeds context, break it into subtasks and persist state in memory between them.

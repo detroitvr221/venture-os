@@ -78,9 +78,11 @@ if mt and mb:
         "agentUserId": mb,
         "sessions": ["*"],
         "panels": ["*"],
-        "refreshIntervalMs": 30000,
+        "refreshIntervalMs": 60000,
         "replyDelayMode": "non-mention",
-        "replyDelayMs": 5000
+        "replyDelayMs": 10000,
+        "dedupeWindowMs": 5000,
+        "maxDispatchPerMessage": 1
     }
     print(f"[POST-PLUGIN] MoChat channel configured for agent {mb}")
 
