@@ -27,8 +27,7 @@ mcp = {
     "memory":{"command":"npx","args":["-y","@modelcontextprotocol/server-memory"]},
     "context7":{"command":"npx","args":["-y","@upstash/context7-mcp"]},
     "vapi":{"command":"npx","args":["-y","@vapi-ai/mcp-server"],"env":{"VAPI_TOKEN":env("VAPI_TOKEN")}},
-    "searchapi":{"command":"npx","args":["-y","mcp-remote","https://www.searchapi.io/mcp?token="+env("SEARCHAPI_TOKEN")]},
-    "claude-mem":{"command":"npx","args":["-y","claude-mem","serve"]}
+    "searchapi":{"command":"npx","args":["-y","mcp-remote","https://www.searchapi.io/mcp?token="+env("SEARCHAPI_TOKEN")]}
 }
 
 # Conditional: only add if API key is set

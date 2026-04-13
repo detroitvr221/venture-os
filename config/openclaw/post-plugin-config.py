@@ -108,14 +108,13 @@ config["update"] = {"channel":"stable","checkOnStart":False}
 mcp = {
     "github":{"command":"npx","args":["-y","@modelcontextprotocol/server-github"],"env":{"GITHUB_PERSONAL_ACCESS_TOKEN":env("GITHUB_PERSONAL_ACCESS_TOKEN")}},
     "filesystem":{"command":"npx","args":["-y","@modelcontextprotocol/server-filesystem","/data/.openclaw/workspace","/data/.openclaw/shared","/data/.openclaw/memory"]},
-    "supabase":{"command":"npx","args":["-y","@supabase/mcp-server-supabase","--supabase-url",env("SUPABASE_URL"),"--supabase-key",env("SUPABASE_KEY")]},
+    "supabase":{"command":"npx","args":["-y","@supabase/mcp-server-supabase@latest","--supabase-url",env("SUPABASE_URL"),"--supabase-key",env("SUPABASE_KEY")],"env":{"SUPABASE_URL":env("SUPABASE_URL"),"SUPABASE_SERVICE_ROLE_KEY":env("SUPABASE_KEY")}},
     "sequential-thinking":{"command":"npx","args":["-y","@modelcontextprotocol/server-sequential-thinking"]},
     "playwright":{"command":"npx","args":["-y","@playwright/mcp","--headless"]},
     "memory":{"command":"npx","args":["-y","@modelcontextprotocol/server-memory"]},
     "context7":{"command":"npx","args":["-y","@upstash/context7-mcp"]},
     "vapi":{"command":"npx","args":["-y","@vapi-ai/mcp-server"],"env":{"VAPI_TOKEN":env("VAPI_TOKEN")}},
-    "searchapi":{"command":"npx","args":["-y","mcp-remote","https://www.searchapi.io/mcp?token="+env("SEARCHAPI_TOKEN")]},
-    "claude-mem":{"command":"npx","args":["-y","claude-mem","serve"]}
+    "searchapi":{"command":"npx","args":["-y","mcp-remote","https://www.searchapi.io/mcp?token="+env("SEARCHAPI_TOKEN")]}
 }
 config.setdefault("mcp", {})["servers"] = mcp
 
