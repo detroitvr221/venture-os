@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { createLead, updateLeadStage } from "../../actions";
 import { createClient } from "@/lib/supabase/client";
 import { useOrgId } from "@/lib/useOrgId";
+import { useCompany } from "@/lib/company-context";
+import Pagination from "@/components/Pagination";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -47,24 +49,34 @@ const columns: { key: LeadStage; label: string; color: string }[] = [
 export default function LeadsPage() {
   const router = useRouter();
   const orgId = useOrgId();
+  const { companyId } = useCompany();
   const [leads, setLeads] = useState<LeadRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const PAGE_SIZE = 25;
 
   const fetchLeads = useCallback(async () => {
     const db = createClient();
-    const { data, error } = await db
+    let query = db
       .from("leads")
-      .select("id, contact_name, contact_email, source, stage, score, assigned_agent, expected_value, notes, created_at")
+      .select("id, contact_name, contact_email, source, stage, score, assigned_agent, expected_value, notes, created_at", { count: "exact" })
       .eq("organization_id", orgId)
       .order("created_at", { ascending: false });
+
+    if (companyId) query = query.eq("company_id", companyId);
+    query = query.range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
+
+    const { data, error, count } = await query;
 
     if (!error && data) {
       setLeads(data as LeadRow[]);
     }
+    setTotalCount(count ?? 0);
     setLoading(false);
-  }, [orgId]);
+  }, [orgId, companyId, page]);
 
   useEffect(() => {
     fetchLeads();
@@ -204,6 +216,13 @@ export default function LeadsPage() {
         </div>
       )}
 
+      {/* Pagination */}
+      <Pagination
+        page={page}
+        totalPages={Math.ceil(totalCount / PAGE_SIZE)}
+        onPageChange={setPage}
+      />
+
       {/* Kanban Board */}
       <div className="flex gap-4 overflow-x-auto pb-4">
         {columns.map((column) => {
@@ -232,14 +251,31 @@ export default function LeadsPage() {
               </div>
 
               {/* Cards */}
-              <div className="space-y-3 p-3">
+              <div className="space-y-3 p-3" role="list" aria-label={`${column.label} - ${columnLeads.length} leads`}>
                 {columnLeads.map((lead) => (
                   <div
                     key={lead.id}
+                    role="listitem"
+                    tabIndex={0}
+                    aria-label={`${lead.contact_name}${lead.expected_value ? `, $${lead.expected_value.toLocaleString()}` : ""}`}
                     draggable
                     onDragStart={(e) => handleDragStart(e, lead.id)}
                     onClick={() => router.push(`/leads/${lead.id}`)}
-                    className="group cursor-grab rounded-lg border border-[#222] bg-[#111] p-3.5 transition-all hover:border-[#333] active:cursor-grabbing"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        router.push(`/leads/${lead.id}`);
+                      } else if (e.key === "ArrowDown") {
+                        e.preventDefault();
+                        const next = e.currentTarget.nextElementSibling as HTMLElement | null;
+                        next?.focus();
+                      } else if (e.key === "ArrowUp") {
+                        e.preventDefault();
+                        const prev = e.currentTarget.previousElementSibling as HTMLElement | null;
+                        prev?.focus();
+                      }
+                    }}
+                    className="group cursor-grab rounded-lg border border-[#222] bg-[#111] p-3.5 transition-all hover:border-[#333] active:cursor-grabbing focus:outline-none focus:ring-1 focus:ring-[#4FC3F7]"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">

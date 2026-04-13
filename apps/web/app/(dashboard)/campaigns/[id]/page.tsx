@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   ChevronRight,
@@ -119,7 +120,6 @@ export default function CampaignDetailPage() {
   const [events, setEvents] = useState<OutreachRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     const db = getClientDb();
@@ -171,20 +171,15 @@ export default function CampaignDetailPage() {
     fetchData();
   }, [fetchData]);
 
-  const showMsg = (msg: string) => {
-    setMessage(msg);
-    setTimeout(() => setMessage(null), 4000);
-  };
-
   const handlePause = async () => {
     setActing(true);
     const result = await pauseCampaign(campaignId);
     setActing(false);
     if (result.success) {
-      showMsg("Campaign paused");
+      toast.success("Campaign paused");
       fetchData();
     } else {
-      showMsg(`Error: ${result.error}`);
+      toast.error(`Error: ${result.error}`);
     }
   };
 
@@ -193,10 +188,10 @@ export default function CampaignDetailPage() {
     const result = await resumeCampaign(campaignId);
     setActing(false);
     if (result.success) {
-      showMsg("Campaign resumed");
+      toast.success("Campaign resumed");
       fetchData();
     } else {
-      showMsg(`Error: ${result.error}`);
+      toast.error(`Error: ${result.error}`);
     }
   };
 
@@ -209,7 +204,7 @@ export default function CampaignDetailPage() {
       .eq("id", campaignId)
       .eq("organization_id", ORG_ID);
     setActing(false);
-    showMsg("Campaign cancelled");
+    toast.success("Campaign cancelled");
     fetchData();
   };
 
@@ -252,13 +247,6 @@ export default function CampaignDetailPage() {
 
   return (
     <div className="space-y-6">
-      {/* Toast */}
-      {message && (
-        <div className="fixed top-4 right-4 z-50 rounded-lg border border-[#222] bg-[#0a0a0a] px-4 py-3 text-sm text-white shadow-lg">
-          {message}
-        </div>
-      )}
-
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-[#888]">
         <Link

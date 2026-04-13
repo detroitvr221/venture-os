@@ -27,7 +27,8 @@ mcp = {
     "memory":{"command":"npx","args":["-y","@modelcontextprotocol/server-memory"]},
     "context7":{"command":"npx","args":["-y","@upstash/context7-mcp"]},
     "vapi":{"command":"npx","args":["-y","@vapi-ai/mcp-server"],"env":{"VAPI_TOKEN":env("VAPI_TOKEN")}},
-    "searchapi":{"command":"npx","args":["-y","mcp-remote","https://www.searchapi.io/mcp?token="+env("SEARCHAPI_TOKEN")]}
+    "searchapi":{"command":"npx","args":["-y","mcp-remote","https://www.searchapi.io/mcp?token="+env("SEARCHAPI_TOKEN")]},
+    "claude-mem":{"command":"npx","args":["-y","claude-mem","serve"]}
 }
 
 # Conditional: only add if API key is set
@@ -58,7 +59,7 @@ config = {
         ]}
     }},
     "agents":{"defaults":{
-        "model":{"primary":"openai/gpt-5.4-mini"},
+        "model":{"primary":"minimax/MiniMax-M2.7-highspeed"},
         "workspace":"/data/.openclaw/workspace",
         "compaction":{"mode":"safeguard"},
         "heartbeat":{"every":"30m","target":"last","activeHours":{"start":"08:00","end":"22:00","timezone":"America/New_York"}}

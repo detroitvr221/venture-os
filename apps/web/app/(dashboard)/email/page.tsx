@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { SkeletonList } from "@/components/Skeleton";
 import { useOrgId } from "@/lib/useOrgId";
+import { useCompany } from "@/lib/company-context";
+import Pagination from "@/components/Pagination";
 
 type Email = {
   id: string;
@@ -30,6 +32,7 @@ type FolderType = "all_inbox" | "sent" | "archived" | "all" | string; // string 
 
 export default function EmailPage() {
   const orgId = useOrgId();
+  const { companyId } = useCompany();
   const [emails, setEmails] = useState<Email[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFolder, setActiveFolder] = useState<FolderType>("all_inbox");
@@ -38,20 +41,26 @@ export default function EmailPage() {
   const [showMailboxes, setShowMailboxes] = useState(true);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [selectMode, setSelectMode] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const PAGE_SIZE = 25;
 
   // Load all emails
   const loadEmails = useCallback(async () => {
     setLoading(true);
     const supabase = createClient();
-    const { data } = await supabase
+    let query = supabase
       .from("emails")
-      .select("id, direction, from_address, from_name, to_addresses, subject, body_text, status, received_at, read_at, lead_id, client_id")
+      .select("id, direction, from_address, from_name, to_addresses, subject, body_text, status, received_at, read_at, lead_id, client_id", { count: "exact" })
       .eq("organization_id", orgId)
-      .order("received_at", { ascending: false })
-      .limit(200);
+      .order("received_at", { ascending: false });
+    if (companyId) query = query.eq("company_id", companyId);
+    query = query.range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
+    const { data, count } = await query;
     setEmails(data || []);
+    setTotalCount(count ?? 0);
     setLoading(false);
-  }, [orgId]);
+  }, [orgId, companyId, page]);
 
   useEffect(() => { loadEmails(); }, [loadEmails]);
 
@@ -350,6 +359,15 @@ export default function EmailPage() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Pagination */}
+      <div className="mt-4">
+        <Pagination
+          page={page}
+          totalPages={Math.ceil(totalCount / PAGE_SIZE)}
+          onPageChange={setPage}
+        />
       </div>
 
       {/* Delete confirmation modal */}

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   ChevronRight,
@@ -120,7 +121,6 @@ export default function SeoAuditDetailPage() {
   const [findings, setFindings] = useState<FindingRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [rerunning, setRerunning] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     const db = getClientDb();
@@ -173,11 +173,10 @@ export default function SeoAuditDetailPage() {
     const result = await runSeoAudit(website.url);
     setRerunning(false);
     if (result.success) {
-      setMessage("Re-audit triggered. New results will appear shortly.");
+      toast.success("Re-audit triggered. New results will appear shortly.");
     } else {
-      setMessage(`Error: ${result.error}`);
+      toast.error(`Error: ${result.error}`);
     }
-    setTimeout(() => setMessage(null), 5000);
   };
 
   // Group findings by severity
@@ -224,13 +223,6 @@ export default function SeoAuditDetailPage() {
 
   return (
     <div className="space-y-6">
-      {/* Toast */}
-      {message && (
-        <div className="fixed top-4 right-4 z-50 rounded-lg border border-[#222] bg-[#0a0a0a] px-4 py-3 text-sm text-white shadow-lg">
-          {message}
-        </div>
-      )}
-
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-[#888]">
         <Link

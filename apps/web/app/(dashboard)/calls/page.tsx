@@ -12,6 +12,7 @@ import {
   Search,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { useCompany } from "@/lib/company-context";
 import { TableSkeleton } from "@/components/PageSkeleton";
 import EmptyState from "@/components/EmptyState";
 import Pagination from "@/components/Pagination";
@@ -75,6 +76,7 @@ const statusConfig: Record<
 
 export default function CallsPage() {
   const router = useRouter();
+  const { companyId } = useCompany();
   const [calls, setCalls] = useState<CallLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [orgId, setOrgId] = useState<string | null>(null);
@@ -122,6 +124,8 @@ export default function CallsPage() {
       .eq("organization_id", orgId)
       .order("created_at", { ascending: false });
 
+    if (companyId) query = query.eq("company_id", companyId);
+
     if (directionFilter !== "all") {
       query = query.eq("direction", directionFilter);
     }
@@ -149,7 +153,7 @@ export default function CallsPage() {
     }
     setTotalCount(count ?? 0);
     setLoading(false);
-  }, [orgId, directionFilter, statusFilter, page, search]);
+  }, [orgId, companyId, directionFilter, statusFilter, page, search]);
 
   useEffect(() => {
     if (orgId) fetchCalls();

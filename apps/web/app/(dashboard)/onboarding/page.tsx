@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useOrgId } from "@/lib/useOrgId";
+import { useCompany } from "@/lib/company-context";
 import { toast } from "sonner";
 import { UserPlus, CheckCircle2, Clock, AlertCircle, ArrowRight, RefreshCw } from "lucide-react";
 
@@ -25,6 +26,7 @@ type Onboarding = {
 
 export default function OnboardingPage() {
   const orgId = useOrgId();
+  const { companyId } = useCompany();
   const [onboardings, setOnboardings] = useState<Onboarding[]>([]);
   const [clients, setClients] = useState<{ id: string; name: string }[]>([]);
   const [templates, setTemplates] = useState<{ id: string; name: string; tier: string; track: string; setup_tasks: string[] }[]>([]);
@@ -33,12 +35,14 @@ export default function OnboardingPage() {
   const [newClientId, setNewClientId] = useState("");
   const [newTemplateId, setNewTemplateId] = useState("");
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => { loadData(); }, [companyId]);
 
   async function loadData() {
     const supabase = createClient();
+    let obQuery = supabase.from("onboarding_checklists").select("*, clients(name), service_templates(name, tier, track)").eq("organization_id", orgId).order("created_at", { ascending: false });
+    if (companyId) obQuery = obQuery.eq("company_id", companyId);
     const [ob, cl, tpl] = await Promise.all([
-      supabase.from("onboarding_checklists").select("*, clients(name), service_templates(name, tier, track)").eq("organization_id", orgId).order("created_at", { ascending: false }),
+      obQuery,
       supabase.from("clients").select("id, name").eq("organization_id", orgId).order("name"),
       supabase.from("service_templates").select("id, name, tier, track, setup_tasks").eq("organization_id", orgId).eq("is_active", true),
     ]);

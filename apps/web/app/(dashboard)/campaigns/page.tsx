@@ -19,6 +19,7 @@ import {
 import { createCampaign } from "../../actions";
 import { createClient } from "@/lib/supabase/client";
 import { useOrgId } from "@/lib/useOrgId";
+import { useCompany } from "@/lib/company-context";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -69,6 +70,7 @@ const typeLabels: Record<string, string> = {
 
 export default function CampaignsPage() {
   const orgId = useOrgId();
+  const { companyId } = useCompany();
   const [campaigns, setCampaigns] = useState<CampaignRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<StatusFilter>("all");
@@ -80,14 +82,16 @@ export default function CampaignsPage() {
 
   const fetchData = useCallback(async () => {
     const db = createClient();
-    const { data } = await db
+    let query = db
       .from("campaigns")
       .select("id, name, campaign_type, status, stats, created_at")
       .eq("organization_id", orgId)
       .order("created_at", { ascending: false });
+    if (companyId) query = query.eq("company_id", companyId);
+    const { data } = await query;
     setCampaigns((data ?? []) as CampaignRow[]);
     setLoading(false);
-  }, [orgId]);
+  }, [orgId, companyId]);
 
   useEffect(() => {
     fetchData();

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useOrgId } from "@/lib/useOrgId";
+import { useCompany } from "@/lib/company-context";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -64,6 +65,7 @@ const statusConfig: Record<
 
 export default function ProposalsPage() {
   const orgId = useOrgId();
+  const { companyId } = useCompany();
   const [proposals, setProposals] = useState<ProposalRow[]>([]);
   const [leadNames, setLeadNames] = useState<LeadMap>({});
   const [clientNames, setClientNames] = useState<ClientMap>({});
@@ -73,11 +75,13 @@ export default function ProposalsPage() {
   const fetchData = useCallback(async () => {
     const db = createClient();
 
-    const { data: proposalsData } = await db
+    let query = db
       .from("proposals")
       .select("id, title, status, amount, lead_id, client_id, sent_at, created_at")
       .eq("organization_id", orgId)
       .order("created_at", { ascending: false });
+    if (companyId) query = query.eq("company_id", companyId);
+    const { data: proposalsData } = await query;
 
     const rows = (proposalsData ?? []) as ProposalRow[];
     setProposals(rows);
@@ -115,7 +119,7 @@ export default function ProposalsPage() {
     }
 
     setLoading(false);
-  }, [orgId]);
+  }, [orgId, companyId]);
 
   useEffect(() => {
     fetchData();

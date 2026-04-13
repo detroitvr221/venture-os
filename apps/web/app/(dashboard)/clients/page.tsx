@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useOrgId } from "@/lib/useOrgId";
+import { useCompany } from "@/lib/company-context";
 import { toast } from "sonner";
 import { Users, Plus, Search, Building2, Mail, Phone, ExternalLink, DollarSign } from "lucide-react";
 import { SkeletonGrid } from "@/components/Skeleton";
@@ -22,6 +23,7 @@ type Client = {
 
 export default function ClientsPage() {
   const orgId = useOrgId();
+  const { companyId } = useCompany();
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -30,15 +32,17 @@ export default function ClientsPage() {
 
   useEffect(() => {
     loadClients();
-  }, [orgId]);
+  }, [orgId, companyId]);
 
   async function loadClients() {
     const supabase = createClient();
-    const { data } = await supabase
+    let query = supabase
       .from("clients")
       .select("*")
       .eq("organization_id", orgId)
       .order("created_at", { ascending: false });
+    if (companyId) query = query.eq("company_id", companyId);
+    const { data } = await query;
     setClients(data || []);
     setLoading(false);
   }

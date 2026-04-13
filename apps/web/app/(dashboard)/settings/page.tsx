@@ -23,6 +23,9 @@ import {
   Cpu,
   Server,
   Zap,
+  Pencil,
+  Check,
+  X,
 } from "lucide-react";
 
 type IntegrationStatus = "connected" | "configured" | "not_connected";
@@ -76,6 +79,9 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [integrations, setIntegrations] = useState<Integration[]>([]);
   const [signingOut, setSigningOut] = useState(false);
+  const [editingOrgName, setEditingOrgName] = useState(false);
+  const [orgNameDraft, setOrgNameDraft] = useState("");
+  const [savingOrgName, setSavingOrgName] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -203,6 +209,27 @@ export default function SettingsPage() {
     if (orgId) load();
   }, [orgId]);
 
+  const handleSaveOrgName = async () => {
+    if (!orgNameDraft.trim()) {
+      toast.error("Organization name cannot be empty");
+      return;
+    }
+    setSavingOrgName(true);
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("organizations")
+      .update({ name: orgNameDraft.trim() })
+      .eq("id", orgId);
+    setSavingOrgName(false);
+    if (error) {
+      toast.error("Failed to update organization name");
+      return;
+    }
+    setOrgName(orgNameDraft.trim());
+    setEditingOrgName(false);
+    toast.success("Organization name updated");
+  };
+
   const handleSignOut = async () => {
     setSigningOut(true);
     const supabase = createClient();
@@ -275,9 +302,48 @@ export default function SettingsPage() {
             <label className="mb-1 block text-xs text-[#888]">
               Organization Name
             </label>
-            <div className="rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-[#ccc]">
-              {orgName || "---"}
-            </div>
+            {editingOrgName ? (
+              <div className="flex items-center gap-2">
+                <input
+                  value={orgNameDraft}
+                  onChange={(e) => setOrgNameDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleSaveOrgName();
+                    if (e.key === "Escape") setEditingOrgName(false);
+                  }}
+                  autoFocus
+                  className="flex-1 rounded-lg border border-[#4FC3F7] bg-[#111] px-3 py-2 text-sm text-white focus:outline-none"
+                />
+                <button
+                  onClick={handleSaveOrgName}
+                  disabled={savingOrgName}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#4FC3F7] text-white transition hover:bg-[#38B2D8] disabled:opacity-50"
+                >
+                  <Check className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => setEditingOrgName(false)}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#333] text-[#888] transition hover:text-white"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <div className="flex-1 rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-[#ccc]">
+                  {orgName || "---"}
+                </div>
+                <button
+                  onClick={() => {
+                    setOrgNameDraft(orgName);
+                    setEditingOrgName(true);
+                  }}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#333] text-[#888] transition hover:border-[#4FC3F7] hover:text-[#4FC3F7]"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
           </div>
           <div>
             <label className="mb-1 block text-xs text-[#888]">

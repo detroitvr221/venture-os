@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useOrgId } from "@/lib/useOrgId";
 import { Brain, Search, RefreshCw, Database, Link2, Lightbulb } from "lucide-react";
+import Pagination from "@/components/Pagination";
 
 type Memory = {
   id: string;
@@ -30,20 +31,24 @@ export default function MemoryPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<"memories" | "entities" | "graph">("memories");
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const PAGE_SIZE = 25;
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [page]);
 
   async function loadData() {
     setLoading(true);
     const supabase = createClient();
     const [mem, ent, edg] = await Promise.all([
-      supabase.from("memories").select("*").eq("organization_id", orgId).order("created_at", { ascending: false }).limit(50),
+      supabase.from("memories").select("*", { count: "exact" }).eq("organization_id", orgId).order("created_at", { ascending: false }).range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1),
       supabase.from("memory_entities").select("*").eq("organization_id", orgId).order("name").limit(100),
       supabase.from("memory_edges").select("id, from_entity, to_entity, relation").eq("organization_id", orgId).limit(100),
     ]);
     setMemories(mem.data || []);
+    setTotalCount(mem.count ?? 0);
     setEntities(ent.data || []);
     setEdges(edg.data || []);
     setLoading(false);
@@ -125,6 +130,15 @@ export default function MemoryPage() {
                 </div>
               ))
             )}
+          </div>
+
+          {/* Pagination */}
+          <div className="mt-4">
+            <Pagination
+              page={page}
+              totalPages={Math.ceil(totalCount / PAGE_SIZE)}
+              onPageChange={setPage}
+            />
           </div>
         </>
       )}

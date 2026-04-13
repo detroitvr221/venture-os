@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 import Link from "next/link";
 import {
   Search,
@@ -71,7 +72,6 @@ export default function SeoAuditsPage() {
   const [showNewAudit, setShowNewAudit] = useState(false);
   const [auditUrl, setAuditUrl] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [auditType, setAuditType] = useState<"seo" | "site">("seo");
 
@@ -122,7 +122,7 @@ export default function SeoAuditsPage() {
       const result = await runSeoAudit(auditUrl.trim());
       setSubmitting(false);
       if (result.success) {
-        setMessage(result.data.message);
+        toast.success(result.data.message);
         const db = createClient();
         const { data: latestJob } = await db
           .from("audit_jobs")
@@ -137,22 +137,21 @@ export default function SeoAuditsPage() {
         setAuditUrl("");
         fetchData();
       } else {
-        setMessage(`Error: ${result.error}`);
+        toast.error(`Error: ${result.error}`);
       }
     } else {
       const result = await runSiteAudit(auditUrl.trim());
       setSubmitting(false);
       if (result.success) {
-        setMessage(result.message || "Site audit triggered.");
+        toast.success(result.message || "Site audit triggered.");
         if (result.jobId) setActiveJobId(result.jobId);
         setShowNewAudit(false);
         setAuditUrl("");
         fetchData();
       } else {
-        setMessage(`Error: ${result.error}`);
+        toast.error(`Error: ${result.error}`);
       }
     }
-    setTimeout(() => setMessage(null), 8000);
   };
 
   const avgScore =
@@ -177,13 +176,6 @@ export default function SeoAuditsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Toast */}
-      {message && (
-        <div className="fixed top-4 right-4 z-50 rounded-lg border border-[#222] bg-[#0a0a0a] px-4 py-3 text-sm text-white shadow-lg">
-          {message}
-        </div>
-      )}
-
       {/* Active Job Preview — shows live audit progress + report */}
       {activeJobId && (
         <InlineReportPreview jobId={activeJobId} autoExpand showStatusBar />

@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { useOrgId } from "@/lib/useOrgId";
+import { useCompany } from "@/lib/company-context";
 import { toast } from "sonner";
 import { FolderKanban, Plus, Search, Clock, CheckCircle2, AlertCircle, Pause } from "lucide-react";
 import { SkeletonList } from "@/components/Skeleton";
@@ -33,6 +35,8 @@ type Client = {
 };
 
 export default function ProjectsPage() {
+  const orgId = useOrgId();
+  const { companyId } = useCompany();
   const [projects, setProjects] = useState<Project[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,14 +47,16 @@ export default function ProjectsPage() {
   useEffect(() => {
     loadProjects();
     loadClients();
-  }, []);
+  }, [orgId, companyId]);
 
   async function loadProjects() {
     const supabase = createClient();
-    const { data } = await supabase
+    let query = supabase
       .from("projects")
       .select("*, clients(name)")
       .order("created_at", { ascending: false });
+    if (companyId) query = query.eq("company_id", companyId);
+    const { data } = await query;
     setProjects(data || []);
     setLoading(false);
   }

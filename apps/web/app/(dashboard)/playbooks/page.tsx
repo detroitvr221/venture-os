@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useOrgId } from "@/lib/useOrgId";
 import { BookOpen, Search, ChevronDown, ChevronRight } from "lucide-react";
+import Pagination from "@/components/Pagination";
 
 type Playbook = {
   id: string;
@@ -21,16 +22,20 @@ export default function PlaybooksPage() {
   const [loading, setLoading] = useState(true);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const PAGE_SIZE = 25;
 
   useEffect(() => {
     async function load() {
       const supabase = createClient();
-      const { data } = await supabase.from("playbooks").select("*").eq("organization_id", orgId).order("category").order("name");
+      const { data, count } = await supabase.from("playbooks").select("*", { count: "exact" }).eq("organization_id", orgId).order("category").order("name").range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
       setPlaybooks(data || []);
+      setTotalCount(count ?? 0);
       setLoading(false);
     }
     load();
-  }, []);
+  }, [page]);
 
   const filtered = playbooks.filter(
     (p) => !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.content.toLowerCase().includes(search.toLowerCase())
@@ -99,6 +104,13 @@ export default function PlaybooksPage() {
               </div>
             </div>
           ))}
+
+          {/* Pagination */}
+          <Pagination
+            page={page}
+            totalPages={Math.ceil(totalCount / PAGE_SIZE)}
+            onPageChange={setPage}
+          />
         </div>
       )}
     </div>

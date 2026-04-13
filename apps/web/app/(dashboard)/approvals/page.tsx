@@ -15,6 +15,8 @@ import {
 import { approvePendingApproval, rejectPendingApproval } from "../../actions";
 import { createClient } from "@/lib/supabase/client";
 import { useOrgId } from "@/lib/useOrgId";
+import { useCompany } from "@/lib/company-context";
+import Pagination from "@/components/Pagination";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -72,25 +74,33 @@ const typeColors: Record<string, string> = {
 
 export default function ApprovalsPage() {
   const orgId = useOrgId();
+  const { companyId } = useCompany();
   const [approvals, setApprovals] = useState<ApprovalRow[]>([]);
   const [filter, setFilter] = useState<ApprovalStatus | "all">("all");
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const PAGE_SIZE = 25;
 
   const fetchApprovals = useCallback(async () => {
     const db = createClient();
-    const { data, error } = await db
+    let query = db
       .from("approvals")
-      .select("*")
+      .select("*", { count: "exact" })
       .eq("organization_id", orgId)
-      .order("created_at", { ascending: false })
-      .limit(50);
+      .order("created_at", { ascending: false });
+    if (companyId) query = query.eq("company_id", companyId);
+    query = query.range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
+
+    const { data, error, count } = await query;
 
     if (!error && data) {
       setApprovals(data as ApprovalRow[]);
     }
+    setTotalCount(count ?? 0);
     setLoading(false);
-  }, [orgId]);
+  }, [orgId, companyId, page]);
 
   useEffect(() => {
     fetchApprovals();
@@ -271,6 +281,13 @@ export default function ApprovalsPage() {
           </div>
         </div>
       )}
+      {/* Pagination */}
+      <Pagination
+        page={page}
+        totalPages={Math.ceil(totalCount / PAGE_SIZE)}
+        onPageChange={setPage}
+      />
+
       {/* Approval confirmation modal */}
       {approveModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setApproveModal(null)}>

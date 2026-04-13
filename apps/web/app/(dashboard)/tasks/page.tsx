@@ -425,7 +425,7 @@ export default function TasksPage() {
                 </div>
 
                 {/* Cards */}
-                <div className="flex flex-1 flex-col gap-2">
+                <div className="flex flex-1 flex-col gap-2" role="list" aria-label={`${col.label} - ${columnTasks.length} tasks`}>
                   {columnTasks.length === 0 ? (
                     <div className="flex items-center justify-center rounded-lg border border-dashed border-[#222] py-8">
                       <p className="text-xs text-[#555]">No tasks</p>
@@ -438,7 +438,28 @@ export default function TasksPage() {
                       return (
                         <div
                           key={task.id}
-                          className={`group rounded-lg border bg-[#0a0a0a] p-3.5 transition hover:border-[#333] ${
+                          role="listitem"
+                          tabIndex={0}
+                          aria-label={`${task.title}, ${priority.label} priority${overdue ? ", overdue" : ""}`}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              setOpenDropdown(
+                                openDropdown === task.id ? null : task.id
+                              );
+                            } else if (e.key === "ArrowDown") {
+                              e.preventDefault();
+                              const next = e.currentTarget.nextElementSibling as HTMLElement | null;
+                              next?.focus();
+                            } else if (e.key === "ArrowUp") {
+                              e.preventDefault();
+                              const prev = e.currentTarget.previousElementSibling as HTMLElement | null;
+                              prev?.focus();
+                            } else if (e.key === "Escape") {
+                              setOpenDropdown(null);
+                            }
+                          }}
+                          className={`group rounded-lg border bg-[#0a0a0a] p-3.5 transition hover:border-[#333] focus:outline-none focus:ring-1 focus:ring-[#4FC3F7] ${
                             overdue ? "border-[#ef4444]/50" : "border-[#222]"
                           }`}
                         >

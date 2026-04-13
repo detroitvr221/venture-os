@@ -58,7 +58,7 @@ config["models"]["providers"]["nexos"] = {
 
 # ── Default model ──
 config.setdefault("agents", {}).setdefault("defaults", {})
-config["agents"]["defaults"]["model"] = {"primary": "openai/gpt-5.4-mini"}
+config["agents"]["defaults"]["model"] = {"primary": "minimax/MiniMax-M2.7-highspeed"}
 
 # ── Channels ──
 config.setdefault("channels", {})
@@ -112,7 +112,8 @@ mcp = {
     "memory":{"command":"npx","args":["-y","@modelcontextprotocol/server-memory"]},
     "context7":{"command":"npx","args":["-y","@upstash/context7-mcp"]},
     "vapi":{"command":"npx","args":["-y","@vapi-ai/mcp-server"],"env":{"VAPI_TOKEN":env("VAPI_TOKEN")}},
-    "searchapi":{"command":"npx","args":["-y","mcp-remote","https://www.searchapi.io/mcp?token="+env("SEARCHAPI_TOKEN")]}
+    "searchapi":{"command":"npx","args":["-y","mcp-remote","https://www.searchapi.io/mcp?token="+env("SEARCHAPI_TOKEN")]},
+    "claude-mem":{"command":"npx","args":["-y","claude-mem","serve"]}
 }
 config.setdefault("mcp", {})["servers"] = mcp
 
