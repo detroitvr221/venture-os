@@ -69,6 +69,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [notifCount, setNotifCount] = useState(0);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -85,6 +86,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         setUserRole(member?.role ?? null);
       }
     });
+
+    // Load real notification count: pending approvals + running/failed jobs
+    async function loadNotifCount() {
+      const { count: pendingApprovals } = await supabase
+        .from("approvals")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "pending");
+      const { count: activeJobs } = await supabase
+        .from("audit_jobs")
+        .select("*", { count: "exact", head: true })
+        .in("status", ["running", "failed"]);
+      setNotifCount((pendingApprovals ?? 0) + (activeJobs ?? 0));
+    }
+    loadNotifCount();
   }, []);
 
   // Close mobile nav on route change
@@ -253,7 +268,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <span className="flex-1 text-sm font-medium text-white">Northbridge</span>
           <button className="relative rounded p-1.5 text-[#888] hover:text-white" aria-label="Notifications">
             <Bell className="h-5 w-5" />
-            <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#4FC3F7] text-[8px] font-bold text-white">3</span>
+            {notifCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#4FC3F7] text-[8px] font-bold text-white">
+                {notifCount > 99 ? "99+" : notifCount}
+              </span>
+            )}
           </button>
         </div>
         <div className="mx-auto max-w-[1400px] p-4 sm:p-6 lg:p-8">{children}</div>

@@ -18,6 +18,17 @@ import {
   ExternalLink,
 } from "lucide-react";
 
+function sanitizeHtml(html: string): string {
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/\bon\w+\s*=\s*"[^"]*"/gi, '')
+    .replace(/\bon\w+\s*=\s*'[^']*'/gi, '')
+    .replace(/javascript\s*:/gi, 'blocked:')
+    .replace(/<iframe\b[^>]*>/gi, '')
+    .replace(/<object\b[^>]*>/gi, '')
+    .replace(/<embed\b[^>]*>/gi, '');
+}
+
 type EmailDetail = {
   id: string;
   direction: string;
@@ -228,7 +239,7 @@ export default function EmailDetailPage() {
           {email.body_html ? (
             <div
               className="prose prose-invert max-w-none text-sm text-[#ddd]"
-              dangerouslySetInnerHTML={{ __html: email.body_html }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(email.body_html) }}
             />
           ) : (
             <pre className="whitespace-pre-wrap text-sm text-[#ddd] font-sans">

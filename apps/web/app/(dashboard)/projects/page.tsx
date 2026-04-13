@@ -27,15 +27,22 @@ const STATUS_CONFIG: Record<string, { color: string; icon: React.ElementType }> 
   cancelled: { color: "text-[#ef4444] bg-[#ef4444]/20", icon: AlertCircle },
 };
 
+type Client = {
+  id: string;
+  name: string;
+};
+
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
   const [showAdd, setShowAdd] = useState(false);
-  const [newProject, setNewProject] = useState({ name: "", description: "", status: "planning" });
+  const [newProject, setNewProject] = useState({ name: "", description: "", status: "planning", client_id: "" });
 
   useEffect(() => {
     loadProjects();
+    loadClients();
   }, []);
 
   async function loadProjects() {
@@ -48,20 +55,48 @@ export default function ProjectsPage() {
     setLoading(false);
   }
 
+  async function loadClients() {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("clients")
+      .select("id, name")
+      .order("name");
+    setClients(data || []);
+  }
+
   async function handleCreateProject() {
     if (!newProject.name) return;
     const supabase = createClient();
+
+    // Look up the user's organization_id
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast.error("Not authenticated");
+      return;
+    }
+    const { data: member } = await supabase
+      .from("organization_members")
+      .select("organization_id")
+      .eq("user_id", user.id)
+      .single();
+    if (!member?.organization_id) {
+      toast.error("No organization found");
+      return;
+    }
+
     const { error } = await supabase.from("projects").insert({
       name: newProject.name,
       description: newProject.description || null,
       status: newProject.status,
+      organization_id: member.organization_id,
+      client_id: newProject.client_id || null,
     });
     if (error) {
       toast.error("Failed to create project");
       return;
     }
     toast.success("Project created");
-    setNewProject({ name: "", description: "", status: "planning" });
+    setNewProject({ name: "", description: "", status: "planning", client_id: "" });
     setShowAdd(false);
     loadProjects();
   }
@@ -104,6 +139,19 @@ export default function ProjectsPage() {
               />
             </div>
             <div>
+              <label className="mb-1 block text-xs text-[#888]">Client</label>
+              <select
+                value={newProject.client_id}
+                onChange={(e) => setNewProject({ ...newProject, client_id: e.target.value })}
+                className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white focus:border-[#4FC3F7] focus:outline-none"
+              >
+                <option value="">No client</option>
+                {clients.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
               <label className="mb-1 block text-xs text-[#888]">Status</label>
               <select
                 value={newProject.status}
@@ -115,7 +163,7 @@ export default function ProjectsPage() {
                 <option value="on_hold">On Hold</option>
               </select>
             </div>
-            <div className="sm:col-span-2">
+            <div>
               <label className="mb-1 block text-xs text-[#888]">Description</label>
               <input
                 value={newProject.description}

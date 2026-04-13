@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     const { data: lead } = await supabase
       .from("leads")
       .select("id")
-      .eq("email", email.from_address)
+      .eq("contact_email", email.from_address)
       .single();
 
     const { data: inserted, error } = await supabase

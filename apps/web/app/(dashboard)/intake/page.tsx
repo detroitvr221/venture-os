@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { ClipboardList, ArrowRight, ArrowLeft, CheckCircle2, Send, Building2, Sparkles } from "lucide-react";
@@ -80,6 +80,18 @@ export default function IntakePage() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [analysisJobId, setAnalysisJobId] = useState<string | null>(null);
+  const [orgId, setOrgId] = useState("00000000-0000-0000-0000-000000000001");
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        supabase.from("organization_members").select("organization_id").eq("user_id", user.id).single().then(({ data }) => {
+          if (data?.organization_id) setOrgId(data.organization_id);
+        });
+      }
+    });
+  }, []);
 
   const activeQuestions = QUESTIONS.filter(
     (q) => q.services.includes("*") || q.services.some((s) => selectedServices.includes(s))
@@ -97,11 +109,11 @@ export default function IntakePage() {
 
     // Create lead from intake
     const { data: lead } = await supabase.from("leads").insert({
-      organization_id: "00000000-0000-0000-0000-000000000001",
-      name: answers.contact_name || "New Intake",
-      email: answers.contact_email || null,
-      phone: answers.contact_phone || null,
-      company: answers.company_name || null,
+      organization_id: orgId,
+      contact_name: answers.contact_name || "New Intake",
+      contact_email: answers.contact_email || null,
+      contact_phone: answers.contact_phone || null,
+      company_name: answers.company_name || null,
       source: "intake_form",
       stage: "new",
       score: selectedServices.length >= 3 ? 80 : selectedServices.length >= 2 ? 60 : 40,
@@ -120,7 +132,7 @@ export default function IntakePage() {
     // Also create contact
     if (answers.contact_email) {
       await supabase.from("contacts").insert({
-        organization_id: "00000000-0000-0000-0000-000000000001",
+        organization_id: orgId,
         name: answers.contact_name || null,
         email: answers.contact_email,
         phone: answers.contact_phone || null,
@@ -131,7 +143,7 @@ export default function IntakePage() {
 
     // Log to audit
     await supabase.from("audit_logs").insert({
-      organization_id: "00000000-0000-0000-0000-000000000001",
+      organization_id: orgId,
       actor_type: "system",
       actor_id: "intake-form",
       action: "create",
@@ -143,7 +155,7 @@ export default function IntakePage() {
     // Trigger OpenClaw AI analysis of the intake
     try {
       const { data: job } = await supabase.from("audit_jobs").insert({
-        organization_id: "00000000-0000-0000-0000-000000000001",
+        organization_id: orgId,
         job_type: "intake_analysis",
         status: "queued",
         input_payload: {
@@ -165,7 +177,7 @@ export default function IntakePage() {
           body: JSON.stringify({
             agent_id: "main",
             message: `Analyze this client intake form and generate a recommendation report. Client: ${answers.contact_name || "Unknown"}, Company: ${answers.company_name || "Unknown"}, Services requested: ${selectedServices.join(", ")}, Budget: ${answers.budget_range || "Not specified"}, Timeline: ${answers.timeline || "Not specified"}, Goals: ${answers.goals_summary || "Not specified"}. Return JSON with: recommended_services, recommended_tier, estimated_monthly_value, risk_factors, opportunities, next_steps, and executive_summary.`,
-            organization_id: "00000000-0000-0000-0000-000000000001",
+            organization_id: orgId,
             context: { job_id: job.id, job_type: "intake_analysis", lead_id: lead?.id, callback_url: "https://www.thenorthbridgemi.com/api/openclaw/webhook" },
           }),
         }).catch(() => {});
