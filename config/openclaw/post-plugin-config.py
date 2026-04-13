@@ -57,13 +57,8 @@ config["models"]["providers"]["nexos"] = {
 }
 
 # ── Default model ──
-# GPT-5.4-mini for fast everyday tasks (0.5-1s), MiniMax for deep reasoning (3-5s)
 config.setdefault("agents", {}).setdefault("defaults", {})
-config["agents"]["defaults"]["model"] = {
-    "primary": "openai/gpt-5.4-mini",
-    "reasoning": "minimax/MiniMax-M2.7-highspeed",
-    "fallback": "openai/gpt-4.1-mini"
-}
+config["agents"]["defaults"]["model"] = {"primary": "minimax/MiniMax-M2.7-highspeed"}
 
 # ── Channels ──
 config.setdefault("channels", {})
