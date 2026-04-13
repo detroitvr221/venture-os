@@ -5,7 +5,7 @@ import { ExternalLink, Maximize2, Minimize2, HardDrive } from "lucide-react";
 
 export default function FileBrowserPage() {
   const [fullscreen, setFullscreen] = useState(false);
-  const FILEBROWSER_URL = "https://files.thenorthbridgemi.com";
+  const FILEBROWSER_URL = "http://145.223.75.46:8080";
 
   return (
     <div className={fullscreen ? "fixed inset-0 z-50 bg-[#0a0a0a]" : "h-full"}>
