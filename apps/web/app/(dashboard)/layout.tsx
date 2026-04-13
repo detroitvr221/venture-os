@@ -8,7 +8,7 @@ import {
   CheckCircle2, CreditCard, Building2, Settings, ChevronLeft, ChevronRight,
   FileText, Search, Send, LogOut, Mail, ClipboardList, MessageSquare,
   ShieldCheck, UserPlus, BookOpen, Menu, X, Calendar, HardDrive,
-  BarChart3, Zap, Phone, CheckSquare,
+  BarChart3, Zap, Phone, CheckSquare, Server,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { CompanyProvider } from "@/lib/company-context";
@@ -54,6 +54,7 @@ const navGroups = [
       { name: "Workflows", href: "/workflows", icon: GitBranch },
       { name: "Knowledge", href: "/memory", icon: Brain },
       { name: "Files", href: "/files", icon: HardDrive },
+      { name: "File Browser", href: "/browser", icon: Server },
       { name: "Approvals", href: "/approvals", icon: CheckCircle2 },
       { name: "Playbooks", href: "/playbooks", icon: BookOpen },
     ],
