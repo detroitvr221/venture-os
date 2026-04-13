@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
@@ -9,12 +9,72 @@ const inter = Inter({
   display: "swap",
 });
 
+const SITE_URL = "https://www.thenorthbridgemi.com";
+const SITE_NAME = "Northbridge Digital";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#0a0a0a" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+  ],
+};
+
 export const metadata: Metadata = {
-  title: "Northbridge Digital — Build. Launch. Grow.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Northbridge Digital — Build. Launch. Grow.",
+    template: "%s | Northbridge Digital",
+  },
   description:
     "Northbridge Digital helps businesses build, launch, and grow online through websites, SEO, social media, and modern digital systems.",
+  applicationName: SITE_NAME,
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: { url: "/apple-touch-icon.png", sizes: "180x180" },
+  },
+  manifest: "/manifest.json",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: "Northbridge Digital — Build. Launch. Grow.",
+    description:
+      "Human-led digital growth company. Websites, SEO, social media, and digital systems. Packages from $199/mo.",
+    images: [
+      {
+        url: `${SITE_URL}/og-image.png`,
+        width: 1200,
+        height: 630,
+        alt: "Northbridge Digital — Build. Launch. Grow.",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Northbridge Digital — Build. Launch. Grow.",
+    description:
+      "Human-led digital growth company. Websites, SEO, social media, and digital systems.",
+    images: [`${SITE_URL}/og-image.png`],
+    creator: "@NorthbridgeDigi",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  verification: {
+    // Add your verification codes when ready:
+    // google: "your-google-verification-code",
+    // yandex: "your-yandex-verification-code",
+  },
+  other: {
+    "msapplication-TileColor": "#0a0a0a",
   },
 };
 
@@ -25,6 +85,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`dark ${inter.variable}`}>
+      <head>
+        {/* Preconnect to external domains for speed */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="min-h-screen bg-background font-sans antialiased">
         {children}
         <Toaster
