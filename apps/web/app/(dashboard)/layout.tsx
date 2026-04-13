@@ -154,10 +154,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </span>
           )}
         </div>
-        {/* Mobile close button */}
-        <button onClick={() => setMobileOpen(false)} className="md:hidden rounded p-1 text-[#888] hover:text-white">
-          <X className="h-5 w-5" />
-        </button>
+        <div className="flex items-center gap-1">
+          {/* Notifications (desktop) */}
+          <div className="hidden md:block">
+            <NotificationDropdown />
+          </div>
+          {/* Mobile close button */}
+          <button onClick={() => setMobileOpen(false)} className="md:hidden rounded p-1 text-[#888] hover:text-white">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
       </div>
 
       {/* Company Selector */}

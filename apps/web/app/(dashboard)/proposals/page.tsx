@@ -13,7 +13,8 @@ import {
   Send,
   Edit3,
 } from "lucide-react";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/client";
+import { useOrgId } from "@/lib/useOrgId";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -38,18 +39,6 @@ interface ClientMap {
 
 type StatusFilter = "all" | "draft" | "sent" | "accepted" | "rejected";
 
-// ─── Supabase ───────────────────────────────────────────────────────────────
-
-function getClientDb() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-}
-
-const ORG_ID =
-  process.env.NEXT_PUBLIC_DEFAULT_ORGANIZATION_ID ??
-  "00000000-0000-0000-0000-000000000001";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -74,6 +63,7 @@ const statusConfig: Record<
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function ProposalsPage() {
+  const orgId = useOrgId();
   const [proposals, setProposals] = useState<ProposalRow[]>([]);
   const [leadNames, setLeadNames] = useState<LeadMap>({});
   const [clientNames, setClientNames] = useState<ClientMap>({});
@@ -81,12 +71,12 @@ export default function ProposalsPage() {
   const [filter, setFilter] = useState<StatusFilter>("all");
 
   const fetchData = useCallback(async () => {
-    const db = getClientDb();
+    const db = createClient();
 
     const { data: proposalsData } = await db
       .from("proposals")
       .select("id, title, status, amount, lead_id, client_id, sent_at, created_at")
-      .eq("organization_id", ORG_ID)
+      .eq("organization_id", orgId)
       .order("created_at", { ascending: false });
 
     const rows = (proposalsData ?? []) as ProposalRow[];
@@ -125,7 +115,7 @@ export default function ProposalsPage() {
     }
 
     setLoading(false);
-  }, []);
+  }, [orgId]);
 
   useEffect(() => {
     fetchData();

@@ -108,8 +108,6 @@ export default function CallDetailPage() {
   // ── Realtime status updates ─────────────────────────────────────────────
 
   useEffect(() => {
-    if (!call) return;
-
     const supabase = createClient();
     const channel = supabase
       .channel(`call_detail_${callId}`)
@@ -130,7 +128,7 @@ export default function CallDetailPage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [call, callId]);
+  }, [callId]);
 
   // ── Loading ─────────────────────────────────────────────────────────────
 

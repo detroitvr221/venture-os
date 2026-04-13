@@ -9,6 +9,7 @@ import {
   User, ChevronRight, Trash2, ChevronDown, Mailbox,
 } from "lucide-react";
 import { SkeletonList } from "@/components/Skeleton";
+import { useOrgId } from "@/lib/useOrgId";
 
 type Email = {
   id: string;
@@ -28,6 +29,7 @@ type Email = {
 type FolderType = "all_inbox" | "sent" | "archived" | "all" | string; // string = mailbox name like "info", "hello"
 
 export default function EmailPage() {
+  const orgId = useOrgId();
   const [emails, setEmails] = useState<Email[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFolder, setActiveFolder] = useState<FolderType>("all_inbox");
@@ -44,11 +46,12 @@ export default function EmailPage() {
     const { data } = await supabase
       .from("emails")
       .select("id, direction, from_address, from_name, to_addresses, subject, body_text, status, received_at, read_at, lead_id, client_id")
+      .eq("organization_id", orgId)
       .order("received_at", { ascending: false })
       .limit(200);
     setEmails(data || []);
     setLoading(false);
-  }, []);
+  }, [orgId]);
 
   useEffect(() => { loadEmails(); }, [loadEmails]);
 

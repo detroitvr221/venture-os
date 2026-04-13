@@ -16,6 +16,7 @@ import {
 import { runSeoAudit } from "../../actions";
 import { runSiteAudit } from "./actions";
 import { createClient } from "@/lib/supabase/client";
+import { useOrgId } from "@/lib/useOrgId";
 import { InlineReportPreview } from "@/components/InlineReportPreview";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -63,6 +64,7 @@ function scoreBg(score: number | null): string {
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function SeoAuditsPage() {
+  const orgId = useOrgId();
   const [audits, setAudits] = useState<AuditRow[]>([]);
   const [websites, setWebsites] = useState<WebsiteMap>({});
   const [loading, setLoading] = useState(true);
@@ -81,6 +83,7 @@ export default function SeoAuditsPage() {
       .select(
         "id, website_id, audit_type, score, summary, findings_count, created_at"
       )
+      .eq("organization_id", orgId)
       .order("created_at", { ascending: false });
 
     const rows = (auditsData ?? []) as AuditRow[];
@@ -105,7 +108,7 @@ export default function SeoAuditsPage() {
     }
 
     setLoading(false);
-  }, []);
+  }, [orgId]);
 
   useEffect(() => {
     fetchData();

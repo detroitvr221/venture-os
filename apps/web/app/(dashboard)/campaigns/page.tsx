@@ -17,7 +17,8 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { createCampaign } from "../../actions";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/client";
+import { useOrgId } from "@/lib/useOrgId";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -38,18 +39,6 @@ interface CampaignRow {
 
 type StatusFilter = "all" | "draft" | "active" | "paused" | "completed";
 
-// ─── Supabase ───────────────────────────────────────────────────────────────
-
-function getClientDb() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-}
-
-const ORG_ID =
-  process.env.NEXT_PUBLIC_DEFAULT_ORGANIZATION_ID ??
-  "00000000-0000-0000-0000-000000000001";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -79,6 +68,7 @@ const typeLabels: Record<string, string> = {
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function CampaignsPage() {
+  const orgId = useOrgId();
   const [campaigns, setCampaigns] = useState<CampaignRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<StatusFilter>("all");
@@ -89,15 +79,15 @@ export default function CampaignsPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const fetchData = useCallback(async () => {
-    const db = getClientDb();
+    const db = createClient();
     const { data } = await db
       .from("campaigns")
       .select("id, name, campaign_type, status, stats, created_at")
-      .eq("organization_id", ORG_ID)
+      .eq("organization_id", orgId)
       .order("created_at", { ascending: false });
     setCampaigns((data ?? []) as CampaignRow[]);
     setLoading(false);
-  }, []);
+  }, [orgId]);
 
   useEffect(() => {
     fetchData();

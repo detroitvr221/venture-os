@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { ClipboardList, ArrowRight, ArrowLeft, CheckCircle2, Send, Building2, Sparkles } from "lucide-react";
 import { InlineReportPreview } from "@/components/InlineReportPreview";
+import { triggerIntakeAnalysis } from "./actions";
 
 // ─── Service definitions ────────────────────────────────────────────────────
 
@@ -170,17 +171,20 @@ export default function IntakePage() {
 
       if (job?.id) {
         setAnalysisJobId(job.id);
-        // Fire to OpenClaw async
-        fetch("/api/openclaw/trigger", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "Authorization": "Bearer vos-hooks-token-2026" },
-          body: JSON.stringify({
-            agent_id: "main",
-            message: `Analyze this client intake form and generate a recommendation report. Client: ${answers.contact_name || "Unknown"}, Company: ${answers.company_name || "Unknown"}, Services requested: ${selectedServices.join(", ")}, Budget: ${answers.budget_range || "Not specified"}, Timeline: ${answers.timeline || "Not specified"}, Goals: ${answers.goals_summary || "Not specified"}. Return JSON with: recommended_services, recommended_tier, estimated_monthly_value, risk_factors, opportunities, next_steps, and executive_summary.`,
-            organization_id: orgId,
-            context: { job_id: job.id, job_type: "intake_analysis", lead_id: lead?.id, callback_url: "https://www.thenorthbridgemi.com/api/openclaw/webhook" },
-          }),
-        }).catch(() => {});
+        // Fire to OpenClaw via server action (token stays server-side)
+        triggerIntakeAnalysis(
+          job.id,
+          orgId,
+          {
+            contact_name: answers.contact_name,
+            company_name: answers.company_name,
+            services_requested: selectedServices,
+            budget_range: answers.budget_range,
+            timeline: answers.timeline,
+            goals_summary: answers.goals_summary,
+          },
+          lead?.id,
+        ).catch(() => {});
       }
     } catch {}
 

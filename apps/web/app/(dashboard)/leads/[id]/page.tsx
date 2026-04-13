@@ -27,7 +27,8 @@ import {
   generateProposal,
   startFollowUp,
 } from "../../../actions";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/client";
+import { useOrgId } from "@/lib/useOrgId";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -88,16 +89,6 @@ const stages: { key: LeadStage; label: string; color: string }[] = [
   { key: "lost", label: "Lost", color: "#ef4444" },
 ];
 
-function getClientDb() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-}
-
-const ORG_ID =
-  process.env.NEXT_PUBLIC_DEFAULT_ORGANIZATION_ID ??
-  "00000000-0000-0000-0000-000000000001";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -128,6 +119,7 @@ export default function LeadDetailPage() {
   const params = useParams();
   const router = useRouter();
   const leadId = params.id as string;
+  const orgId = useOrgId();
 
   const [lead, setLead] = useState<LeadDetail | null>(null);
   const [proposals, setProposals] = useState<ProposalRow[]>([]);
@@ -140,25 +132,25 @@ export default function LeadDetailPage() {
   const [actionMessage, setActionMessage] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
-    const db = getClientDb();
+    const db = createClient();
 
     const [leadResult, proposalsResult, timelineResult] = await Promise.all([
       db
         .from("leads")
         .select("*")
         .eq("id", leadId)
-        .eq("organization_id", ORG_ID)
+        .eq("organization_id", orgId)
         .single(),
       db
         .from("proposals")
         .select("id, title, status, amount, created_at")
-        .eq("organization_id", ORG_ID)
+        .eq("organization_id", orgId)
         .eq("lead_id", leadId)
         .order("created_at", { ascending: false }),
       db
         .from("audit_logs")
         .select("id, action, resource_type, actor_type, actor_id, changes, created_at")
-        .eq("organization_id", ORG_ID)
+        .eq("organization_id", orgId)
         .eq("resource_id", leadId)
         .order("created_at", { ascending: false })
         .limit(20),
@@ -175,7 +167,7 @@ export default function LeadDetailPage() {
       setTimeline(timelineResult.data as AuditLogRow[]);
     }
     setLoading(false);
-  }, [leadId]);
+  }, [leadId, orgId]);
 
   useEffect(() => {
     fetchData();
@@ -199,12 +191,12 @@ export default function LeadDetailPage() {
   const handleSaveNotes = async () => {
     if (!lead) return;
     setSaving(true);
-    const db = getClientDb();
+    const db = createClient();
     await db
       .from("leads")
       .update({ notes })
       .eq("id", leadId)
-      .eq("organization_id", ORG_ID);
+      .eq("organization_id", orgId);
     setSaving(false);
     setActionMessage("Notes saved");
     setTimeout(() => setActionMessage(null), 3000);

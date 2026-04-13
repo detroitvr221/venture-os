@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrgId } from "@/lib/useOrgId";
 import { Brain, Search, RefreshCw, Database, Link2, Lightbulb } from "lucide-react";
 
 type Memory = {
@@ -22,6 +23,7 @@ type MemoryEntity = {
 };
 
 export default function MemoryPage() {
+  const orgId = useOrgId();
   const [memories, setMemories] = useState<Memory[]>([]);
   const [entities, setEntities] = useState<MemoryEntity[]>([]);
   const [edges, setEdges] = useState<{ id: string; from_entity: string; to_entity: string; relation: string }[]>([]);
@@ -37,9 +39,9 @@ export default function MemoryPage() {
     setLoading(true);
     const supabase = createClient();
     const [mem, ent, edg] = await Promise.all([
-      supabase.from("memories").select("*").order("created_at", { ascending: false }).limit(50),
-      supabase.from("memory_entities").select("*").order("name").limit(100),
-      supabase.from("memory_edges").select("id, from_entity, to_entity, relation").limit(100),
+      supabase.from("memories").select("*").eq("organization_id", orgId).order("created_at", { ascending: false }).limit(50),
+      supabase.from("memory_entities").select("*").eq("organization_id", orgId).order("name").limit(100),
+      supabase.from("memory_edges").select("id, from_entity, to_entity, relation").eq("organization_id", orgId).limit(100),
     ]);
     setMemories(mem.data || []);
     setEntities(ent.data || []);

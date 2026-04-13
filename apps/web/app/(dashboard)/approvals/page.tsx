@@ -13,7 +13,8 @@ import {
   Filter,
 } from "lucide-react";
 import { approvePendingApproval, rejectPendingApproval } from "../../actions";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/client";
+import { useOrgId } from "@/lib/useOrgId";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -33,16 +34,6 @@ interface ApprovalRow {
   expires_at: string | null;
 }
 
-// ─── Supabase ───────────────────────────────────────────────────────────────
-
-function getClientDb() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
-}
-
-const ORG_ID = process.env.NEXT_PUBLIC_DEFAULT_ORGANIZATION_ID ?? "00000000-0000-0000-0000-000000000001";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -80,17 +71,18 @@ const typeColors: Record<string, string> = {
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function ApprovalsPage() {
+  const orgId = useOrgId();
   const [approvals, setApprovals] = useState<ApprovalRow[]>([]);
   const [filter, setFilter] = useState<ApprovalStatus | "all">("all");
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const fetchApprovals = useCallback(async () => {
-    const db = getClientDb();
+    const db = createClient();
     const { data, error } = await db
       .from("approvals")
       .select("*")
-      .eq("organization_id", ORG_ID)
+      .eq("organization_id", orgId)
       .order("created_at", { ascending: false })
       .limit(50);
 
@@ -98,7 +90,7 @@ export default function ApprovalsPage() {
       setApprovals(data as ApprovalRow[]);
     }
     setLoading(false);
-  }, []);
+  }, [orgId]);
 
   useEffect(() => {
     fetchApprovals();

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { useOrgId } from "@/lib/useOrgId";
 import { toast } from "sonner";
 import { Users, Plus, Search, Building2, Mail, Phone, ExternalLink, DollarSign } from "lucide-react";
 import { SkeletonGrid } from "@/components/Skeleton";
@@ -20,30 +21,23 @@ type Client = {
 };
 
 export default function ClientsPage() {
+  const orgId = useOrgId();
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", phone: "", website: "", industry: "" });
-  const [orgId, setOrgId] = useState("00000000-0000-0000-0000-000000000001");
 
   useEffect(() => {
     loadClients();
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        supabase.from("organization_members").select("organization_id").eq("user_id", user.id).single().then(({ data }) => {
-          if (data?.organization_id) setOrgId(data.organization_id);
-        });
-      }
-    });
-  }, []);
+  }, [orgId]);
 
   async function loadClients() {
     const supabase = createClient();
     const { data } = await supabase
       .from("clients")
       .select("*")
+      .eq("organization_id", orgId)
       .order("created_at", { ascending: false });
     setClients(data || []);
     setLoading(false);

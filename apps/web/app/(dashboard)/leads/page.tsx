@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { Plus, Building2, DollarSign, Clock, MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
 import { createLead, updateLeadStage } from "../../actions";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/client";
+import { useOrgId } from "@/lib/useOrgId";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -41,39 +42,29 @@ const columns: { key: LeadStage; label: string; color: string }[] = [
   { key: "lost", label: "Lost", color: "#ef4444" },
 ];
 
-// ─── Supabase Client-Side (anon key) ────────────────────────────────────────
-
-function getClientDb() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
-}
-
-const ORG_ID = process.env.NEXT_PUBLIC_DEFAULT_ORGANIZATION_ID ?? "00000000-0000-0000-0000-000000000001";
-
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function LeadsPage() {
   const router = useRouter();
+  const orgId = useOrgId();
   const [leads, setLeads] = useState<LeadRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   const fetchLeads = useCallback(async () => {
-    const db = getClientDb();
+    const db = createClient();
     const { data, error } = await db
       .from("leads")
       .select("id, contact_name, contact_email, source, stage, score, assigned_agent, expected_value, notes, created_at")
-      .eq("organization_id", ORG_ID)
+      .eq("organization_id", orgId)
       .order("created_at", { ascending: false });
 
     if (!error && data) {
       setLeads(data as LeadRow[]);
     }
     setLoading(false);
-  }, []);
+  }, [orgId]);
 
   useEffect(() => {
     fetchLeads();
@@ -166,8 +157,8 @@ export default function LeadsPage() {
         <div className="rounded-xl border border-[#222] bg-[#0a0a0a] p-5">
           <h3 className="text-lg font-semibold text-white mb-4">New Lead</h3>
           <form action={handleCreateLead} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <input type="hidden" name="organization_id" value={ORG_ID} />
-            <input type="hidden" name="company_id" value={ORG_ID} />
+            <input type="hidden" name="organization_id" value={orgId} />
+            <input type="hidden" name="company_id" value={orgId} />
             <div>
               <label className="text-xs text-[#888] block mb-1">Contact Name *</label>
               <input name="contact_name" required className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder-[#666] focus:border-[#4FC3F7] focus:outline-none" placeholder="Jane Smith" />

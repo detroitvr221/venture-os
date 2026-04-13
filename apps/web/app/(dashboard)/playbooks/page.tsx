@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrgId } from "@/lib/useOrgId";
 import { BookOpen, Search, ChevronDown, ChevronRight } from "lucide-react";
 
 type Playbook = {
@@ -15,6 +16,7 @@ type Playbook = {
 };
 
 export default function PlaybooksPage() {
+  const orgId = useOrgId();
   const [playbooks, setPlaybooks] = useState<Playbook[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -23,7 +25,7 @@ export default function PlaybooksPage() {
   useEffect(() => {
     async function load() {
       const supabase = createClient();
-      const { data } = await supabase.from("playbooks").select("*").order("category").order("name");
+      const { data } = await supabase.from("playbooks").select("*").eq("organization_id", orgId).order("category").order("name");
       setPlaybooks(data || []);
       setLoading(false);
     }

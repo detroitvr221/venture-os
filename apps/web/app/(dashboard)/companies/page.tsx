@@ -12,7 +12,8 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 import { createSubCompany } from "../../actions";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/client";
+import { useOrgId } from "@/lib/useOrgId";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -32,32 +33,23 @@ interface BrandRow {
   colors: Record<string, string>;
 }
 
-// ─── Supabase ───────────────────────────────────────────────────────────────
-
-function getClientDb() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
-}
-
-const ORG_ID = process.env.NEXT_PUBLIC_DEFAULT_ORGANIZATION_ID ?? "00000000-0000-0000-0000-000000000001";
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function CompaniesPage() {
+  const orgId = useOrgId();
   const [companies, setCompanies] = useState<(CompanyRow & { clientCount: number; brand: BrandRow | null })[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   const fetchCompanies = useCallback(async () => {
-    const db = getClientDb();
+    const db = createClient();
 
     const { data: companiesData, error } = await db
       .from("sub_companies")
       .select("*")
-      .eq("organization_id", ORG_ID)
+      .eq("organization_id", orgId)
       .order("created_at", { ascending: true });
 
     if (error) {
@@ -71,10 +63,10 @@ export default function CompaniesPage() {
     // Fetch brands and client counts
     const [brandsResult, clientsResult] = await Promise.all([
       companyIds.length > 0
-        ? db.from("brands").select("company_id, name, colors").eq("organization_id", ORG_ID).in("company_id", companyIds)
+        ? db.from("brands").select("company_id, name, colors").eq("organization_id", orgId).in("company_id", companyIds)
         : { data: [] },
       companyIds.length > 0
-        ? db.from("clients").select("company_id").eq("organization_id", ORG_ID).eq("status", "active").in("company_id", companyIds)
+        ? db.from("clients").select("company_id").eq("organization_id", orgId).eq("status", "active").in("company_id", companyIds)
         : { data: [] },
     ]);
 
@@ -96,7 +88,7 @@ export default function CompaniesPage() {
 
     setCompanies(enriched);
     setLoading(false);
-  }, []);
+  }, [orgId]);
 
   useEffect(() => {
     fetchCompanies();
@@ -150,7 +142,7 @@ export default function CompaniesPage() {
         <div className="rounded-xl border border-[#222] bg-[#0a0a0a] p-5">
           <h3 className="text-lg font-semibold text-white mb-4">New Sub-Company</h3>
           <form action={handleCreateCompany} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <input type="hidden" name="organization_id" value={ORG_ID} />
+            <input type="hidden" name="organization_id" value={orgId} />
             <div>
               <label className="text-xs text-[#888] block mb-1">Company Name *</label>
               <input name="name" required className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder-[#666] focus:border-[#4FC3F7] focus:outline-none" placeholder="AeroVista Labs" />

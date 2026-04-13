@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrgId } from "@/lib/useOrgId";
 import {
   MessageSquare, Plus, Search, Pin, Archive, Send, Bot, User,
   MoreHorizontal, ChevronDown, Trash2, Edit3, Clock,
@@ -28,6 +29,7 @@ type Message = {
 };
 
 export default function ChatPage() {
+  const orgId = useOrgId();
   const [threads, setThreads] = useState<Thread[]>([]);
   const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -47,12 +49,13 @@ export default function ChatPage() {
     const { data } = await supabase
       .from("chat_threads")
       .select("id, title, status, is_pinned, last_message_at, message_count, created_at")
+      .eq("organization_id", orgId)
       .in("status", showArchived ? ["active", "archived"] : ["active"])
       .order("is_pinned", { ascending: false })
       .order("last_message_at", { ascending: false, nullsFirst: false });
     setThreads(data || []);
     setLoading(false);
-  }, [showArchived]);
+  }, [showArchived, orgId]);
 
   // Load messages for active thread
   const loadMessages = useCallback(async (threadId: string) => {
@@ -60,12 +63,13 @@ export default function ChatPage() {
     const { data } = await supabase
       .from("chat_messages")
       .select("*")
+      .eq("organization_id", orgId)
       .eq("thread_id", threadId)
       .order("created_at", { ascending: true })
       .limit(100);
     setMessages(data || []);
     setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
-  }, []);
+  }, [orgId]);
 
   useEffect(() => { loadThreads(); }, [loadThreads]);
 

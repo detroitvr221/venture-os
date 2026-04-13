@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useOrgId } from "@/lib/useOrgId";
 import { GitBranch, Play, Pause, CheckCircle2, XCircle, Clock, RefreshCw } from "lucide-react";
 
 type WorkflowRun = {
@@ -24,6 +25,7 @@ const STATUS_ICONS: Record<string, { icon: React.ElementType; color: string }> =
 };
 
 export default function WorkflowsPage() {
+  const orgId = useOrgId();
   const [workflows, setWorkflows] = useState<{ id: string; name: string; type: string; description: string | null }[]>([]);
   const [runs, setRuns] = useState<WorkflowRun[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,8 +37,8 @@ export default function WorkflowsPage() {
   async function loadData() {
     const supabase = createClient();
     const [wf, wr] = await Promise.all([
-      supabase.from("workflows").select("id, name, type, description").order("name"),
-      supabase.from("workflow_runs").select("*, workflows(name, type)").order("created_at", { ascending: false }).limit(30),
+      supabase.from("workflows").select("id, name, type, description").eq("organization_id", orgId).order("name"),
+      supabase.from("workflow_runs").select("*, workflows(name, type)").eq("organization_id", orgId).order("created_at", { ascending: false }).limit(30),
     ]);
     setWorkflows(wf.data || []);
     setRuns(wr.data || []);
