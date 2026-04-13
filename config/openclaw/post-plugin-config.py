@@ -6,7 +6,7 @@ WITHOUT overwriting the plugin entries that the installer added.
 """
 import json, os
 
-CONFIG_PATH = os.path.expanduser("~/.openclaw/openclaw.json")
+CONFIG_PATH = "/data/.openclaw/openclaw.json"
 
 def env(k, d=""): return os.environ.get(k, d)
 
