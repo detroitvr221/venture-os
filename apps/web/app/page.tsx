@@ -92,7 +92,7 @@ function JsonLd() {
     sameAs: [],
   };
 
-  const localBusinessSchema = {
+  const localBusinessSchema: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
     name: SITE_NAME,
