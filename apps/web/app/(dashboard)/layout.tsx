@@ -90,6 +90,42 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   // Close mobile nav on route change
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
+  // Global job completion notifications
+  useEffect(() => {
+    const supabase = createClient();
+    const channel = supabase
+      .channel("job-notifications")
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "audit_jobs" },
+        (payload) => {
+          const job = payload.new as { status: string; job_type: string; target_url: string; report_id: string };
+          if (job.status === "completed") {
+            const type = job.job_type?.replace(/_/g, " ");
+            import("sonner").then(({ toast }) => {
+              toast.success(`${type} completed`, {
+                description: job.target_url || "View in Reports",
+                action: job.report_id
+                  ? { label: "View Report", onClick: () => router.push(`/reports/${job.report_id}`) }
+                  : undefined,
+              });
+            });
+          } else if (job.status === "failed") {
+            const type = job.job_type?.replace(/_/g, " ");
+            import("sonner").then(({ toast }) => {
+              toast.error(`${type} failed`, {
+                description: "Check Jobs for details",
+                action: { label: "View Jobs", onClick: () => router.push("/jobs") },
+              });
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [router]);
+
   const handleSignOut = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();

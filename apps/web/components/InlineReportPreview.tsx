@@ -267,9 +267,16 @@ export function InlineReportPreview({
                   View Full Report
                 </Link>
                 {report.storage_path && (
-                  <button className="flex items-center gap-2 rounded-lg border border-[#333] px-3 py-2 text-xs text-[#ccc] hover:bg-[#1a1a1a] hover:text-white">
+                  <button
+                    onClick={async () => {
+                      const supabase = createClient();
+                      const { data } = await supabase.storage.from("workspace").createSignedUrl(report.storage_path!, 3600);
+                      if (data?.signedUrl) window.open(data.signedUrl, "_blank");
+                    }}
+                    className="flex items-center gap-2 rounded-lg border border-[#333] px-3 py-2 text-xs text-[#ccc] hover:bg-[#1a1a1a] hover:text-white"
+                  >
                     <Download className="h-3.5 w-3.5" />
-                    Download
+                    Download HTML
                   </button>
                 )}
               </div>

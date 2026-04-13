@@ -94,6 +94,14 @@ async function handleAgentResult(
     },
   });
 
+  // Check if this agent_result is for a tracked job (OpenClaw sends results as agent_result)
+  const jobId = (data.context as Record<string, unknown>)?.job_id as string
+    || (data.job_id as string);
+  if (jobId) {
+    // Route to job completion handler
+    return handleJobComplete(db, { ...payload, data: { ...data, job_id: jobId } });
+  }
+
   return { processed: true, action: 'agent_result' };
 }
 

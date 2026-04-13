@@ -11,8 +11,10 @@ import {
   CheckCircle2,
   Info,
   BarChart3,
+  Shield,
 } from "lucide-react";
 import { runSeoAudit } from "../../actions";
+import { runSiteAudit } from "./actions";
 import { createClient } from "@/lib/supabase/client";
 import { InlineReportPreview } from "@/components/InlineReportPreview";
 
@@ -69,6 +71,7 @@ export default function SeoAuditsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
+  const [auditType, setAuditType] = useState<"seo" | "site">("seo");
 
   const fetchData = useCallback(async () => {
     const db = createClient();
@@ -111,26 +114,40 @@ export default function SeoAuditsPage() {
   const handleRunAudit = async () => {
     if (!auditUrl.trim()) return;
     setSubmitting(true);
-    const result = await runSeoAudit(auditUrl.trim());
-    setSubmitting(false);
-    if (result.success) {
-      setMessage(result.data.message);
-      // Check for the latest job for this URL to show inline preview
-      const db = createClient();
-      const { data: latestJob } = await db
-        .from("audit_jobs")
-        .select("id")
-        .eq("job_type", "seo_audit")
-        .eq("target_url", auditUrl.trim())
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .single();
-      if (latestJob) setActiveJobId(latestJob.id);
-      setShowNewAudit(false);
-      setAuditUrl("");
-      fetchData();
+
+    if (auditType === "seo") {
+      const result = await runSeoAudit(auditUrl.trim());
+      setSubmitting(false);
+      if (result.success) {
+        setMessage(result.data.message);
+        const db = createClient();
+        const { data: latestJob } = await db
+          .from("audit_jobs")
+          .select("id")
+          .eq("job_type", "seo_audit")
+          .eq("target_url", auditUrl.trim())
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .single();
+        if (latestJob) setActiveJobId(latestJob.id);
+        setShowNewAudit(false);
+        setAuditUrl("");
+        fetchData();
+      } else {
+        setMessage(`Error: ${result.error}`);
+      }
     } else {
-      setMessage(`Error: ${result.error}`);
+      const result = await runSiteAudit(auditUrl.trim());
+      setSubmitting(false);
+      if (result.success) {
+        setMessage(result.message || "Site audit triggered.");
+        if (result.jobId) setActiveJobId(result.jobId);
+        setShowNewAudit(false);
+        setAuditUrl("");
+        fetchData();
+      } else {
+        setMessage(`Error: ${result.error}`);
+      }
     }
     setTimeout(() => setMessage(null), 8000);
   };
@@ -198,19 +215,42 @@ export default function SeoAuditsPage() {
       {/* New Audit Form */}
       {showNewAudit && (
         <div className="rounded-xl border border-[#222] bg-[#0a0a0a] p-5">
-          <h3 className="text-lg font-semibold text-white mb-4">
-            Run SEO Audit
-          </h3>
+          {/* Audit type toggle */}
+          <div className="mb-4 flex items-center gap-2">
+            <button
+              onClick={() => setAuditType("seo")}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+                auditType === "seo" ? "bg-[#4FC3F7] text-white" : "text-[#888] hover:text-white"
+              }`}
+            >
+              <Search className="h-3.5 w-3.5" /> SEO Audit
+            </button>
+            <button
+              onClick={() => setAuditType("site")}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+                auditType === "site" ? "bg-[#F5C542] text-white" : "text-[#888] hover:text-white"
+              }`}
+            >
+              <Shield className="h-3.5 w-3.5" /> Full Site Audit
+            </button>
+          </div>
+          <p className="mb-3 text-xs text-[#737373]">
+            {auditType === "seo"
+              ? "Checks meta tags, headings, page speed, mobile, content quality, schema markup, Core Web Vitals."
+              : "Checks security, performance, accessibility, SEO, broken links, mobile, content quality."}
+          </p>
           <div className="flex items-end gap-4">
             <div className="flex-1">
-              <label className="text-xs text-[#888] block mb-1">
+              <label htmlFor="audit-url" className="text-xs text-[#888] block mb-1">
                 Website URL
               </label>
               <div className="flex items-center gap-2 rounded-lg border border-[#333] bg-[#111] px-3 py-2">
                 <Globe className="h-4 w-4 text-[#666]" />
                 <input
+                  id="audit-url"
                   value={auditUrl}
                   onChange={(e) => setAuditUrl(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleRunAudit()}
                   placeholder="https://example.com"
                   className="flex-1 bg-transparent text-sm text-white placeholder-[#666] focus:outline-none"
                 />
@@ -219,15 +259,14 @@ export default function SeoAuditsPage() {
             <button
               onClick={handleRunAudit}
               disabled={submitting || !auditUrl.trim()}
-              className="rounded-lg bg-[#4FC3F7] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#38B2D8] disabled:opacity-50"
+              className={`rounded-lg px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50 ${
+                auditType === "seo" ? "bg-[#4FC3F7] hover:bg-[#38B2D8]" : "bg-[#F5C542] hover:bg-[#D4A837]"
+              }`}
             >
-              {submitting ? "Running..." : "Run Audit"}
+              {submitting ? "Running..." : auditType === "seo" ? "Run SEO Audit" : "Run Site Audit"}
             </button>
             <button
-              onClick={() => {
-                setShowNewAudit(false);
-                setAuditUrl("");
-              }}
+              onClick={() => { setShowNewAudit(false); setAuditUrl(""); }}
               className="rounded-lg border border-[#333] px-4 py-2.5 text-sm text-[#888] hover:text-white"
             >
               Cancel
