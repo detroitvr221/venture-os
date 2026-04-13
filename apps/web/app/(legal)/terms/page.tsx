@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Terms of Service",
+  description:
+    "Terms of Service for Northbridge Digital. Read our terms for website design, SEO, social media, and digital growth services.",
+};
 
 export default function TermsOfService() {
   return (

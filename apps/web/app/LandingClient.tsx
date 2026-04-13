@@ -214,7 +214,7 @@ export function LandingClient() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
       {/* ── Navigation ─────────────────────────────────────────────────── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-[#ffffff08] bg-[#0a0a0a]/80 backdrop-blur-xl">
+      <nav aria-label="Main navigation" className="fixed top-0 left-0 right-0 z-50 border-b border-[#ffffff08] bg-[#0a0a0a]/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <div className="flex items-center gap-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#4FC3F7] to-[#F5C542]">
@@ -225,15 +225,15 @@ export function LandingClient() {
             </span>
           </div>
           {/* Mobile hamburger */}
-          <button onClick={() => setMobileNav(!mobileNav)} className="rounded p-2 text-[#888] hover:text-white md:hidden" aria-label="Toggle navigation menu">
+          <button onClick={() => setMobileNav(!mobileNav)} className="rounded p-2 text-[#9ca3af] hover:text-white md:hidden" aria-label="Toggle navigation menu">
             {mobileNav ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
           {/* Desktop nav */}
           <div className="hidden items-center gap-8 md:flex">
-            <button onClick={() => scrollTo("services")} className="text-sm text-[#888] transition-colors hover:text-white" aria-label="Services">Services</button>
-            <button onClick={() => scrollTo("pricing")} className="text-sm text-[#888] transition-colors hover:text-white" aria-label="Pricing">Pricing</button>
-            <button onClick={() => scrollTo("how-it-works")} className="text-sm text-[#888] transition-colors hover:text-white" aria-label="How It Works">How It Works</button>
-            <button onClick={() => scrollTo("ventures")} className="text-sm text-[#888] transition-colors hover:text-white" aria-label="Ventures">Ventures</button>
+            <button onClick={() => scrollTo("services")} className="text-sm text-[#9ca3af] transition-colors hover:text-white" aria-label="Services">Services</button>
+            <button onClick={() => scrollTo("pricing")} className="text-sm text-[#9ca3af] transition-colors hover:text-white" aria-label="Pricing">Pricing</button>
+            <button onClick={() => scrollTo("how-it-works")} className="text-sm text-[#9ca3af] transition-colors hover:text-white" aria-label="How It Works">How It Works</button>
+            <button onClick={() => scrollTo("ventures")} className="text-sm text-[#9ca3af] transition-colors hover:text-white" aria-label="Ventures">Ventures</button>
             <Link href="/login" className="rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90">
               Sign In
             </Link>
@@ -243,11 +243,11 @@ export function LandingClient() {
         {mobileNav && (
           <div className="border-t border-[#222] bg-[#0a0a0a] px-6 py-4 md:hidden">
             <div className="flex flex-col gap-3">
-              <button onClick={() => scrollTo("services")} className="text-left text-sm text-[#888] hover:text-white">Services</button>
-              <button onClick={() => scrollTo("pricing")} className="text-left text-sm text-[#888] hover:text-white">Pricing</button>
-              <button onClick={() => scrollTo("how-it-works")} className="text-left text-sm text-[#888] hover:text-white">How It Works</button>
-              <button onClick={() => scrollTo("ventures")} className="text-left text-sm text-[#888] hover:text-white">Ventures</button>
-              <Link href="/book" className="text-left text-sm text-[#888] hover:text-white" onClick={() => setMobileNav(false)}>Book a Call</Link>
+              <button onClick={() => scrollTo("services")} className="text-left text-sm text-[#9ca3af] hover:text-white">Services</button>
+              <button onClick={() => scrollTo("pricing")} className="text-left text-sm text-[#9ca3af] hover:text-white">Pricing</button>
+              <button onClick={() => scrollTo("how-it-works")} className="text-left text-sm text-[#9ca3af] hover:text-white">How It Works</button>
+              <button onClick={() => scrollTo("ventures")} className="text-left text-sm text-[#9ca3af] hover:text-white">Ventures</button>
+              <Link href="/book" className="text-left text-sm text-[#9ca3af] hover:text-white" onClick={() => setMobileNav(false)}>Book a Call</Link>
               <Link href="/login" className="mt-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2 text-center text-sm font-medium text-white" onClick={() => setMobileNav(false)}>
                 Sign In
               </Link>
@@ -257,14 +257,14 @@ export function LandingClient() {
       </nav>
 
       {/* ── Hero ───────────────────────────────────────────────────────── */}
-      <section className="relative flex min-h-screen flex-col items-center justify-center px-6 pt-16 text-center">
+      <section aria-label="Hero" className="relative flex min-h-screen flex-col items-center justify-center px-6 pt-16 text-center">
         <div className="pointer-events-none absolute top-1/4 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#4FC3F7] opacity-[0.07] blur-[120px]" />
         <div className="pointer-events-none absolute top-1/3 left-1/2 h-[400px] w-[400px] -translate-x-1/2 translate-y-0 rounded-full bg-[#F5C542] opacity-[0.05] blur-[100px]" />
 
         <div className="relative z-10 mx-auto max-w-4xl">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#222] bg-[#111] px-4 py-1.5">
             <div className="h-2 w-2 rounded-full bg-[#22c55e] animate-pulse" />
-            <span className="text-xs text-[#888]">Now accepting new clients &middot; Packages from $199/mo</span>
+            <span className="text-xs text-[#9ca3af]">Now accepting new clients &middot; Packages from $199/mo</span>
           </div>
 
           <h1 className="text-5xl font-extrabold leading-tight tracking-tight sm:text-6xl lg:text-7xl">
@@ -275,13 +275,13 @@ export function LandingClient() {
             </span>
           </h1>
 
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-[#888] leading-relaxed">
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-[#9ca3af] leading-relaxed">
             Northbridge Digital helps businesses show up stronger online through
             websites, SEO, social media, and modern digital systems. Real people.
             Real execution. Real results.
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-[#666]">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-[#737373]">
             <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-[#22c55e]" /> Websites & landing pages</span>
             <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-[#22c55e]" /> SEO & visibility</span>
             <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-[#22c55e]" /> From $199/month</span>
@@ -313,11 +313,11 @@ export function LandingClient() {
       </section>
 
       {/* ── Services ───────────────────────────────────────────────────── */}
-      <section id="services" className="mx-auto max-w-6xl px-6 py-24">
+      <section id="services" aria-labelledby="services-heading" className="mx-auto max-w-6xl px-6 py-24">
         <div className="text-center">
           <p className="text-sm font-semibold uppercase tracking-widest text-[#4FC3F7]">What We Do</p>
-          <h2 className="mt-3 text-3xl font-bold sm:text-4xl">Everything You Need to Grow Online</h2>
-          <p className="mx-auto mt-4 max-w-xl text-[#888]">
+          <h2 id="services-heading" className="mt-3 text-3xl font-bold sm:text-4xl">Everything You Need to Grow Online</h2>
+          <p className="mx-auto mt-4 max-w-xl text-[#9ca3af]">
             Strategy, design, development, and growth — all from one team. No juggling vendors. No gaps.
           </p>
         </div>
@@ -331,7 +331,7 @@ export function LandingClient() {
                   <Icon className="h-6 w-6 text-[#4FC3F7]" />
                 </div>
                 <h3 className="mt-5 text-lg font-semibold text-white">{cap.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[#888]">{cap.description}</p>
+                <p className="mt-2 text-sm leading-relaxed text-[#9ca3af]">{cap.description}</p>
               </div>
             );
           })}
@@ -339,12 +339,12 @@ export function LandingClient() {
       </section>
 
       {/* ── Pricing ───────────────────────────────────────────────────── */}
-      <section id="pricing" className="border-y border-[#1a1a1a] bg-[#0d0d0d]">
+      <section id="pricing" aria-labelledby="pricing-heading" className="border-y border-[#1a1a1a] bg-[#0d0d0d]">
         <div className="mx-auto max-w-6xl px-6 py-24">
           <div className="text-center">
             <p className="text-sm font-semibold uppercase tracking-widest text-[#F5C542]">Pricing</p>
-            <h2 className="mt-3 text-3xl font-bold sm:text-4xl">Simple, Transparent Packages</h2>
-            <p className="mx-auto mt-4 max-w-xl text-[#888]">
+            <h2 id="pricing-heading" className="mt-3 text-3xl font-bold sm:text-4xl">Simple, Transparent Packages</h2>
+            <p className="mx-auto mt-4 max-w-xl text-[#9ca3af]">
               Two tracks. Three tiers each. Pick what fits. All plans include a 12-month commitment.
             </p>
           </div>
@@ -355,7 +355,7 @@ export function LandingClient() {
               <button
                 onClick={() => setPricingTrack("build")}
                 className={`rounded-lg px-6 py-2.5 text-sm font-medium transition ${
-                  pricingTrack === "build" ? "bg-gradient-to-r from-[#4FC3F7] to-[#38B2AC] text-white" : "text-[#888] hover:text-white"
+                  pricingTrack === "build" ? "bg-gradient-to-r from-[#4FC3F7] to-[#38B2AC] text-white" : "text-[#9ca3af] hover:text-white"
                 }`}
               >
                 <Globe className="mr-2 inline h-4 w-4" />
@@ -364,7 +364,7 @@ export function LandingClient() {
               <button
                 onClick={() => setPricingTrack("growth")}
                 className={`rounded-lg px-6 py-2.5 text-sm font-medium transition ${
-                  pricingTrack === "growth" ? "bg-gradient-to-r from-[#F5C542] to-[#F7A541] text-white" : "text-[#888] hover:text-white"
+                  pricingTrack === "growth" ? "bg-gradient-to-r from-[#F5C542] to-[#F7A541] text-white" : "text-[#9ca3af] hover:text-white"
                 }`}
               >
                 <TrendingUp className="mr-2 inline h-4 w-4" />
@@ -373,7 +373,7 @@ export function LandingClient() {
             </div>
           </div>
 
-          <p className="mt-4 text-center text-xs text-[#666]">
+          <p className="mt-4 text-center text-xs text-[#737373]">
             {pricingTrack === "build" ? "Websites, landing pages, and platform builds" : "SEO, social media, and online visibility"}
           </p>
 
@@ -401,13 +401,13 @@ export function LandingClient() {
                     </span>
                   )}
                 </div>
-                <p className="mt-1 text-xs text-[#888]">{pkg.description}</p>
+                <p className="mt-1 text-xs text-[#9ca3af]">{pkg.description}</p>
                 <div className="mt-4 flex items-baseline gap-2">
                   <span className="text-4xl font-extrabold text-white">{pkg.price}</span>
-                  <span className="text-sm text-[#666]">{pkg.period}</span>
+                  <span className="text-sm text-[#737373]">{pkg.period}</span>
                 </div>
                 {"strikePrice" in pkg && (
-                  <p className="mt-1 text-sm text-[#666]">
+                  <p className="mt-1 text-sm text-[#737373]">
                     <span className="line-through">{(pkg as Record<string, unknown>).strikePrice as string}/mo</span>
                     <span className="ml-2 text-[#10b981]">Limited time</span>
                   </p>
@@ -437,11 +437,11 @@ export function LandingClient() {
       </section>
 
       {/* ── How It Works ───────────────────────────────────────────────── */}
-      <section id="how-it-works" className="mx-auto max-w-6xl px-6 py-24">
+      <section id="how-it-works" aria-labelledby="how-it-works-heading" className="mx-auto max-w-6xl px-6 py-24">
         <div className="text-center">
           <p className="text-sm font-semibold uppercase tracking-widest text-[#4FC3F7]">Our Process</p>
-          <h2 className="mt-3 text-3xl font-bold sm:text-4xl">How It Works</h2>
-          <p className="mx-auto mt-4 max-w-xl text-[#888]">
+          <h2 id="how-it-works-heading" className="mt-3 text-3xl font-bold sm:text-4xl">How It Works</h2>
+          <p className="mx-auto mt-4 max-w-xl text-[#9ca3af]">
             Three steps to a stronger online presence. We handle the execution so you can focus on your business.
           </p>
         </div>
@@ -456,7 +456,7 @@ export function LandingClient() {
                 </div>
                 <span className="mt-5 block text-xs font-bold uppercase tracking-widest text-[#4FC3F7]">Step {item.step}</span>
                 <h3 className="mt-2 text-xl font-bold text-white">{item.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-[#888]">{item.description}</p>
+                <p className="mt-3 text-sm leading-relaxed text-[#9ca3af]">{item.description}</p>
               </div>
             );
           })}
@@ -464,15 +464,15 @@ export function LandingClient() {
       </section>
 
       {/* ── Ventures ──────────────────────────────────────────────────── */}
-      <section id="ventures" className="border-y border-[#1a1a1a] bg-[#0d0d0d]">
+      <section id="ventures" aria-labelledby="ventures-heading" className="border-y border-[#1a1a1a] bg-[#0d0d0d]">
         <div className="mx-auto max-w-6xl px-6 py-24">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
             <div>
               <p className="text-sm font-semibold uppercase tracking-widest text-[#F5C542]">Beyond Client Work</p>
-              <h2 className="mt-3 text-3xl font-bold sm:text-4xl">
+              <h2 id="ventures-heading" className="mt-3 text-3xl font-bold sm:text-4xl">
                 We Build Businesses Too.
               </h2>
-              <p className="mt-4 text-[#888] leading-relaxed">
+              <p className="mt-4 text-[#9ca3af] leading-relaxed">
                 Northbridge Digital is both a service company and a venture builder. We help outside
                 businesses grow, and we launch and operate our own brands — from lead generation companies
                 to e-commerce ventures and local service brands.
@@ -496,15 +496,15 @@ export function LandingClient() {
               <div className="mt-6 space-y-4">
                 <div className="rounded-lg border border-[#222] bg-[#0d0d0d] p-4">
                   <p className="text-sm font-medium text-[#4FC3F7]">Client Services</p>
-                  <p className="mt-1 text-xs text-[#888]">Web, SEO, social, content, and digital systems for outside businesses</p>
+                  <p className="mt-1 text-xs text-[#9ca3af]">Web, SEO, social, content, and digital systems for outside businesses</p>
                 </div>
                 <div className="rounded-lg border border-[#222] bg-[#0d0d0d] p-4">
                   <p className="text-sm font-medium text-[#F5C542]">Internal Ventures</p>
-                  <p className="mt-1 text-xs text-[#888]">Our own brands designed for long-term digital growth</p>
+                  <p className="mt-1 text-xs text-[#9ca3af]">Our own brands designed for long-term digital growth</p>
                 </div>
                 <div className="rounded-lg border border-[#222] bg-[#0d0d0d] p-4">
                   <p className="text-sm font-medium text-[#10b981]">Partner Support</p>
-                  <p className="mt-1 text-xs text-[#888]">Modernizing operations for business owners who want to scale</p>
+                  <p className="mt-1 text-xs text-[#9ca3af]">Modernizing operations for business owners who want to scale</p>
                 </div>
               </div>
             </div>
@@ -548,7 +548,7 @@ export function LandingClient() {
               </p>
               <div className="mt-4 border-t border-[#222] pt-4">
                 <p className="text-sm font-medium text-white">{testimonial.name}</p>
-                <p className="text-xs text-[#888]">{testimonial.role}</p>
+                <p className="text-xs text-[#9ca3af]">{testimonial.role}</p>
               </div>
             </div>
           ))}
@@ -562,7 +562,7 @@ export function LandingClient() {
           ].map((stat) => (
             <div key={stat.label} className="rounded-xl border border-[#1a1a1a] bg-[#111] p-5">
               <p className="text-3xl font-extrabold bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] bg-clip-text text-transparent">{stat.value}</p>
-              <p className="mt-1 text-sm text-[#888]">{stat.label}</p>
+              <p className="mt-1 text-sm text-[#9ca3af]">{stat.label}</p>
             </div>
           ))}
         </div>
@@ -595,7 +595,7 @@ export function LandingClient() {
                   <Icon className="mx-auto h-6 w-6 text-[#4FC3F7]" />
                   <p className="mt-3 text-4xl font-extrabold bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] bg-clip-text text-transparent">{stat.value}</p>
                   <p className="mt-1 text-sm font-medium text-white">{stat.label}</p>
-                  <p className="mt-0.5 text-xs text-[#666]">{stat.sublabel}</p>
+                  <p className="mt-0.5 text-xs text-[#737373]">{stat.sublabel}</p>
                 </div>
               );
             })}
@@ -619,12 +619,12 @@ export function LandingClient() {
                 aria-level={3}
               >
                 <h3 className="text-sm font-semibold text-white">{faq.q}</h3>
-                <ChevronDown className={`h-4 w-4 shrink-0 text-[#888] transition-transform ${openFaq === i ? "rotate-180" : ""}`} />
+                <ChevronDown className={`h-4 w-4 shrink-0 text-[#9ca3af] transition-transform ${openFaq === i ? "rotate-180" : ""}`} />
               </button>
               <div className={`grid transition-all duration-300 ease-in-out ${openFaq === i ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
                 <div className="overflow-hidden">
                   <div className="border-t border-[#1a1a1a] px-5 pb-5 pt-3">
-                    <p className="text-sm text-[#888] leading-relaxed">{faq.a}</p>
+                    <p className="text-sm text-[#9ca3af] leading-relaxed">{faq.a}</p>
                   </div>
                 </div>
               </div>
@@ -637,7 +637,7 @@ export function LandingClient() {
       <section className="mx-auto max-w-6xl px-6 py-24">
         <div className="rounded-3xl border border-[#1a1a1a] bg-gradient-to-br from-[#111] to-[#0d0d0d] p-12 text-center lg:p-16">
           <h2 className="text-3xl font-bold sm:text-4xl">Ready to Grow Your Business Online?</h2>
-          <p className="mx-auto mt-4 max-w-lg text-[#888]">
+          <p className="mx-auto mt-4 max-w-lg text-[#9ca3af]">
             Websites, SEO, social media, and digital systems. One team, one monthly price, real results.
           </p>
           <div className="mx-auto mt-8 flex max-w-md flex-col gap-3 sm:flex-row">
@@ -660,20 +660,20 @@ export function LandingClient() {
       </section>
 
       {/* ── Footer ─────────────────────────────────────────────────────── */}
-      <footer className="border-t border-[#1a1a1a]">
+      <footer aria-label="Site footer" role="contentinfo" className="border-t border-[#1a1a1a]">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 sm:flex-row">
           <div className="flex items-center gap-3">
             <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-[#4FC3F7] to-[#F5C542]">
               <span className="text-[10px] font-bold text-white">NB</span>
             </div>
-            <span className="text-sm text-[#888]">
+            <span className="text-sm text-[#9ca3af]">
               Northbridge Digital &copy; 2026. Build. Launch. Grow.
             </span>
           </div>
           <div className="flex items-center gap-6">
-            <Link href="/terms" className="text-sm text-[#666] transition-colors hover:text-white">Terms</Link>
-            <Link href="/privacy" className="text-sm text-[#666] transition-colors hover:text-white">Privacy</Link>
-            <Link href="/login" className="text-sm text-[#666] transition-colors hover:text-white">Sign In</Link>
+            <Link href="/terms" className="text-sm text-[#737373] transition-colors hover:text-white">Terms</Link>
+            <Link href="/privacy" className="text-sm text-[#737373] transition-colors hover:text-white">Privacy</Link>
+            <Link href="/login" className="text-sm text-[#737373] transition-colors hover:text-white">Sign In</Link>
           </div>
         </div>
       </footer>
