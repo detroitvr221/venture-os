@@ -47,6 +47,10 @@ export async function middleware(request: NextRequest) {
     pathname === "/sitemap.xml" ||
     pathname === "/robots.txt" ||
     pathname === "/favicon.ico" ||
+    pathname === "/manifest.json" ||
+    pathname === "/icon.svg" ||
+    pathname === "/opengraph-image" ||
+    pathname === "/twitter-image" ||
     pathname.startsWith("/api/") ||
     pathname.startsWith("/_next/");
 
