@@ -71,13 +71,11 @@ config["channels"]["slack"] = {
 # ── Hooks ──
 config["hooks"] = {"enabled": True, "token": "vos-hooks-token-2026"}
 
-# ── Plugins: FORCE mochat into allow list and entries ──
+# ── Plugins: ensure mochat is enabled, DON'T restrict allow list ──
+# Empty plugins.allow = allow ALL (bundled + external). Don't narrow it.
 plugins = config.setdefault("plugins", {})
-# Merge allow list — keep existing + ensure ours
-existing_allow = set(plugins.get("allow", []))
-existing_allow.update(["browser", "slack", "mochat"])
-plugins["allow"] = sorted(existing_allow)
-# Merge entries — keep existing + ensure ours
+if "allow" in plugins:
+    del plugins["allow"]  # Remove any allow restriction — let all plugins load
 entries = plugins.setdefault("entries", {})
 entries.setdefault("browser", {})["enabled"] = True
 entries.setdefault("slack", {})["enabled"] = True
