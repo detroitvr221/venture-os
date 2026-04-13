@@ -17,6 +17,15 @@ if os.path.exists(CONFIG_PATH):
 else:
     config = {}
 
+# Ensure gateway config exists
+config.setdefault("gateway", {})
+config["gateway"]["port"] = 18789
+config["gateway"]["mode"] = "local"
+config["gateway"]["bind"] = "lan"
+config["gateway"].setdefault("controlUi", {"allowInsecureAuth": True, "allowedOrigins": ["https://claw.thenorthbridgemi.com"]})
+config["gateway"].setdefault("auth", {"mode": "token", "token": "vos-gw-token-2026"})
+config["gateway"].setdefault("trustedProxies", ["127.0.0.1/32", "172.17.0.0/16", "172.18.0.0/16"])
+
 # Merge our model providers
 config.setdefault("models", {})
 config["models"]["mode"] = "merge"
