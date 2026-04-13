@@ -101,14 +101,14 @@ export async function createLead(formData: FormData): Promise<ActionResult<{ id:
       contact_phone: (formData.get('contact_phone') as string) || null,
       source: (formData.get('source') as string) || null,
       stage: 'new',
-      score: 0,
+      score: formData.get('score') ? parseInt(formData.get('score') as string, 10) : 0,
       assigned_agent: null,
       notes: (formData.get('notes') as string) || null,
       expected_value: formData.get('expected_value')
         ? parseFloat(formData.get('expected_value') as string)
         : null,
     })
-    .select('id')
+    .select('id, score, contact_name, source')
     .single();
 
   if (error) {
@@ -119,6 +119,32 @@ export async function createLead(formData: FormData): Promise<ActionResult<{ id:
     contact_name: contactName,
     contact_email: contactEmail,
   });
+
+  // ── Lead Pipeline Automations ──
+  const lead = data;
+  if (lead?.id && lead?.score) {
+    // Auto-assign to Mercury (sales agent) when score > 60
+    if (lead.score > 60) {
+      await db.from('leads').update({ assigned_agent: 'mercury' }).eq('id', lead.id);
+    }
+
+    // Auto-create proposal draft when score > 80
+    if (lead.score > 80) {
+      await db.from('proposals').insert({
+        organization_id: orgId,
+        lead_id: lead.id,
+        title: `Proposal for ${lead.contact_name || 'New Lead'}`,
+        status: 'draft',
+        amount: null,
+        content: {
+          auto_generated: true,
+          note: 'Auto-generated from high-scoring lead. Review and customize before sending.',
+          lead_score: lead.score,
+          source: lead.source,
+        },
+      });
+    }
+  }
 
   revalidatePath('/leads');
   revalidatePath('/overview');
