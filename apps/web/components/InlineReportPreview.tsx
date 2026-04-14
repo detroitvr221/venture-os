@@ -280,7 +280,7 @@ export function InlineReportPreview({
                   </button>
                 )}
                 <a
-                  href={`/api/reports/docx?id=${report.id}`}
+                  href={`/api/openclaw/docx?id=${report.id}`}
                   download
                   className="flex items-center gap-2 rounded-lg border border-[#333] px-3 py-2 text-xs text-[#ccc] hover:bg-[#1a1a1a] hover:text-white"
                 >

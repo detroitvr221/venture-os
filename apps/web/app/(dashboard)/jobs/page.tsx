@@ -281,7 +281,7 @@ export default function JobsPage() {
   const handleRetry = async (job: JobRow) => {
     setRetryingId(job.id);
     try {
-      const response = await fetch("/api/jobs/retry", {
+      const response = await fetch("/api/openclaw/retry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

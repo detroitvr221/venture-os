@@ -347,7 +347,7 @@ export default function ReportDetailPage() {
         {/* Download Buttons */}
         <div className="flex items-center gap-2 shrink-0">
           <a
-            href={`/api/reports/docx?id=${reportId}`}
+            href={`/api/openclaw/docx?id=${reportId}`}
             download
             className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
           >
