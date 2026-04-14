@@ -19,6 +19,8 @@ import {
   User,
   Bot,
   AlertCircle,
+  UserCircle,
+  Users,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useOrgId } from "@/lib/useOrgId";
@@ -163,6 +165,8 @@ export default function OverviewPage() {
   // ── State ───────────────────────────────────────────────────────────────
   const [loading, setLoading] = useState(true);
   const [callModalOpen, setCallModalOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"my" | "team">("my");
+  const [userId, setUserId] = useState<string | null>(null);
 
   // Priority bar counts
   const [pendingApprovals, setPendingApprovals] = useState(0);
@@ -180,15 +184,84 @@ export default function OverviewPage() {
   // Activity feed
   const [activity, setActivity] = useState<ActivityRow[]>([]);
 
+  // ── Resolve current user ────────────────────────────────────────────────
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setUserId(user.id);
+    });
+  }, []);
+
   // ── Data Fetching ───────────────────────────────────────────────────────
 
   const fetchAll = useCallback(async () => {
     if (!orgId) return;
     const supabase = createClient();
+    const isMyView = viewMode === "my" && userId;
 
     const sevenDaysAgo = new Date(
       Date.now() - 7 * 24 * 60 * 60 * 1000,
     ).toISOString();
+
+    // Build queries with optional user-scoping
+    let approvalsQuery = supabase
+      .from("approvals")
+      .select("*", { count: "exact", head: true })
+      .eq("organization_id", orgId)
+      .eq("status", "pending");
+    if (isMyView) approvalsQuery = approvalsQuery.eq("user_id", userId);
+
+    let jobsQuery = supabase
+      .from("audit_jobs")
+      .select("*", { count: "exact", head: true })
+      .eq("organization_id", orgId)
+      .in("status", ["running", "queued"]);
+    if (isMyView) jobsQuery = jobsQuery.eq("user_id", userId);
+
+    let emailsQuery = supabase
+      .from("emails")
+      .select("*", { count: "exact", head: true })
+      .eq("organization_id", orgId)
+      .eq("status", "received");
+    if (isMyView) emailsQuery = emailsQuery.eq("user_id", userId);
+
+    let tasksQuery = supabase
+      .from("tasks")
+      .select("*", { count: "exact", head: true })
+      .eq("org_id", orgId)
+      .neq("status", "done");
+    if (isMyView) tasksQuery = tasksQuery.eq("assigned_to", userId);
+
+    let leadsWeekQuery = supabase
+      .from("leads")
+      .select("*", { count: "exact", head: true })
+      .eq("organization_id", orgId)
+      .gte("created_at", sevenDaysAgo);
+    if (isMyView) leadsWeekQuery = leadsWeekQuery.eq("user_id", userId);
+
+    let leadsAllQuery = supabase
+      .from("leads")
+      .select("stage")
+      .eq("organization_id", orgId);
+    if (isMyView) leadsAllQuery = leadsAllQuery.eq("user_id", userId);
+
+    let projectsQuery = supabase
+      .from("projects")
+      .select("id, name, status, budget, start_date, end_date, updated_at, clients(name)")
+      .eq("organization_id", orgId)
+      .eq("status", "active")
+      .order("updated_at", { ascending: false })
+      .limit(3);
+
+    let activityQuery = supabase
+      .from("audit_logs")
+      .select(
+        "id, actor_type, actor_id, action, resource_type, resource_id, created_at",
+      )
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false })
+      .limit(15);
+    if (isMyView) activityQuery = activityQuery.eq("actor_id", userId);
 
     const [
       approvalsRes,
@@ -200,65 +273,14 @@ export default function OverviewPage() {
       projectsRes,
       activityRes,
     ] = await Promise.all([
-      // Pending approvals count
-      supabase
-        .from("approvals")
-        .select("*", { count: "exact", head: true })
-        .eq("organization_id", orgId)
-        .eq("status", "pending"),
-
-      // Active jobs count (running + queued)
-      supabase
-        .from("audit_jobs")
-        .select("*", { count: "exact", head: true })
-        .eq("organization_id", orgId)
-        .in("status", ["running", "queued"]),
-
-      // Unread emails count
-      supabase
-        .from("emails")
-        .select("*", { count: "exact", head: true })
-        .eq("organization_id", orgId)
-        .eq("status", "received"),
-
-      // Open tasks count
-      supabase
-        .from("tasks")
-        .select("*", { count: "exact", head: true })
-        .eq("organization_id", orgId)
-        .neq("status", "done"),
-
-      // New leads this week count
-      supabase
-        .from("leads")
-        .select("*", { count: "exact", head: true })
-        .eq("organization_id", orgId)
-        .gte("created_at", sevenDaysAgo),
-
-      // All leads with stage for pipeline
-      supabase
-        .from("leads")
-        .select("stage")
-        .eq("organization_id", orgId),
-
-      // Active projects (top 3)
-      supabase
-        .from("projects")
-        .select("id, name, status, budget, start_date, end_date, updated_at, clients(name)")
-        .eq("organization_id", orgId)
-        .eq("status", "active")
-        .order("updated_at", { ascending: false })
-        .limit(3),
-
-      // Recent activity
-      supabase
-        .from("audit_logs")
-        .select(
-          "id, actor_type, actor_id, action, resource_type, resource_id, created_at",
-        )
-        .eq("organization_id", orgId)
-        .order("created_at", { ascending: false })
-        .limit(15),
+      approvalsQuery,
+      jobsQuery,
+      emailsQuery,
+      tasksQuery,
+      leadsWeekQuery,
+      leadsAllQuery,
+      projectsQuery,
+      activityQuery,
     ]);
 
     // Set priority counts
@@ -286,7 +308,7 @@ export default function OverviewPage() {
     setActivity((activityRes.data as ActivityRow[]) ?? []);
 
     setLoading(false);
-  }, [orgId]);
+  }, [orgId, viewMode, userId]);
 
   useEffect(() => {
     fetchAll();
@@ -329,37 +351,38 @@ export default function OverviewPage() {
 
   // ── Priority bar config ────────────────────────────────────────────────
 
+  const isMyView = viewMode === "my";
   const priorityCards = [
     {
-      label: "Pending Approvals",
+      label: isMyView ? "My Approvals" : "Pending Approvals",
       value: pendingApprovals,
       icon: AlertCircle,
       color: "#F5C542",
       href: "/approvals",
     },
     {
-      label: "Active Jobs",
+      label: isMyView ? "My Jobs" : "Active Jobs",
       value: activeJobs,
       icon: Zap,
       color: "#4FC3F7",
       href: "/jobs",
     },
     {
-      label: "Unread Emails",
+      label: isMyView ? "My Emails" : "Unread Emails",
       value: unreadEmails,
       icon: Mail,
       color: "#a78bfa",
       href: "/email",
     },
     {
-      label: "Open Tasks",
+      label: isMyView ? "My Tasks" : "Open Tasks",
       value: openTasks,
       icon: CheckSquare,
       color: "#f97316",
       href: "/tasks",
     },
     {
-      label: "New Leads (7d)",
+      label: isMyView ? "My Leads (7d)" : "New Leads (7d)",
       value: newLeadsWeek,
       icon: Filter,
       color: "#22c55e",
@@ -390,13 +413,40 @@ export default function OverviewPage() {
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2.5">
             <LayoutDashboard className="h-6 w-6 text-[#4FC3F7]" />
-            Command Center
+            {viewMode === "my" ? "My Day" : "Command Center"}
           </h1>
           <p className="mt-1 text-sm text-[#666]">
-            Live operations across all ventures
+            {viewMode === "my"
+              ? "Your personal dashboard"
+              : "Live operations across all ventures"}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          {/* My View / Team View toggle */}
+          <div className="flex items-center rounded-lg border border-[#333] bg-[#111] p-0.5">
+            <button
+              onClick={() => setViewMode("my")}
+              className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                viewMode === "my"
+                  ? "bg-[#4FC3F7]/20 text-[#4FC3F7]"
+                  : "text-[#888] hover:text-white"
+              }`}
+            >
+              <UserCircle className="h-3.5 w-3.5" />
+              My View
+            </button>
+            <button
+              onClick={() => setViewMode("team")}
+              className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                viewMode === "team"
+                  ? "bg-[#4FC3F7]/20 text-[#4FC3F7]"
+                  : "text-[#888] hover:text-white"
+              }`}
+            >
+              <Users className="h-3.5 w-3.5" />
+              Team View
+            </button>
+          </div>
           <div className="flex items-center gap-1.5 rounded-full border border-[#222] bg-[#111] px-3 py-1.5">
             <div className="h-2 w-2 rounded-full bg-[#22c55e] animate-pulse" />
             <span className="text-xs text-[#888]">Live</span>
@@ -666,7 +716,7 @@ export default function OverviewPage() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-base font-semibold text-white flex items-center gap-2">
             <Clock className="h-4 w-4 text-[#9ca3af]" />
-            Recent Activity
+            {viewMode === "my" ? "My Activity" : "Recent Activity"}
           </h2>
           <div className="flex items-center gap-1.5 rounded-full bg-[#111] px-2.5 py-1">
             <div className="h-1.5 w-1.5 rounded-full bg-[#22c55e] animate-pulse" />

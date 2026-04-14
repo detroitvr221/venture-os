@@ -7,19 +7,21 @@ import {
   LayoutDashboard, Filter, Users, FolderKanban, Bot, GitBranch, Brain,
   CheckCircle2, CreditCard, Building2, Settings, ChevronLeft, ChevronRight,
   FileText, Search, Send, LogOut, Mail, ClipboardList, MessageSquare,
-  ShieldCheck, UserPlus, BookOpen, Menu, X, Calendar, HardDrive,
-  BarChart3, Zap, Phone, CheckSquare, Server,
+  MessageSquareMore, ShieldCheck, UserPlus, BookOpen, Menu, X, Calendar,
+  HardDrive, BarChart3, Zap, Phone, CheckSquare, Server, Clock,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { CompanyProvider } from "@/lib/company-context";
 import CompanySelector from "@/components/CompanySelector";
 import NotificationDropdown from "@/components/NotificationDropdown";
+import GlobalSearch from "@/components/GlobalSearch";
 
 const navGroups = [
   {
     label: null, // No label for top items
     items: [
       { name: "Chat", href: "/chat", icon: MessageSquare },
+      { name: "Team Chat", href: "/team", icon: MessageSquareMore },
       { name: "Overview", href: "/overview", icon: LayoutDashboard },
     ],
   },
@@ -43,6 +45,7 @@ const navGroups = [
       { name: "Reports", href: "/reports", icon: BarChart3 },
       { name: "Campaigns", href: "/campaigns", icon: Send },
       { name: "Calendar", href: "/calendar", icon: Calendar },
+      { name: "Timesheet", href: "/timesheet", icon: Clock },
       { name: "Email", href: "/email", icon: Mail },
     ],
   },
@@ -64,6 +67,7 @@ const navGroups = [
     items: [
       { name: "Billing", href: "/billing", icon: CreditCard },
       { name: "Companies", href: "/companies", icon: Building2 },
+      { name: "People", href: "/people", icon: Users },
       { name: "Settings", href: "/settings", icon: Settings },
       { name: "Admin", href: "/admin", icon: ShieldCheck, adminOnly: true as const },
     ],
@@ -156,6 +160,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           )}
         </div>
         <div className="flex items-center gap-1">
+          {/* Search trigger (desktop) */}
+          <button
+            onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }))}
+            className="hidden md:flex rounded p-1.5 text-[#666] hover:text-white transition-colors"
+            title="Search (Cmd+K)"
+          >
+            <Search className="h-4 w-4" />
+          </button>
           {/* Notifications (desktop) */}
           <div className="hidden md:block">
             <NotificationDropdown />
@@ -236,6 +248,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <CompanyProvider>
+      <GlobalSearch />
       <div className="flex h-screen overflow-hidden">
         {/* Mobile overlay */}
         {mobileOpen && (
@@ -267,6 +280,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <span className="text-[10px] font-bold text-white">NB</span>
             </div>
             <span className="flex-1 text-sm font-medium text-white">Northbridge</span>
+            <button
+              onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }))}
+              className="rounded p-1.5 text-[#666] hover:text-white transition-colors"
+              title="Search"
+            >
+              <Search className="h-4 w-4" />
+            </button>
             <NotificationDropdown />
           </div>
           <div className="mx-auto max-w-[1400px] p-4 sm:p-6 lg:p-8">{children}</div>

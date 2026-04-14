@@ -14,6 +14,8 @@ import {
   Clock,
   AlertTriangle,
   X,
+  UserCircle,
+  Users,
 } from "lucide-react";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -26,6 +28,7 @@ type Task = {
   due_date: string | null;
   project_id: string | null;
   org_id: string | null;
+  assigned_to: string | null;
   created_at: string;
   projects?: { name: string } | null;
 };
@@ -33,6 +36,12 @@ type Task = {
 type Project = {
   id: string;
   name: string;
+};
+
+type OrgMember = {
+  user_id: string;
+  display_name: string; // invited_email or user_id short
+  role: string;
 };
 
 type StatusColumn = "todo" | "in_progress" | "review" | "done";
@@ -85,10 +94,14 @@ function formatDueDate(dueDate: string | null): string {
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [members, setMembers] = useState<OrgMember[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [orgId, setOrgId] = useState<string | null>(null);
   const [showNewTask, setShowNewTask] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [taskView, setTaskView] = useState<"my" | "all">("my");
+  const [reassignTaskId, setReassignTaskId] = useState<string | null>(null);
 
   // Filters
   const [filterProject, setFilterProject] = useState<string>("all");
@@ -100,6 +113,7 @@ export default function TasksPage() {
     project_id: "",
     priority: "medium",
     due_date: "",
+    assigned_to: "",
   });
 
   // ── Resolve org_id ────────────────────────────────────────────────────
@@ -111,6 +125,7 @@ export default function TasksPage() {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) return;
+      setCurrentUserId(user.id);
 
       const { data: membership } = await supabase
         .from("organization_members")
@@ -121,6 +136,23 @@ export default function TasksPage() {
 
       if (membership) {
         setOrgId(membership.organization_id);
+
+        // Load org members for assignment
+        const { data: allMembers } = await supabase
+          .from("organization_members")
+          .select("user_id, role, invited_email")
+          .eq("organization_id", membership.organization_id)
+          .order("created_at", { ascending: true });
+
+        if (allMembers) {
+          setMembers(
+            allMembers.map((m: { user_id: string; role: string; invited_email: string | null }) => ({
+              user_id: m.user_id,
+              display_name: m.invited_email || m.user_id.slice(0, 8),
+              role: m.role,
+            }))
+          );
+        }
       }
     }
     resolveOrg();
@@ -178,6 +210,7 @@ export default function TasksPage() {
       priority: newTask.priority,
       due_date: newTask.due_date || null,
       project_id: newTask.project_id || null,
+      assigned_to: newTask.assigned_to || null,
       org_id: orgId,
     });
 
@@ -187,7 +220,7 @@ export default function TasksPage() {
     }
 
     toast.success("Task created");
-    setNewTask({ title: "", project_id: "", priority: "medium", due_date: "" });
+    setNewTask({ title: "", project_id: "", priority: "medium", due_date: "", assigned_to: "" });
     setShowNewTask(false);
     loadTasks();
   }
@@ -213,11 +246,34 @@ export default function TasksPage() {
     toast.success("Task updated");
   }
 
+  // ── Reassign task ─────────────────────────────────────────────────────
+
+  async function handleReassign(taskId: string, newUserId: string) {
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("tasks")
+      .update({ assigned_to: newUserId || null })
+      .eq("id", taskId);
+
+    if (error) {
+      toast.error("Failed to reassign task");
+      return;
+    }
+
+    setTasks((prev) =>
+      prev.map((t) => (t.id === taskId ? { ...t, assigned_to: newUserId || null } : t))
+    );
+    setReassignTaskId(null);
+    setOpenDropdown(null);
+    toast.success("Task reassigned");
+  }
+
   // ── Click outside handler for dropdowns ───────────────────────────────
 
   useEffect(() => {
     function handleClickOutside() {
       setOpenDropdown(null);
+      setReassignTaskId(null);
     }
     if (openDropdown) {
       document.addEventListener("click", handleClickOutside);
@@ -228,6 +284,7 @@ export default function TasksPage() {
   // ── Filter tasks ──────────────────────────────────────────────────────
 
   const filteredTasks = tasks.filter((t) => {
+    if (taskView === "my" && currentUserId && t.assigned_to !== currentUserId) return false;
     if (filterProject !== "all" && t.project_id !== filterProject) return false;
     if (filterPriority !== "all" && t.priority !== filterPriority) return false;
     return true;
@@ -249,7 +306,9 @@ export default function TasksPage() {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">My Tasks</h1>
+          <h1 className="text-2xl font-bold text-white">
+            {taskView === "my" ? "My Tasks" : "All Tasks"}
+          </h1>
           <p className="mt-1 text-sm text-[#888]">
             {filteredTasks.length} task{filteredTasks.length !== 1 ? "s" : ""}
             {filteredTasks.filter((t) => isOverdue(t.due_date) && t.status !== "done").length > 0 && (
@@ -259,13 +318,40 @@ export default function TasksPage() {
             )}
           </p>
         </div>
-        <button
-          onClick={() => setShowNewTask(!showNewTask)}
-          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
-        >
-          <Plus className="h-4 w-4" />
-          New Task
-        </button>
+        <div className="flex items-center gap-3">
+          {/* My Tasks / All Tasks toggle */}
+          <div className="flex items-center rounded-lg border border-[#333] bg-[#111] p-0.5">
+            <button
+              onClick={() => setTaskView("my")}
+              className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                taskView === "my"
+                  ? "bg-[#4FC3F7]/20 text-[#4FC3F7]"
+                  : "text-[#888] hover:text-white"
+              }`}
+            >
+              <UserCircle className="h-3.5 w-3.5" />
+              My Tasks
+            </button>
+            <button
+              onClick={() => setTaskView("all")}
+              className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                taskView === "all"
+                  ? "bg-[#4FC3F7]/20 text-[#4FC3F7]"
+                  : "text-[#888] hover:text-white"
+              }`}
+            >
+              <Users className="h-3.5 w-3.5" />
+              All Tasks
+            </button>
+          </div>
+          <button
+            onClick={() => setShowNewTask(!showNewTask)}
+            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
+          >
+            <Plus className="h-4 w-4" />
+            New Task
+          </button>
+        </div>
       </div>
 
       {/* New Task Form */}
@@ -280,7 +366,7 @@ export default function TasksPage() {
               <X className="h-4 w-4" />
             </button>
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <div>
               <label className="mb-1 block text-xs text-[#888]">Title *</label>
               <input
@@ -327,6 +413,21 @@ export default function TasksPage() {
                 onChange={(e) => setNewTask({ ...newTask, due_date: e.target.value })}
                 className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2.5 text-sm text-white focus:border-[#4FC3F7] focus:outline-none"
               />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-[#888]">Assign to</label>
+              <select
+                value={newTask.assigned_to}
+                onChange={(e) => setNewTask({ ...newTask, assigned_to: e.target.value })}
+                className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2.5 text-sm text-white focus:border-[#4FC3F7] focus:outline-none"
+              >
+                <option value="">Unassigned</option>
+                {members.map((m) => (
+                  <option key={m.user_id} value={m.user_id}>
+                    {m.display_name}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
           <div className="mt-4 flex justify-end gap-2">
@@ -482,6 +583,14 @@ export default function TasksPage() {
                             </p>
                           )}
 
+                          {/* Assignee */}
+                          {task.assigned_to && (
+                            <p className="mb-2 flex items-center gap-1 text-[11px] text-[#4FC3F7]">
+                              <UserCircle className="h-3 w-3" />
+                              {members.find((m) => m.user_id === task.assigned_to)?.display_name || "Assigned"}
+                            </p>
+                          )}
+
                           {/* Bottom row: due date + status changer */}
                           <div className="flex items-center justify-between">
                             {task.due_date ? (
@@ -518,30 +627,73 @@ export default function TasksPage() {
 
                               {openDropdown === task.id && (
                                 <div
-                                  className="absolute right-0 top-full z-10 mt-1 w-36 rounded-lg border border-[#333] bg-[#111] py-1 shadow-xl"
+                                  className="absolute right-0 top-full z-10 mt-1 w-44 rounded-lg border border-[#333] bg-[#111] py-1 shadow-xl"
                                   onClick={(e) => e.stopPropagation()}
                                 >
-                                  {STATUS_OPTIONS.filter(
-                                    (opt) => opt.value !== task.status
-                                  ).map((opt) => (
-                                    <button
-                                      key={opt.value}
-                                      onClick={() =>
-                                        handleStatusChange(task.id, opt.value)
-                                      }
-                                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-[#ccc] transition hover:bg-[#1a1a1a] hover:text-white"
-                                    >
-                                      <div
-                                        className="h-2 w-2 rounded-full"
-                                        style={{
-                                          backgroundColor: COLUMNS.find(
-                                            (c) => c.key === opt.value
-                                          )?.color,
-                                        }}
-                                      />
-                                      {opt.label}
-                                    </button>
-                                  ))}
+                                  {reassignTaskId === task.id ? (
+                                    <>
+                                      <div className="px-3 py-1.5 text-[10px] font-medium text-[#666] uppercase tracking-wide">
+                                        Reassign to
+                                      </div>
+                                      <button
+                                        onClick={() => handleReassign(task.id, "")}
+                                        className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-[#ccc] transition hover:bg-[#1a1a1a] hover:text-white"
+                                      >
+                                        <X className="h-3 w-3 text-[#666]" />
+                                        Unassigned
+                                      </button>
+                                      {members.map((m) => (
+                                        <button
+                                          key={m.user_id}
+                                          onClick={() => handleReassign(task.id, m.user_id)}
+                                          className={`flex w-full items-center gap-2 px-3 py-2 text-left text-xs transition hover:bg-[#1a1a1a] hover:text-white ${
+                                            task.assigned_to === m.user_id ? "text-[#4FC3F7]" : "text-[#ccc]"
+                                          }`}
+                                        >
+                                          <UserCircle className="h-3 w-3" />
+                                          {m.display_name}
+                                        </button>
+                                      ))}
+                                      <button
+                                        onClick={() => setReassignTaskId(null)}
+                                        className="flex w-full items-center gap-2 border-t border-[#222] px-3 py-2 text-left text-[10px] text-[#666] transition hover:text-white"
+                                      >
+                                        Back
+                                      </button>
+                                    </>
+                                  ) : (
+                                    <>
+                                      {STATUS_OPTIONS.filter(
+                                        (opt) => opt.value !== task.status
+                                      ).map((opt) => (
+                                        <button
+                                          key={opt.value}
+                                          onClick={() =>
+                                            handleStatusChange(task.id, opt.value)
+                                          }
+                                          className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-[#ccc] transition hover:bg-[#1a1a1a] hover:text-white"
+                                        >
+                                          <div
+                                            className="h-2 w-2 rounded-full"
+                                            style={{
+                                              backgroundColor: COLUMNS.find(
+                                                (c) => c.key === opt.value
+                                              )?.color,
+                                            }}
+                                          />
+                                          {opt.label}
+                                        </button>
+                                      ))}
+                                      <div className="border-t border-[#222]" />
+                                      <button
+                                        onClick={() => setReassignTaskId(task.id)}
+                                        className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-[#a78bfa] transition hover:bg-[#1a1a1a] hover:text-white"
+                                      >
+                                        <UserCircle className="h-3 w-3" />
+                                        Reassign
+                                      </button>
+                                    </>
+                                  )}
                                 </div>
                               )}
                             </div>
