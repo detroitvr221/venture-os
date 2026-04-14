@@ -286,7 +286,7 @@ export default function AnalyticsPage() {
       const { count: tasksDone } = await supabase
         .from("tasks")
         .select("*", { count: "exact", head: true })
-        .eq("organization_id", orgId)
+        .eq("org_id", orgId)
         .eq("status", "done")
         .gte("created_at", rangeISO);
       setTasksCompleted(tasksDone ?? 0);
@@ -354,7 +354,7 @@ export default function AnalyticsPage() {
       const { data: recentTasks } = await supabase
         .from("tasks")
         .select("status, created_at")
-        .eq("organization_id", orgId)
+        .eq("org_id", orgId)
         .gte("created_at", fourWeeksAgo.toISOString());
 
       const weekBuckets: { label: string; done: number; total: number }[] = [];
