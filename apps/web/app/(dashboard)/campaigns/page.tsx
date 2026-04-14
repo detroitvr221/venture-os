@@ -20,6 +20,7 @@ import { createCampaign } from "../../actions";
 import { createClient } from "@/lib/supabase/client";
 import { useOrgId } from "@/lib/useOrgId";
 import { useCompany } from "@/lib/company-context";
+import Pagination from "@/components/Pagination";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -79,19 +80,23 @@ export default function CampaignsPage() {
   const [formType, setFormType] = useState("email");
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
   const fetchData = useCallback(async () => {
     const db = createClient();
     let query = db
       .from("campaigns")
-      .select("id, name, campaign_type, status, stats, created_at")
+      .select("id, name, campaign_type, status, stats, created_at", { count: "exact" })
       .eq("organization_id", orgId)
       .order("created_at", { ascending: false });
     if (companyId) query = query.eq("company_id", companyId);
-    const { data } = await query;
+    query = query.range((page - 1) * 25, page * 25 - 1);
+    const { data, count } = await query;
     setCampaigns((data ?? []) as CampaignRow[]);
+    setTotalCount(count ?? 0);
     setLoading(false);
-  }, [orgId, companyId]);
+  }, [orgId, companyId, page]);
 
   useEffect(() => {
     fetchData();
@@ -359,6 +364,9 @@ export default function CampaignsPage() {
           </table>
         )}
       </div>
+
+      {/* Pagination */}
+      <Pagination page={page} totalPages={Math.ceil(totalCount / 25)} onPageChange={setPage} />
     </div>
   );
 }

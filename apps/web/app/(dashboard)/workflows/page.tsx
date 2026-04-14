@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useOrgId } from "@/lib/useOrgId";
+import Pagination from "@/components/Pagination";
 import { GitBranch, Play, Pause, CheckCircle2, XCircle, Clock, RefreshCw } from "lucide-react";
 
 type WorkflowRun = {
@@ -29,19 +30,22 @@ export default function WorkflowsPage() {
   const [workflows, setWorkflows] = useState<{ id: string; name: string; type: string; description: string | null }[]>([]);
   const [runs, setRuns] = useState<WorkflowRun[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [page]);
 
   async function loadData() {
     const supabase = createClient();
     const [wf, wr] = await Promise.all([
       supabase.from("workflows").select("id, name, type, description").eq("organization_id", orgId).order("name"),
-      supabase.from("workflow_runs").select("*, workflows(name, type)").eq("organization_id", orgId).order("created_at", { ascending: false }).limit(30),
+      supabase.from("workflow_runs").select("*, workflows(name, type)", { count: "exact" }).eq("organization_id", orgId).order("created_at", { ascending: false }).range((page - 1) * 25, page * 25 - 1),
     ]);
     setWorkflows(wf.data || []);
     setRuns(wr.data || []);
+    setTotalCount(wr.count ?? 0);
     setLoading(false);
   }
 
@@ -136,6 +140,11 @@ export default function WorkflowsPage() {
             })}
           </div>
         )}
+      </div>
+
+      {/* Pagination */}
+      <div className="mt-4">
+        <Pagination page={page} totalPages={Math.ceil(totalCount / 25)} onPageChange={setPage} />
       </div>
     </div>
   );

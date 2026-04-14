@@ -241,7 +241,14 @@ export default function ProjectsPage() {
                 <div className="flex-1">
                   <h3 className="font-medium text-white">{project.name}</h3>
                   <p className="text-xs text-[#888]">
-                    {project.clients?.name || "No client"} &middot; {project.description?.slice(0, 80) || "No description"}
+                    {project.client_id && project.clients?.name ? (
+                      <span
+                        role="link"
+                        tabIndex={0}
+                        className="text-[#4FC3F7] hover:underline cursor-pointer"
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = `/clients/${project.client_id}`; }}
+                      >{project.clients.name}</span>
+                    ) : "No client"} &middot; {project.description?.slice(0, 80) || "No description"}
                   </p>
                 </div>
                 <span className={`rounded-full px-2.5 py-1 text-[10px] font-medium ${cfg.color}`}>
