@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useOrgId } from "@/lib/useOrgId";
-import { BarChart3, TrendingUp, DollarSign, Users, CheckCircle2, Calendar } from "lucide-react";
+import { BarChart3, TrendingUp, DollarSign, Users, CheckCircle2, Calendar, AlertTriangle, Heart, ShieldAlert, ArrowUpRight, ArrowDownRight, Minus } from "lucide-react";
 
 /* ── Types ──────────────────────────────────────────────────────── */
 
@@ -18,6 +18,23 @@ type KPI = {
 };
 
 type BarData = { label: string; value: number; color: string };
+
+type ForecastMonth = {
+  month: string;
+  projected: number;
+  baseline: number;
+  pipelineWeighted: number;
+  confidence: number;
+};
+
+type ClientHealth = {
+  id: string;
+  name: string;
+  score: number;
+  lastEmail: string | null;
+  lastActivity: string | null;
+  outstandingInvoices: number;
+};
 
 /* ── Chart Components ───────────────────────────────────────────── */
 
@@ -215,6 +232,9 @@ export default function AnalyticsPage() {
     { label: string; done: number; total: number }[]
   >([]);
   const [teamActivity, setTeamActivity] = useState<BarData[]>([]);
+  const [forecast, setForecast] = useState<ForecastMonth[]>([]);
+  const [currentMRR, setCurrentMRR] = useState(0);
+  const [clientHealthList, setClientHealthList] = useState<ClientHealth[]>([]);
 
   const rangeStart = useMemo(() => getRangeStart(range), [range]);
 
@@ -381,6 +401,152 @@ export default function AnalyticsPage() {
         }))
       );
 
+      // ── Revenue Forecast (Next 3 Months) ──
+      const winProb: Record<string, number> = {
+        qualified: 0.25,
+        proposal: 0.5,
+        negotiation: 0.75,
+      };
+
+      // Current MRR from paid invoices this month
+      const monthStart = new Date();
+      monthStart.setDate(1);
+      monthStart.setHours(0, 0, 0, 0);
+      const { data: mrrInvoices } = await supabase
+        .from("invoices")
+        .select("amount")
+        .eq("organization_id", orgId)
+        .eq("status", "paid")
+        .gte("created_at", monthStart.toISOString());
+
+      const mrr = (mrrInvoices || []).reduce(
+        (sum, inv) => sum + (Number(inv.amount) || 0),
+        0
+      );
+      setCurrentMRR(mrr);
+
+      // Pipeline leads in qualifying stages
+      const pipelineLeads = (leads || []).filter(
+        (l) => l.stage in winProb
+      );
+
+      // Build forecast for next 3 months
+      const forecastMonths: ForecastMonth[] = [];
+      for (let i = 1; i <= 3; i++) {
+        const futureDate = new Date();
+        futureDate.setMonth(futureDate.getMonth() + i);
+        const monthName = futureDate.toLocaleDateString("en-US", {
+          month: "long",
+          year: "numeric",
+        });
+
+        // Weighted pipeline value (spread evenly across 3 months for simplicity)
+        const weightedPipeline = pipelineLeads.reduce((sum, l) => {
+          const prob = winProb[l.stage] || 0;
+          return sum + (Number(l.value) || 0) * prob;
+        }, 0) / 3;
+
+        const projected = mrr + weightedPipeline;
+        // Confidence decreases for further months
+        const confidence = Math.max(90 - (i - 1) * 15, 50);
+
+        forecastMonths.push({
+          month: monthName,
+          projected,
+          baseline: mrr,
+          pipelineWeighted: weightedPipeline,
+          confidence,
+        });
+      }
+      setForecast(forecastMonths);
+
+      // ── Client Health Scores ──
+      const { data: allClients } = await supabase
+        .from("clients")
+        .select("id, name, email, status")
+        .eq("organization_id", orgId)
+        .eq("status", "active");
+
+      const healthScores: ClientHealth[] = [];
+
+      for (const cl of allClients || []) {
+        let score = 50; // base score
+
+        // Last email engagement
+        let lastEmail: string | null = null;
+        if (cl.email) {
+          const { data: recentEmail } = await supabase
+            .from("emails")
+            .select("received_at")
+            .or(`from_address.eq.${cl.email}`)
+            .order("received_at", { ascending: false })
+            .limit(1);
+          if (recentEmail && recentEmail.length > 0) {
+            lastEmail = recentEmail[0].received_at;
+            const daysSince = Math.floor(
+              (Date.now() - new Date(lastEmail).getTime()) / 86400000
+            );
+            if (daysSince <= 7) score += 20;
+            else if (daysSince <= 14) score += 15;
+            else if (daysSince <= 30) score += 10;
+            else if (daysSince > 60) score -= 15;
+          } else {
+            score -= 10;
+          }
+        }
+
+        // Last project activity
+        let lastActivity: string | null = null;
+        const { data: recentLog } = await supabase
+          .from("audit_logs")
+          .select("created_at")
+          .eq("resource_id", cl.id)
+          .order("created_at", { ascending: false })
+          .limit(1);
+        if (recentLog && recentLog.length > 0) {
+          lastActivity = recentLog[0].created_at;
+          const daysSince = Math.floor(
+            (Date.now() - new Date(lastActivity).getTime()) / 86400000
+          );
+          if (daysSince <= 7) score += 20;
+          else if (daysSince <= 14) score += 15;
+          else if (daysSince <= 30) score += 5;
+          else if (daysSince > 60) score -= 15;
+        } else {
+          score -= 10;
+        }
+
+        // Outstanding invoices (payment health)
+        const { data: outInvoices } = await supabase
+          .from("invoices")
+          .select("amount")
+          .eq("client_id", cl.id)
+          .in("status", ["sent", "overdue"]);
+
+        const outstanding = (outInvoices || []).reduce(
+          (sum, inv) => sum + (Number(inv.amount) || 0),
+          0
+        );
+
+        if (outstanding === 0) score += 10;
+        else if (outstanding > 5000) score -= 20;
+        else if (outstanding > 1000) score -= 10;
+
+        // Clamp score between 0-100
+        score = Math.max(0, Math.min(100, score));
+
+        healthScores.push({
+          id: cl.id,
+          name: cl.name,
+          score,
+          lastEmail,
+          lastActivity,
+          outstandingInvoices: outstanding,
+        });
+      }
+
+      setClientHealthList(healthScores.sort((a, b) => a.score - b.score));
+
       setLoading(false);
     }
 
@@ -530,6 +696,312 @@ export default function AnalyticsPage() {
                 </div>
               )}
             </ChartSection>
+          </div>
+
+          {/* ── Revenue Forecast ─────────────────────────────────────── */}
+          <div className="rounded-xl border border-[#222] bg-[#0a0a0a] p-5">
+            <div className="mb-5 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-[#22c55e]" />
+                <h3 className="text-sm font-semibold text-white">
+                  Revenue Forecast (Next 3 Months)
+                </h3>
+              </div>
+              <div className="rounded-lg bg-[#111] px-3 py-1.5 text-xs text-[#888]">
+                Current MRR:{" "}
+                <span className="font-semibold text-white">
+                  ${currentMRR.toLocaleString()}
+                </span>
+              </div>
+            </div>
+
+            {forecast.length > 0 ? (
+              <>
+                {/* Forecast Cards */}
+                <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  {forecast.map((fm, i) => {
+                    const trend =
+                      i === 0
+                        ? fm.projected > currentMRR
+                          ? "growing"
+                          : fm.projected < currentMRR
+                          ? "declining"
+                          : "flat"
+                        : fm.projected > forecast[i - 1].projected
+                        ? "growing"
+                        : fm.projected < forecast[i - 1].projected
+                        ? "declining"
+                        : "flat";
+                    const trendColor =
+                      trend === "growing"
+                        ? "text-[#22c55e]"
+                        : trend === "declining"
+                        ? "text-[#ef4444]"
+                        : "text-[#f59e0b]";
+                    const TrendIcon =
+                      trend === "growing"
+                        ? ArrowUpRight
+                        : trend === "declining"
+                        ? ArrowDownRight
+                        : Minus;
+
+                    return (
+                      <div
+                        key={fm.month}
+                        className="rounded-lg border border-[#222] bg-[#111] p-4"
+                      >
+                        <p className="text-xs font-medium uppercase tracking-wider text-[#888]">
+                          {fm.month}
+                        </p>
+                        <div className="mt-2 flex items-center gap-2">
+                          <p className="text-xl font-bold text-white">
+                            ${Math.round(fm.projected).toLocaleString()}
+                          </p>
+                          <TrendIcon className={`h-4 w-4 ${trendColor}`} />
+                        </div>
+                        <p className="mt-1 text-[10px] text-[#666]">
+                          Base: ${currentMRR.toLocaleString()} + Pipeline: $
+                          {Math.round(fm.pipelineWeighted).toLocaleString()}
+                        </p>
+                        {/* Confidence bar */}
+                        <div className="mt-3">
+                          <div className="flex items-center justify-between text-[10px]">
+                            <span className="text-[#888]">Confidence</span>
+                            <span className="text-[#ccc]">{fm.confidence}%</span>
+                          </div>
+                          <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-[#1a1a1a]">
+                            <div
+                              className="h-1.5 rounded-full transition-all duration-500"
+                              style={{
+                                width: `${fm.confidence}%`,
+                                backgroundColor:
+                                  fm.confidence >= 80
+                                    ? "#22c55e"
+                                    : fm.confidence >= 60
+                                    ? "#f59e0b"
+                                    : "#ef4444",
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Forecast Bar Chart: Current vs Projected */}
+                <div className="flex items-end gap-3 h-40">
+                  {/* Current month bar */}
+                  {(() => {
+                    const allValues = [
+                      currentMRR,
+                      ...forecast.map((f) => f.projected),
+                    ];
+                    const max = Math.max(...allValues, 1);
+                    const currentMonth = new Date().toLocaleDateString("en-US", {
+                      month: "short",
+                    });
+                    return (
+                      <>
+                        <div className="flex-1 flex flex-col items-center gap-1">
+                          <span className="text-xs text-[#9ca3af]">
+                            ${currentMRR.toLocaleString()}
+                          </span>
+                          <div
+                            className="w-full rounded-t bg-[#4FC3F7] transition-all duration-500"
+                            style={{
+                              height: `${(currentMRR / max) * 100}%`,
+                              minHeight: currentMRR > 0 ? "4px" : "0px",
+                            }}
+                          />
+                          <span className="text-xs text-[#737373]">
+                            {currentMonth} (Actual)
+                          </span>
+                        </div>
+                        {forecast.map((fm) => {
+                          const color =
+                            fm.projected > currentMRR
+                              ? "#22c55e"
+                              : fm.projected < currentMRR
+                              ? "#ef4444"
+                              : "#f59e0b";
+                          const shortMonth = new Date(
+                            fm.month
+                          ).toLocaleDateString("en-US", { month: "short" });
+                          return (
+                            <div
+                              key={fm.month}
+                              className="flex-1 flex flex-col items-center gap-1"
+                            >
+                              <span className="text-xs text-[#9ca3af]">
+                                ${Math.round(fm.projected).toLocaleString()}
+                              </span>
+                              <div
+                                className="w-full rounded-t transition-all duration-500"
+                                style={{
+                                  height: `${(fm.projected / max) * 100}%`,
+                                  backgroundColor: color,
+                                  minHeight:
+                                    fm.projected > 0 ? "4px" : "0px",
+                                }}
+                              />
+                              <span className="text-xs text-[#737373]">
+                                {shortMonth}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </>
+                    );
+                  })()}
+                </div>
+              </>
+            ) : (
+              <div className="flex h-48 items-center justify-center text-sm text-[#666]">
+                No pipeline data for forecasting
+              </div>
+            )}
+          </div>
+
+          {/* ── Client Health Scores ─────────────────────────────────── */}
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            {/* At-Risk Clients */}
+            <div className="rounded-xl border border-[#222] bg-[#0a0a0a] p-5">
+              <div className="mb-4 flex items-center gap-2">
+                <ShieldAlert className="h-5 w-5 text-[#ef4444]" />
+                <h3 className="text-sm font-semibold text-white">
+                  At-Risk Clients
+                </h3>
+                <span className="rounded-full bg-[#ef4444]/15 px-2 py-0.5 text-[10px] font-medium text-[#ef4444]">
+                  Score &lt; 50
+                </span>
+              </div>
+
+              {(() => {
+                const atRisk = clientHealthList.filter((c) => c.score < 50).slice(0, 5);
+                if (atRisk.length === 0) {
+                  return (
+                    <div className="flex h-40 items-center justify-center text-sm text-[#666]">
+                      No at-risk clients
+                    </div>
+                  );
+                }
+                return (
+                  <div className="space-y-3">
+                    {atRisk.map((c) => (
+                      <div
+                        key={c.id}
+                        className="flex items-center justify-between rounded-lg bg-[#111] px-4 py-3"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium text-white">
+                            {c.name}
+                          </p>
+                          <div className="mt-0.5 flex items-center gap-3 text-[10px] text-[#666]">
+                            {c.lastEmail && (
+                              <span>
+                                Email:{" "}
+                                {Math.floor(
+                                  (Date.now() - new Date(c.lastEmail).getTime()) /
+                                    86400000
+                                )}
+                                d ago
+                              </span>
+                            )}
+                            {c.outstandingInvoices > 0 && (
+                              <span className="text-[#ef4444]">
+                                ${c.outstandingInvoices.toLocaleString()} owed
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="h-1.5 w-16 overflow-hidden rounded-full bg-[#1a1a1a]">
+                            <div
+                              className="h-1.5 rounded-full bg-[#ef4444] transition-all"
+                              style={{ width: `${c.score}%` }}
+                            />
+                          </div>
+                          <span className="w-8 text-right text-xs font-bold text-[#ef4444]">
+                            {c.score}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Healthy Clients */}
+            <div className="rounded-xl border border-[#222] bg-[#0a0a0a] p-5">
+              <div className="mb-4 flex items-center gap-2">
+                <Heart className="h-5 w-5 text-[#22c55e]" />
+                <h3 className="text-sm font-semibold text-white">
+                  Healthy Clients
+                </h3>
+                <span className="rounded-full bg-[#22c55e]/15 px-2 py-0.5 text-[10px] font-medium text-[#22c55e]">
+                  Score &gt; 80
+                </span>
+              </div>
+
+              {(() => {
+                const healthy = clientHealthList
+                  .filter((c) => c.score > 80)
+                  .sort((a, b) => b.score - a.score)
+                  .slice(0, 5);
+                if (healthy.length === 0) {
+                  return (
+                    <div className="flex h-40 items-center justify-center text-sm text-[#666]">
+                      No clients above 80 score
+                    </div>
+                  );
+                }
+                return (
+                  <div className="space-y-3">
+                    {healthy.map((c) => (
+                      <div
+                        key={c.id}
+                        className="flex items-center justify-between rounded-lg bg-[#111] px-4 py-3"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium text-white">
+                            {c.name}
+                          </p>
+                          <div className="mt-0.5 flex items-center gap-3 text-[10px] text-[#666]">
+                            {c.lastActivity && (
+                              <span>
+                                Active:{" "}
+                                {Math.floor(
+                                  (Date.now() -
+                                    new Date(c.lastActivity).getTime()) /
+                                    86400000
+                                )}
+                                d ago
+                              </span>
+                            )}
+                            {c.outstandingInvoices === 0 && (
+                              <span className="text-[#22c55e]">All paid</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="h-1.5 w-16 overflow-hidden rounded-full bg-[#1a1a1a]">
+                            <div
+                              className="h-1.5 rounded-full bg-[#22c55e] transition-all"
+                              style={{ width: `${c.score}%` }}
+                            />
+                          </div>
+                          <span className="w-8 text-right text-xs font-bold text-[#22c55e]">
+                            {c.score}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </div>
           </div>
         </div>
       )}

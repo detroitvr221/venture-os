@@ -26,6 +26,10 @@ import {
   DollarSign,
   AlertCircle,
   ChevronRight,
+  Link2,
+  Copy,
+  Check,
+  X as XIcon,
 } from "lucide-react";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -162,6 +166,10 @@ export default function ClientDetailPage() {
   const [activeTab, setActiveTab] = useState<TabKey>("activity");
   const [tabLoading, setTabLoading] = useState(false);
   const [showCallModal, setShowCallModal] = useState(false);
+  const [showPortalLink, setShowPortalLink] = useState(false);
+  const [portalUrl, setPortalUrl] = useState<string | null>(null);
+  const [portalLoading, setPortalLoading] = useState(false);
+  const [portalCopied, setPortalCopied] = useState(false);
 
   // Tab data
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
@@ -337,6 +345,46 @@ export default function ClientDetailPage() {
     setTabLoading(false);
   }, [clientId]);
 
+  // ── Generate Portal Link ───────────────────────────────────────────────
+
+  const generatePortalLink = useCallback(async () => {
+    setPortalLoading(true);
+    const supabase = createClient();
+
+    // Generate a secure random token
+    const tokenBytes = new Uint8Array(32);
+    crypto.getRandomValues(tokenBytes);
+    const token = Array.from(tokenBytes)
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+
+    // Set expiry to 90 days from now
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 90);
+
+    const { error } = await supabase.from("portal_tokens").insert({
+      client_id: clientId,
+      token,
+      active: true,
+      expires_at: expiresAt.toISOString(),
+    });
+
+    if (!error) {
+      const url = `https://www.thenorthbridgemi.com/portal/${token}`;
+      setPortalUrl(url);
+      setShowPortalLink(true);
+    }
+    setPortalLoading(false);
+  }, [clientId]);
+
+  const copyPortalLink = useCallback(() => {
+    if (portalUrl) {
+      navigator.clipboard.writeText(portalUrl);
+      setPortalCopied(true);
+      setTimeout(() => setPortalCopied(false), 2000);
+    }
+  }, [portalUrl]);
+
   // ── Load tab data on tab change ────────────────────────────────────────
 
   useEffect(() => {
@@ -457,7 +505,15 @@ export default function ClientDetailPage() {
           </div>
 
           {/* Right: quick actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={generatePortalLink}
+              disabled={portalLoading}
+              className="flex items-center gap-2 rounded-lg border border-[#4FC3F7]/30 bg-[#4FC3F7]/10 px-3 py-2 text-sm text-[#4FC3F7] transition hover:bg-[#4FC3F7]/20 disabled:opacity-50"
+            >
+              <Link2 className="h-3.5 w-3.5" />
+              {portalLoading ? "Generating..." : "Portal Link"}
+            </button>
             <Link
               href={`/email/compose?to=${client.email || ""}`}
               className="flex items-center gap-2 rounded-lg border border-[#333] bg-[#1a1a1a] px-3 py-2 text-sm text-[#ccc] transition hover:bg-[#222] hover:text-white"
@@ -479,6 +535,48 @@ export default function ClientDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* ── Portal Link Banner ─────────────────────────────────────────── */}
+      {showPortalLink && portalUrl && (
+        <div className="mb-6 rounded-xl border border-[#4FC3F7]/30 bg-[#4FC3F7]/5 p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#4FC3F7]/20">
+                <Link2 className="h-4 w-4 text-[#4FC3F7]" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-white">Client Portal Link Generated</p>
+                <p className="mt-1 text-xs text-[#888]">Share this link with {client.name}. Expires in 90 days.</p>
+                <div className="mt-2 flex items-center gap-2">
+                  <code className="block truncate rounded bg-[#0a0a0a] px-3 py-1.5 text-xs text-[#4FC3F7] max-w-[400px]">
+                    {portalUrl}
+                  </code>
+                  <button
+                    onClick={copyPortalLink}
+                    className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[#333] bg-[#1a1a1a] px-3 py-1.5 text-xs text-[#ccc] transition hover:bg-[#222] hover:text-white"
+                  >
+                    {portalCopied ? (
+                      <>
+                        <Check className="h-3 w-3 text-[#10b981]" /> Copied
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-3 w-3" /> Copy
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowPortalLink(false)}
+              className="shrink-0 rounded p-1 text-[#666] transition hover:text-white"
+            >
+              <XIcon className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── Tabs ──────────────────────────────────────────────────────────── */}
       <div className="mb-6 flex items-center gap-1 overflow-x-auto border-b border-[#222] pb-px">

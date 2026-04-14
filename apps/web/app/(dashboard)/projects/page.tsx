@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useOrgId } from "@/lib/useOrgId";
 import { useCompany } from "@/lib/company-context";
 import { toast } from "sonner";
-import { FolderKanban, Plus, Search, Clock, CheckCircle2, AlertCircle, Pause } from "lucide-react";
+import { FolderKanban, Plus, Search, Clock, CheckCircle2, AlertCircle, Pause, Calendar } from "lucide-react";
 import { SkeletonList } from "@/components/Skeleton";
 
 type Project = {
@@ -122,13 +122,22 @@ export default function ProjectsPage() {
           <h1 className="text-2xl font-bold text-white">Projects</h1>
           <p className="mt-1 text-sm text-[#888]">{stats.active} active &middot; {stats.completed} completed</p>
         </div>
-        <button
-          onClick={() => setShowAdd(!showAdd)}
-          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2 text-sm font-medium text-white"
-        >
-          <Plus className="h-4 w-4" />
-          New Project
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/projects/timeline"
+            className="flex items-center gap-2 rounded-lg border border-[#333] bg-[#111] px-4 py-2 text-sm font-medium text-[#888] transition-colors hover:text-white hover:border-[#4FC3F7]"
+          >
+            <Calendar className="h-4 w-4" />
+            Timeline
+          </Link>
+          <button
+            onClick={() => setShowAdd(!showAdd)}
+            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2 text-sm font-medium text-white"
+          >
+            <Plus className="h-4 w-4" />
+            New Project
+          </button>
+        </div>
       </div>
 
       {showAdd && (
