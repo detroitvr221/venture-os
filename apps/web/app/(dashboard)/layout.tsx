@@ -8,7 +8,7 @@ import {
   CheckCircle2, CreditCard, Building2, Settings, ChevronLeft, ChevronRight,
   FileText, Search, Send, LogOut, Mail, ClipboardList, MessageSquare,
   MessageSquareMore, ShieldCheck, UserPlus, BookOpen, Menu, X, Calendar,
-  HardDrive, BarChart3, Zap, Phone, CheckSquare, Server, Clock,
+  HardDrive, BarChart3, Zap, Phone, CheckSquare, Server, Clock, TrendingUp,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { CompanyProvider } from "@/lib/company-context";
@@ -65,6 +65,7 @@ const navGroups = [
   {
     label: "Business",
     items: [
+      { name: "Analytics", href: "/analytics", icon: TrendingUp },
       { name: "Billing", href: "/billing", icon: CreditCard },
       { name: "Companies", href: "/companies", icon: Building2 },
       { name: "People", href: "/people", icon: Users },

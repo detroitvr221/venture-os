@@ -98,6 +98,8 @@ export default function LeadsPage() {
     const leadId = e.dataTransfer.getData("text/plain");
     if (!leadId) return;
 
+    const lead = leads.find((l) => l.id === leadId);
+
     // Optimistic update
     setLeads((prev) =>
       prev.map((l) => (l.id === leadId ? { ...l, stage: targetStage } : l)),
@@ -106,6 +108,34 @@ export default function LeadsPage() {
     const result = await updateLeadStage(leadId, targetStage);
     if (result.success) {
       toast.success(`Lead moved to ${targetStage}`);
+
+      // Auto-create draft proposal when lead moves to proposal stage
+      if (targetStage === "proposal" && lead) {
+        const db = createClient();
+        const { data: proposal } = await db.from("proposals").insert({
+          organization_id: orgId,
+          lead_id: lead.id,
+          title: `Proposal for ${lead.contact_name || "Client"}`,
+          status: "draft",
+          content: {
+            auto_generated: true,
+            lead_score: lead.score,
+            source: lead.source,
+            services_requested: [],
+            note: "Auto-generated when lead moved to proposal stage. Review and customize before sending.",
+          },
+        }).select("id").single();
+
+        if (proposal) {
+          toast.success("Draft proposal created", {
+            description: lead.contact_name || "Client",
+            action: {
+              label: "View",
+              onClick: () => router.push(`/proposals/${proposal.id}`),
+            },
+          });
+        }
+      }
     } else {
       toast.error("Failed to update lead stage");
       // Revert on failure
