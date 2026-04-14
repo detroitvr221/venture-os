@@ -54,6 +54,7 @@ export default function ProjectsPage() {
     let query = supabase
       .from("projects")
       .select("*, clients(name)")
+      .eq("organization_id", orgId)
       .order("created_at", { ascending: false });
     if (companyId) query = query.eq("company_id", companyId);
     const { data } = await query;

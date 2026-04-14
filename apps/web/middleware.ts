@@ -51,6 +51,7 @@ export async function middleware(request: NextRequest) {
     pathname === "/icon.svg" ||
     pathname === "/opengraph-image" ||
     pathname === "/twitter-image" ||
+    pathname.startsWith("/portal") ||
     pathname.startsWith("/api/") ||
     pathname.startsWith("/_next/");
 
