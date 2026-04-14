@@ -466,7 +466,7 @@ export default function AnalyticsPage() {
       // ── Client Health Scores (simplified — no N+1 queries) ──
       const { data: allClients } = await supabase
         .from("clients")
-        .select("id, name, email, status, updated_at")
+        .select("id, name, email, status, updated_at, created_at")
         .eq("organization_id", orgId)
         .eq("status", "active")
         .limit(20);
