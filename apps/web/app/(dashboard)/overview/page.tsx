@@ -306,7 +306,7 @@ export default function OverviewPage() {
     setPipeline(pipelineData);
 
     // Set projects
-    setProjects((projectsRes.data as ProjectRow[]) ?? []);
+    setProjects((projectsRes.data as unknown as ProjectRow[]) ?? []);
 
     // Set activity
     setActivity((activityRes.data as ActivityRow[]) ?? []);
