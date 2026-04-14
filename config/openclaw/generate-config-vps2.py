@@ -46,7 +46,7 @@ config = {
         ]}
     }},
     "agents":{"defaults":{
-        "model":{"primary":"openai/gpt-5.4-mini"},
+        "model":{"primary":"minimax/MiniMax-M2.7-highspeed"},
         "workspace":"/data/.openclaw/workspace",
         "compaction":{"mode":"safeguard"}
     },"list":agents},

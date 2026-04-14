@@ -8,9 +8,9 @@ agents = [
     {"id":"main","name":"Atlas","workspace":"/data/.openclaw/workspace-main"},
     {"id":"sales","name":"Mercury","workspace":"/data/.openclaw/workspace-sales","tools":{"deny":["exec","browser"]}},
     {"id":"seo","name":"Beacon","workspace":"/data/.openclaw/workspace-seo","tools":{"deny":["exec"]}},
-    {"id":"web-presence","name":"Canvas","workspace":"/data/.openclaw/workspace-web-presence"},
-    {"id":"ai-integration","name":"Nexus","workspace":"/data/.openclaw/workspace-ai-integration"},
-    {"id":"venture-builder","name":"Forge","workspace":"/data/.openclaw/workspace-venture-builder"},
+    {"id":"web-presence","name":"Canvas","workspace":"/data/.openclaw/workspace-web-presence","tools":{"deny":["exec"]}},
+    {"id":"ai-integration","name":"Nexus","workspace":"/data/.openclaw/workspace-ai-integration","tools":{"deny":["exec"]}},
+    {"id":"venture-builder","name":"Forge","workspace":"/data/.openclaw/workspace-venture-builder","tools":{"deny":["exec"]}},
     {"id":"developer","name":"Cipher","workspace":"/data/.openclaw/workspace-developer"},
     {"id":"ops","name":"Pulse","workspace":"/data/.openclaw/workspace-ops"},
     {"id":"finance","name":"Ledger","workspace":"/data/.openclaw/workspace-finance","tools":{"deny":["exec","browser"]}},
@@ -95,9 +95,9 @@ if mt and mb:
         "agentUserId":mb,
         "sessions":["*"],
         "panels":["*"],
-        "refreshIntervalMs":30000,
+        "refreshIntervalMs":60000,
         "replyDelayMode":"non-mention",
-        "replyDelayMs":5000
+        "replyDelayMs":10000
     }
     json.dump(plugin_cfg, open(f"{plugin_dir}/config.json","w"), indent=2)
     print(f"[CONFIG] MoChat plugin config written")

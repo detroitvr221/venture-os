@@ -59,6 +59,11 @@ config["models"]["providers"]["nexos"] = {
 # ── Default model ──
 config.setdefault("agents", {}).setdefault("defaults", {})
 config["agents"]["defaults"]["model"] = {"primary": "minimax/MiniMax-M2.7-highspeed"}
+config["agents"]["defaults"].setdefault("compaction", {"mode": "safeguard"})
+config["agents"]["defaults"].setdefault("heartbeat", {
+    "every": "30m", "target": "last",
+    "activeHours": {"start": "08:00", "end": "22:00", "timezone": "America/New_York"}
+})
 
 # ── Channels ──
 config.setdefault("channels", {})
