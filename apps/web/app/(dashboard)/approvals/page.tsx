@@ -135,11 +135,16 @@ export default function ApprovalsPage() {
   const [chains, setChains] = useState<ApprovalChain[]>([]);
   const [chainsLoading, setChainsLoading] = useState(true);
   const [showNewChain, setShowNewChain] = useState(false);
-  const [newChain, setNewChain] = useState({
+  const [newChain, setNewChain] = useState<{
+    name: string;
+    resource_type: string;
+    threshold_amount: number;
+    steps: { approver_role: string; timeout_hours: number; can_delegate: boolean }[];
+  }>({
     name: "",
     resource_type: "financial",
     threshold_amount: 0,
-    steps: [{ approver_role: "owner" as const, timeout_hours: 24, can_delegate: false }],
+    steps: [{ approver_role: "owner", timeout_hours: 24, can_delegate: false }],
   });
   const [savingChain, setSavingChain] = useState(false);
 
