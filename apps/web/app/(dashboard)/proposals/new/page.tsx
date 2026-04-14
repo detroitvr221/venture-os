@@ -4,9 +4,10 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
-import { FileText, ArrowLeft, Save } from "lucide-react";
+import { FileText, ArrowLeft, Save, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useOrgId } from "@/lib/useOrgId";
+import { InlineReportPreview } from "@/components/InlineReportPreview";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -43,6 +44,8 @@ export default function NewProposalPage() {
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [timeline, setTimeline] = useState("");
   const [notes, setNotes] = useState("");
+  const [aiJobId, setAiJobId] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
 
   // ── Load leads ────────────────────────────────────────────────────────
 
@@ -109,6 +112,52 @@ export default function NewProposalPage() {
     toast.success("Proposal created");
     router.push(`/proposals/${data.id}`);
   }
+
+  // ── AI Draft ──────────────────────────────────────────────────
+
+  const handleAiDraft = async () => {
+    setAiLoading(true);
+    try {
+      const db = createClient();
+      const { data: { session } } = await db.auth.getSession();
+      const selectedLead = leads.find((l) => l.id === leadId);
+
+      const { data: job } = await db.from("audit_jobs").insert({
+        organization_id: orgId,
+        job_type: "proposal_generation",
+        status: "queued",
+        input_payload: {
+          title,
+          lead_id: leadId || null,
+          lead_name: selectedLead?.contact_name || null,
+          services: selectedServices,
+          amount,
+          timeline,
+          notes,
+        },
+        target_entity_type: "proposal",
+        external_system: "openclaw",
+        started_at: new Date().toISOString(),
+      }).select("id").single();
+
+      if (job?.id) {
+        setAiJobId(job.id);
+        fetch("/api/openclaw/trigger", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({
+            agent_id: "main",
+            message: `Generate a professional proposal draft. Title: ${title || "New Proposal"}. Lead: ${selectedLead?.contact_name || "N/A"}. Services: ${selectedServices.join(", ") || "N/A"}. Amount: $${amount || "TBD"}. Timeline: ${timeline || "TBD"}. Notes: ${notes || "None"}. Create a compelling, detailed proposal with scope, deliverables, timeline, and pricing sections.`,
+            job_id: job.id,
+          }),
+        }).catch(() => {});
+      }
+    } catch {}
+    setAiLoading(false);
+  };
 
   // ── Render ────────────────────────────────────────────────────────────
 
@@ -283,6 +332,15 @@ export default function NewProposalPage() {
             <Save className="h-4 w-4" />
             {submitting ? "Creating..." : "Create Proposal"}
           </button>
+          <button
+            type="button"
+            onClick={handleAiDraft}
+            disabled={aiLoading}
+            className="flex items-center gap-2 rounded-lg border border-[#333] bg-[#0a0a0a] px-4 py-2.5 text-sm font-medium text-[#F5C542] transition-colors hover:bg-[#111] disabled:opacity-50"
+          >
+            <Sparkles className="h-4 w-4" />
+            {aiLoading ? "Drafting..." : "AI Draft"}
+          </button>
           <Link
             href="/proposals"
             className="rounded-lg border border-[#333] px-4 py-2.5 text-sm text-[#888] transition hover:text-white"
@@ -291,6 +349,11 @@ export default function NewProposalPage() {
           </Link>
         </div>
       </form>
+
+      {/* AI Report Preview */}
+      {aiJobId && (
+        <InlineReportPreview jobId={aiJobId} autoExpand showStatusBar />
+      )}
     </div>
   );
 }

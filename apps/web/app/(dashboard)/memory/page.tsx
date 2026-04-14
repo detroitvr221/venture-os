@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useOrgId } from "@/lib/useOrgId";
-import { Brain, Search, RefreshCw, Database, Link2, Lightbulb } from "lucide-react";
+import { Brain, Search, RefreshCw, Database, Link2, Lightbulb, Sparkles } from "lucide-react";
+import { InlineReportPreview } from "@/components/InlineReportPreview";
 import Pagination from "@/components/Pagination";
 
 type Memory = {
@@ -34,6 +35,8 @@ export default function MemoryPage() {
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const PAGE_SIZE = 25;
+  const [aiJobId, setAiJobId] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -53,6 +56,44 @@ export default function MemoryPage() {
     setEdges(edg.data || []);
     setLoading(false);
   }
+
+  const handleAskAi = async () => {
+    if (!search.trim()) return;
+    setAiLoading(true);
+    try {
+      const supabase = createClient();
+      const { data: job } = await supabase.from("audit_jobs").insert({
+        organization_id: orgId,
+        job_type: "custom",
+        status: "queued",
+        input_payload: {
+          message: `Search organizational knowledge and answer: ${search.trim()}. Use context from memories and entities.`,
+          query: search.trim(),
+        },
+        target_entity_type: "memory",
+        external_system: "openclaw",
+        started_at: new Date().toISOString(),
+      }).select("id").single();
+
+      if (job?.id) {
+        setAiJobId(job.id);
+        fetch("/api/openclaw/trigger", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer vos-hooks-token-2026" },
+          body: JSON.stringify({
+            agent_id: "main",
+            message: `Search organizational knowledge and answer: ${search.trim()}. Use context from memories and entities.`,
+            organization_id: orgId,
+            job_id: job.id,
+            context: { source: "memory_page", query: search.trim() },
+          }),
+        });
+      }
+    } catch (err) {
+      console.error("Ask AI error:", err);
+    }
+    setAiLoading(false);
+  };
 
   const filteredMemories = memories.filter(
     (m) => !search || m.content?.toLowerCase().includes(search.toLowerCase())
@@ -102,12 +143,24 @@ export default function MemoryPage() {
 
       {tab === "memories" && (
         <>
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#666]" />
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search memories..."
-              className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] py-2 pl-10 pr-4 text-sm text-white placeholder:text-[#666] focus:border-[#4FC3F7] focus:outline-none"
-            />
+          <div className="relative mb-4 flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#666]" />
+              <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search memories..."
+                className="w-full rounded-lg border border-[#333] bg-[#0a0a0a] py-2 pl-10 pr-4 text-sm text-white placeholder:text-[#666] focus:border-[#4FC3F7] focus:outline-none"
+                onKeyDown={(e) => { if (e.key === "Enter" && search.trim()) handleAskAi(); }}
+              />
+            </div>
+            <button
+              onClick={handleAskAi}
+              disabled={!search.trim() || aiLoading}
+              className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            >
+              <Sparkles className="h-4 w-4" />
+              {aiLoading ? "Asking..." : "Ask AI"}
+            </button>
           </div>
+          {aiJobId && <div className="mb-4"><InlineReportPreview jobId={aiJobId} autoExpand showStatusBar /></div>}
           <div className="space-y-2">
             {loading ? (
               <div className="py-16 text-center text-[#666]">Loading...</div>

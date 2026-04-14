@@ -3,7 +3,10 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Send, Paperclip, X } from "lucide-react";
+import { ArrowLeft, Send, Paperclip, X, Sparkles } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { useOrgId } from "@/lib/useOrgId";
+import { InlineReportPreview } from "@/components/InlineReportPreview";
 
 const FROM_OPTIONS = [
   "hello@thenorthbridgemi.org",
@@ -23,6 +26,7 @@ export default function ComposePage() {
 function ComposeForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const orgId = useOrgId();
 
   const [from, setFrom] = useState(FROM_OPTIONS[0]);
   const [to, setTo] = useState(searchParams.get("to") || "");
@@ -33,6 +37,43 @@ function ComposeForm() {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [aiJobId, setAiJobId] = useState<string | null>(null);
+  const [aiDrafting, setAiDrafting] = useState(false);
+
+  async function handleAiDraft() {
+    setAiDrafting(true);
+    try {
+      const db = createClient();
+      const { data: { session } } = await db.auth.getSession();
+
+      const { data: job } = await db.from("audit_jobs").insert({
+        organization_id: orgId,
+        job_type: "custom",
+        status: "queued",
+        input_payload: { to, subject, from },
+        target_entity_type: "email",
+        external_system: "openclaw",
+        started_at: new Date().toISOString(),
+      }).select("id").single();
+
+      if (job?.id) {
+        setAiJobId(job.id);
+        fetch("/api/openclaw/trigger", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({
+            agent_id: "main",
+            message: `Draft a professional email. To: ${to || "recipient"}. Subject: ${subject || "no subject yet"}. Write a clear, professional email body that is well-structured and appropriate for business communication.`,
+            job_id: job.id,
+          }),
+        }).catch(() => {});
+      }
+    } catch {}
+    setAiDrafting(false);
+  }
 
   async function handleSend() {
     if (!to.trim() || !subject.trim()) {
@@ -174,7 +215,22 @@ function ComposeForm() {
             rows={16}
             className="w-full resize-none bg-transparent text-sm text-[#ddd] placeholder:text-[#444] focus:outline-none"
           />
+          <button
+            onClick={handleAiDraft}
+            disabled={aiDrafting}
+            className="mt-2 flex items-center gap-2 rounded-lg border border-[#333] bg-[#0a0a0a] px-3 py-1.5 text-xs font-medium text-[#F5C542] transition-colors hover:bg-[#111] disabled:opacity-50"
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            {aiDrafting ? "Drafting..." : "AI Draft"}
+          </button>
         </div>
+
+        {/* AI Report Preview */}
+        {aiJobId && (
+          <div className="border-t border-[#1a1a1a] px-4 py-3">
+            <InlineReportPreview jobId={aiJobId} autoExpand showStatusBar />
+          </div>
+        )}
 
         {/* Footer */}
         <div className="flex items-center justify-between border-t border-[#1a1a1a] px-4 py-3">

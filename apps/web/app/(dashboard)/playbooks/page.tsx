@@ -3,9 +3,10 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useOrgId } from "@/lib/useOrgId";
-import { BookOpen, Plus, Pencil, Trash2, ArrowLeft, Eye, Code2, Save, Search } from "lucide-react";
+import { BookOpen, Plus, Pencil, Trash2, ArrowLeft, Eye, Code2, Save, Search, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import Pagination from "@/components/Pagination";
+import { InlineReportPreview } from "@/components/InlineReportPreview";
 
 /* ── Types ──────────────────────────────────────────────────────── */
 
@@ -129,6 +130,8 @@ export default function PlaybooksPage() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [previewActive, setPreviewActive] = useState(true);
+  const [aiJobId, setAiJobId] = useState<string | null>(null);
+  const [aiImproving, setAiImproving] = useState(false);
 
   /* ── Data Loading ───────────────────────────────────────────── */
 
@@ -261,6 +264,45 @@ export default function PlaybooksPage() {
     }
   };
 
+  /* ── AI Improve ─────────────────────────────────────────────── */
+
+  const handleAiImprove = async () => {
+    if (!title.trim() && !content.trim()) return;
+    setAiImproving(true);
+    try {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+
+      const { data: job } = await supabase.from("audit_jobs").insert({
+        organization_id: orgId,
+        job_type: "custom",
+        status: "queued",
+        input_payload: { title, category, content },
+        target_entity_type: "playbook",
+        target_entity_id: editingPlaybook?.id || null,
+        external_system: "openclaw",
+        started_at: new Date().toISOString(),
+      }).select("id").single();
+
+      if (job?.id) {
+        setAiJobId(job.id);
+        fetch("/api/openclaw/trigger", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({
+            agent_id: "main",
+            message: `Improve this SOP playbook. Title: ${title || "Untitled"}. Category: ${category}. Content:\n${content}\n\nEnhance clarity, completeness, and formatting. Return improved markdown with better structure, actionable steps, and best practices.`,
+            job_id: job.id,
+          }),
+        }).catch(() => {});
+      }
+    } catch {}
+    setAiImproving(false);
+  };
+
   /* ── Derived ────────────────────────────────────────────────── */
 
   const categories = useMemo(
@@ -305,6 +347,14 @@ export default function PlaybooksPage() {
             >
               {previewActive ? <Eye className="h-4 w-4" /> : <Code2 className="h-4 w-4" />}
               {previewActive ? "Preview" : "Editor Only"}
+            </button>
+            <button
+              onClick={handleAiImprove}
+              disabled={aiImproving}
+              className="flex items-center gap-2 rounded-lg border border-[#333] bg-[#0a0a0a] px-3 py-2 text-sm font-medium text-[#F5C542] transition-colors hover:bg-[#111] disabled:opacity-50"
+            >
+              <Sparkles className="h-4 w-4" />
+              {aiImproving ? "Improving..." : "AI Improve"}
             </button>
             <button
               onClick={handleSave}
@@ -391,6 +441,13 @@ export default function PlaybooksPage() {
             </div>
           )}
         </div>
+
+        {/* AI Report Preview */}
+        {aiJobId && (
+          <div className="mt-4">
+            <InlineReportPreview jobId={aiJobId} autoExpand showStatusBar />
+          </div>
+        )}
       </div>
     );
   }

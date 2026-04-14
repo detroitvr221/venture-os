@@ -273,6 +273,24 @@ export default function TeamPage() {
       parent_id: parentId || null,
     });
 
+    // Agent @mention handler — detect agent mentions and fire to OpenClaw
+    const agentMentions: Record<string, string> = { "@Atlas": "main", "@Mercury": "sales", "@Beacon": "seo", "@Scout": "research" };
+    for (const [mention, agentId] of Object.entries(agentMentions)) {
+      if (cleanContent.includes(mention)) {
+        fetch("/api/openclaw/trigger", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer vos-hooks-token-2026" },
+          body: JSON.stringify({
+            agent_id: agentId,
+            message: cleanContent,
+            organization_id: orgId,
+            context: { channel: effectiveChannel, source: "team_chat", respond_to_channel: true },
+          }),
+        });
+        break;
+      }
+    }
+
     if (parentId) {
       setThreadInput("");
     } else {

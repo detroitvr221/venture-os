@@ -21,11 +21,13 @@ import {
   AlertCircle,
   UserCircle,
   Users,
+  Sparkles,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useOrgId } from "@/lib/useOrgId";
 import CallModal from "@/components/CallModal";
 import { DashboardSkeleton } from "@/components/PageSkeleton";
+import { InlineReportPreview } from "@/components/InlineReportPreview";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -165,6 +167,8 @@ export default function OverviewPage() {
   // ── State ───────────────────────────────────────────────────────────────
   const [loading, setLoading] = useState(true);
   const [callModalOpen, setCallModalOpen] = useState(false);
+  const [aiJobId, setAiJobId] = useState<string | null>(null);
+  const [aiBriefing, setAiBriefing] = useState(false);
   const [viewMode, setViewMode] = useState<"my" | "team">("my");
   const [userId, setUserId] = useState<string | null>(null);
 
@@ -390,6 +394,51 @@ export default function OverviewPage() {
     },
   ];
 
+  // ── AI Daily Brief ─────────────────────────────────────────────────────
+
+  const handleDailyBrief = async () => {
+    setAiBriefing(true);
+    try {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+
+      const { data: job } = await supabase.from("audit_jobs").insert({
+        organization_id: orgId,
+        job_type: "custom",
+        status: "queued",
+        input_payload: {
+          pending_approvals: pendingApprovals,
+          active_jobs: activeJobs,
+          unread_emails: unreadEmails,
+          open_tasks: openTasks,
+          new_leads_week: newLeadsWeek,
+          projects_count: projects.length,
+          activity_count: activity.length,
+        },
+        target_entity_type: "overview",
+        external_system: "openclaw",
+        started_at: new Date().toISOString(),
+      }).select("id").single();
+
+      if (job?.id) {
+        setAiJobId(job.id);
+        fetch("/api/openclaw/trigger", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({
+            agent_id: "main",
+            message: `Generate a daily operations brief. Current stats: ${pendingApprovals} pending approvals, ${activeJobs} active jobs, ${unreadEmails} unread emails, ${openTasks} open tasks, ${newLeadsWeek} new leads this week, ${projects.length} active projects. Summarize priorities, flag anything urgent, and suggest top 3 actions for today.`,
+            job_id: job.id,
+          }),
+        }).catch(() => {});
+      }
+    } catch {}
+    setAiBriefing(false);
+  };
+
   // ── Loading ────────────────────────────────────────────────────────────
 
   if (loading) {
@@ -422,6 +471,15 @@ export default function OverviewPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          {/* AI Daily Brief */}
+          <button
+            onClick={handleDailyBrief}
+            disabled={aiBriefing}
+            className="flex items-center gap-2 rounded-lg border border-[#333] bg-[#0a0a0a] px-3 py-1.5 text-xs font-medium text-[#F5C542] transition-colors hover:bg-[#111] disabled:opacity-50"
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            {aiBriefing ? "Briefing..." : "Daily Brief"}
+          </button>
           {/* My View / Team View toggle */}
           <div className="flex items-center rounded-lg border border-[#333] bg-[#111] p-0.5">
             <button
@@ -453,6 +511,11 @@ export default function OverviewPage() {
           </div>
         </div>
       </div>
+
+      {/* AI Daily Brief Preview */}
+      {aiJobId && (
+        <InlineReportPreview jobId={aiJobId} autoExpand showStatusBar />
+      )}
 
       {/* ── Priority Bar ───────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">

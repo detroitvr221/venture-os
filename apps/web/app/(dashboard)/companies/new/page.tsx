@@ -15,6 +15,8 @@ import {
   FileText,
   Sparkles,
 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { InlineReportPreview } from "@/components/InlineReportPreview";
 import { createSubCompany } from "../../../actions";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -49,6 +51,8 @@ export default function NewCompanyPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [aiJobId, setAiJobId] = useState<string | null>(null);
+  const [aiResearching, setAiResearching] = useState(false);
 
   const handleNameChange = (name: string) => {
     const slug = name
@@ -91,6 +95,45 @@ export default function NewCompanyPage() {
     } else {
       setError(result.error);
     }
+  };
+
+  const handleResearchMarket = async () => {
+    setAiResearching(true);
+    try {
+      const db = createClient();
+      const { data: { session } } = await db.auth.getSession();
+
+      const { data: job } = await db.from("audit_jobs").insert({
+        organization_id: ORG_ID,
+        job_type: "competitor_research",
+        status: "queued",
+        input_payload: {
+          company_name: form.name,
+          industry: form.industry,
+          website: form.website,
+        },
+        target_entity_type: "company",
+        external_system: "openclaw",
+        started_at: new Date().toISOString(),
+      }).select("id").single();
+
+      if (job?.id) {
+        setAiJobId(job.id);
+        fetch("/api/openclaw/trigger", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({
+            agent_id: "main",
+            message: `Research the market for a new company. Name: ${form.name || "New Company"}. Industry: ${form.industry || "unspecified"}. Website: ${form.website || "none yet"}. Analyze competitors, market size, trends, opportunities, potential differentiators, and recommend positioning strategy.`,
+            job_id: job.id,
+          }),
+        }).catch(() => {});
+      }
+    } catch {}
+    setAiResearching(false);
   };
 
   if (submitted) {
@@ -303,6 +346,15 @@ export default function NewCompanyPage() {
                 </>
               )}
             </button>
+            <button
+              type="button"
+              onClick={handleResearchMarket}
+              disabled={aiResearching}
+              className="flex items-center gap-2 rounded-lg border border-[#333] bg-[#0a0a0a] px-4 py-3 text-sm font-medium text-[#F5C542] transition-colors hover:bg-[#111] disabled:opacity-50"
+            >
+              <Sparkles className="h-4 w-4" />
+              {aiResearching ? "Researching..." : "Research Market"}
+            </button>
             <Link
               href="/companies"
               className="rounded-lg border border-[#333] px-6 py-3 text-sm text-[#888] hover:text-white transition-colors"
@@ -310,6 +362,11 @@ export default function NewCompanyPage() {
               Cancel
             </Link>
           </div>
+
+          {/* AI Market Research Preview */}
+          {aiJobId && (
+            <InlineReportPreview jobId={aiJobId} autoExpand showStatusBar />
+          )}
         </form>
 
         {/* Preview Panel */}

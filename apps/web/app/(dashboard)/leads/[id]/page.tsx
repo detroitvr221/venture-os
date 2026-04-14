@@ -29,6 +29,7 @@ import {
 } from "../../../actions";
 import { createClient } from "@/lib/supabase/client";
 import { useOrgId } from "@/lib/useOrgId";
+import { InlineReportPreview } from "@/components/InlineReportPreview";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -130,6 +131,8 @@ export default function LeadDetailPage() {
   const [generating, setGenerating] = useState(false);
   const [startingFollowUp, setStartingFollowUp] = useState(false);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const [aiJobId, setAiJobId] = useState<string | null>(null);
+  const [enriching, setEnriching] = useState(false);
 
   const fetchData = useCallback(async () => {
     const db = createClient();
@@ -229,6 +232,49 @@ export default function LeadDetailPage() {
     setTimeout(() => setActionMessage(null), 4000);
   };
 
+  const handleEnrichLead = async () => {
+    if (!lead) return;
+    setEnriching(true);
+    try {
+      const db = createClient();
+      const { data: { session } } = await db.auth.getSession();
+
+      const { data: job } = await db.from("audit_jobs").insert({
+        organization_id: orgId,
+        job_type: "lead_enrichment",
+        status: "queued",
+        input_payload: {
+          lead_id: lead.id,
+          contact_name: lead.contact_name,
+          contact_email: lead.contact_email,
+          company_id: lead.company_id,
+          source: lead.source,
+        },
+        target_entity_id: lead.id,
+        target_entity_type: "lead",
+        external_system: "openclaw",
+        started_at: new Date().toISOString(),
+      }).select("id").single();
+
+      if (job?.id) {
+        setAiJobId(job.id);
+        fetch("/api/openclaw/trigger", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({
+            agent_id: "main",
+            message: `Research and enrich this lead. Name: ${lead.contact_name}. Email: ${lead.contact_email}. Company ID: ${lead.company_id || "unknown"}. Source: ${lead.source || "unknown"}. Find decision makers, company tech stack, social profiles, company size, funding, and any relevant business intelligence.`,
+            job_id: job.id,
+          }),
+        }).catch(() => {});
+      }
+    } catch {}
+    setEnriching(false);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -314,8 +360,21 @@ export default function LeadDetailPage() {
             <PlayCircle className="h-4 w-4" />
             {startingFollowUp ? "Starting..." : "Start Follow-up"}
           </button>
+          <button
+            onClick={handleEnrichLead}
+            disabled={enriching}
+            className="flex items-center gap-2 rounded-lg border border-[#333] bg-[#0a0a0a] px-4 py-2.5 text-sm font-medium text-[#F5C542] transition-colors hover:bg-[#111] disabled:opacity-50"
+          >
+            <Sparkles className="h-4 w-4" />
+            {enriching ? "Enriching..." : "Enrich with AI"}
+          </button>
         </div>
       </div>
+
+      {/* AI Enrichment Preview */}
+      {aiJobId && (
+        <InlineReportPreview jobId={aiJobId} autoExpand showStatusBar />
+      )}
 
       {/* Stage Progression */}
       <div className="rounded-xl border border-[#222] bg-[#0a0a0a] p-5">

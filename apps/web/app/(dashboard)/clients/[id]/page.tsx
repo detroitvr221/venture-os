@@ -30,7 +30,9 @@ import {
   Copy,
   Check,
   X as XIcon,
+  Sparkles,
 } from "lucide-react";
+import { InlineReportPreview } from "@/components/InlineReportPreview";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -170,6 +172,8 @@ export default function ClientDetailPage() {
   const [portalUrl, setPortalUrl] = useState<string | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
   const [portalCopied, setPortalCopied] = useState(false);
+  const [aiJobId, setAiJobId] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
 
   // Tab data
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
@@ -345,6 +349,50 @@ export default function ClientDetailPage() {
     setTabLoading(false);
   }, [clientId]);
 
+  // ── AI Health Check ────────────────────────────────────────────────────
+
+  const handleAiHealthCheck = async () => {
+    if (!client) return;
+    setAiLoading(true);
+    try {
+      const supabase = createClient();
+      const orgRes = await supabase.from("organization_members").select("organization_id").limit(1).single();
+      const orgId = orgRes.data?.organization_id || "00000000-0000-0000-0000-000000000001";
+
+      const { data: job } = await supabase.from("audit_jobs").insert({
+        organization_id: orgId,
+        job_type: "custom",
+        status: "queued",
+        input_payload: {
+          message: `Analyze client health for ${client.name}. Check engagement, project activity, payment status. Score 0-100 with risk factors and recommendations.`,
+          client_id: client.id,
+        },
+        target_entity_id: client.id,
+        target_entity_type: "client",
+        external_system: "openclaw",
+        started_at: new Date().toISOString(),
+      }).select("id").single();
+
+      if (job?.id) {
+        setAiJobId(job.id);
+        fetch("/api/openclaw/trigger", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer vos-hooks-token-2026" },
+          body: JSON.stringify({
+            agent_id: "main",
+            message: `Analyze client health for ${client.name}. Check engagement, project activity, payment status. Score 0-100 with risk factors and recommendations.`,
+            organization_id: orgId,
+            job_id: job.id,
+            context: { source: "client_detail", client_id: client.id },
+          }),
+        });
+      }
+    } catch (err) {
+      console.error("AI Health Check error:", err);
+    }
+    setAiLoading(false);
+  };
+
   // ── Generate Portal Link ───────────────────────────────────────────────
 
   const generatePortalLink = useCallback(async () => {
@@ -507,6 +555,14 @@ export default function ClientDetailPage() {
           {/* Right: quick actions */}
           <div className="flex flex-wrap items-center gap-2">
             <button
+              onClick={handleAiHealthCheck}
+              disabled={aiLoading}
+              className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-3 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              {aiLoading ? "Checking..." : "AI Health Check"}
+            </button>
+            <button
               onClick={generatePortalLink}
               disabled={portalLoading}
               className="flex items-center gap-2 rounded-lg border border-[#4FC3F7]/30 bg-[#4FC3F7]/10 px-3 py-2 text-sm text-[#4FC3F7] transition hover:bg-[#4FC3F7]/20 disabled:opacity-50"
@@ -575,6 +631,13 @@ export default function ClientDetailPage() {
               <XIcon className="h-4 w-4" />
             </button>
           </div>
+        </div>
+      )}
+
+      {/* ── AI Health Check Preview ─────────────────────────────────────── */}
+      {aiJobId && (
+        <div className="mb-6">
+          <InlineReportPreview jobId={aiJobId} autoExpand showStatusBar />
         </div>
       )}
 

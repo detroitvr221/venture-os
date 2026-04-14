@@ -20,7 +20,9 @@ import {
   CheckCircle2,
   UserCheck,
   UserX,
+  Sparkles,
 } from "lucide-react";
+import { InlineReportPreview } from "@/components/InlineReportPreview";
 import { pauseCampaign, resumeCampaign } from "../../../actions";
 import { createClient } from "@supabase/supabase-js";
 
@@ -120,6 +122,8 @@ export default function CampaignDetailPage() {
   const [events, setEvents] = useState<OutreachRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState(false);
+  const [aiJobId, setAiJobId] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
 
   const fetchData = useCallback(async () => {
     const db = getClientDb();
@@ -208,6 +212,45 @@ export default function CampaignDetailPage() {
     fetchData();
   };
 
+  const handleAiWrite = async () => {
+    if (!campaign) return;
+    setAiLoading(true);
+    try {
+      const db = getClientDb();
+      const { data: job } = await db.from("audit_jobs").insert({
+        organization_id: ORG_ID,
+        job_type: "custom",
+        status: "queued",
+        input_payload: {
+          message: `Write an email for campaign ${campaign.name}, type ${campaign.campaign_type}. Generate: subject line variants, email body, and CTA suggestions.`,
+          campaign_id: campaign.id,
+        },
+        target_entity_id: campaign.id,
+        target_entity_type: "campaign",
+        external_system: "openclaw",
+        started_at: new Date().toISOString(),
+      }).select("id").single();
+
+      if (job?.id) {
+        setAiJobId(job.id);
+        fetch("/api/openclaw/trigger", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer vos-hooks-token-2026" },
+          body: JSON.stringify({
+            agent_id: "main",
+            message: `Write an email for campaign ${campaign.name}, type ${campaign.campaign_type}. Generate: subject line variants, email body, and CTA suggestions.`,
+            organization_id: ORG_ID,
+            job_id: job.id,
+            context: { source: "campaign_detail", campaign_id: campaign.id },
+          }),
+        });
+      }
+    } catch (err) {
+      console.error("AI Write error:", err);
+    }
+    setAiLoading(false);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -278,6 +321,14 @@ export default function CampaignDetailPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <button
+            onClick={handleAiWrite}
+            disabled={aiLoading}
+            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+          >
+            <Sparkles className="h-4 w-4" />
+            {aiLoading ? "Generating..." : "AI Write"}
+          </button>
           {campaign.status === "active" && (
             <button
               onClick={handlePause}
@@ -310,6 +361,9 @@ export default function CampaignDetailPage() {
           )}
         </div>
       </div>
+
+      {/* AI Report Preview */}
+      {aiJobId && <InlineReportPreview jobId={aiJobId} autoExpand showStatusBar />}
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">

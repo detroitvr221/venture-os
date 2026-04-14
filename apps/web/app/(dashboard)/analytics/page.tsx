@@ -3,7 +3,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useOrgId } from "@/lib/useOrgId";
-import { BarChart3, TrendingUp, DollarSign, Users, CheckCircle2, Calendar, AlertTriangle, Heart, ShieldAlert, ArrowUpRight, ArrowDownRight, Minus } from "lucide-react";
+import { BarChart3, TrendingUp, DollarSign, Users, CheckCircle2, Calendar, AlertTriangle, Heart, ShieldAlert, ArrowUpRight, ArrowDownRight, Minus, Sparkles } from "lucide-react";
+import { InlineReportPreview } from "@/components/InlineReportPreview";
 
 /* ── Types ──────────────────────────────────────────────────────── */
 
@@ -235,6 +236,8 @@ export default function AnalyticsPage() {
   const [forecast, setForecast] = useState<ForecastMonth[]>([]);
   const [currentMRR, setCurrentMRR] = useState(0);
   const [clientHealthList, setClientHealthList] = useState<ClientHealth[]>([]);
+  const [aiJobId, setAiJobId] = useState<string | null>(null);
+  const [aiInsighting, setAiInsighting] = useState(false);
 
   const rangeStart = useMemo(() => getRangeStart(range), [range]);
 
@@ -553,6 +556,51 @@ export default function AnalyticsPage() {
     load();
   }, [orgId, rangeStart]);
 
+  /* ── AI Insights ────────────────────────────────────────────── */
+
+  const handleAiInsights = async () => {
+    setAiInsighting(true);
+    try {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+
+      const { data: job } = await supabase.from("audit_jobs").insert({
+        organization_id: orgId,
+        job_type: "custom",
+        status: "queued",
+        input_payload: {
+          total_revenue: totalRevenue,
+          active_clients: activeClients,
+          pipeline_value: pipelineValue,
+          tasks_completed: tasksCompleted,
+          lead_conversion: leadConversion,
+          current_mrr: currentMRR,
+          range,
+        },
+        target_entity_type: "analytics",
+        external_system: "openclaw",
+        started_at: new Date().toISOString(),
+      }).select("id").single();
+
+      if (job?.id) {
+        setAiJobId(job.id);
+        fetch("/api/openclaw/trigger", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({
+            agent_id: "main",
+            message: `Generate business insights from these KPIs. Period: ${range}. Revenue: $${totalRevenue.toLocaleString()}. Active Clients: ${activeClients}. Pipeline Value: $${pipelineValue.toLocaleString()}. Tasks Completed: ${tasksCompleted}. Lead Conversion: ${leadConversion.won}/${leadConversion.total}. Current MRR: $${currentMRR.toLocaleString()}. Analyze trends, identify opportunities, flag risks, and recommend 3-5 actionable next steps.`,
+            job_id: job.id,
+          }),
+        }).catch(() => {});
+      }
+    } catch {}
+    setAiInsighting(false);
+  };
+
   /* ── KPI Data ───────────────────────────────────────────────── */
 
   const kpis: KPI[] = [
@@ -606,7 +654,16 @@ export default function AnalyticsPage() {
             <p className="text-sm text-[#888]">Business performance overview</p>
           </div>
         </div>
-        <div className="flex items-center gap-1 rounded-lg border border-[#333] bg-[#0a0a0a] p-1">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleAiInsights}
+            disabled={aiInsighting || loading}
+            className="flex items-center gap-2 rounded-lg border border-[#333] bg-[#0a0a0a] px-3 py-1.5 text-xs font-medium text-[#F5C542] transition-colors hover:bg-[#111] disabled:opacity-50"
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            {aiInsighting ? "Analyzing..." : "AI Insights"}
+          </button>
+          <div className="flex items-center gap-1 rounded-lg border border-[#333] bg-[#0a0a0a] p-1">
           {(
             [
               { key: "week", label: "This Week" },
@@ -627,8 +684,16 @@ export default function AnalyticsPage() {
               {opt.label}
             </button>
           ))}
+          </div>
         </div>
       </div>
+
+      {/* AI Insights Preview */}
+      {aiJobId && (
+        <div className="mb-6">
+          <InlineReportPreview jobId={aiJobId} autoExpand showStatusBar />
+        </div>
+      )}
 
       {loading ? (
         <DashboardSkeleton />

@@ -10,8 +10,11 @@ import {
   Clock,
   ExternalLink,
   BarChart3,
+  Sparkles,
+  ChevronDown,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -82,12 +85,24 @@ const ALL_REPORT_TYPES = [
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
+const AI_REPORT_TYPES = [
+  { value: "seo_audit", label: "SEO Audit" },
+  { value: "site_audit", label: "Site Audit" },
+  { value: "competitor_research", label: "Competitor Research" },
+  { value: "branding_audit", label: "Branding Audit" },
+];
+
 export default function ReportsPage() {
+  const router = useRouter();
   const [reports, setReports] = useState<ReportRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [orgId, setOrgId] = useState<string | null>(null);
+  const [showNewReport, setShowNewReport] = useState(false);
+  const [newReportType, setNewReportType] = useState("seo_audit");
+  const [newReportUrl, setNewReportUrl] = useState("");
+  const [aiSubmitting, setAiSubmitting] = useState(false);
 
   // Resolve org ID from the authenticated user
   useEffect(() => {
@@ -156,6 +171,43 @@ export default function ReportsPage() {
   // Discover unique types from the data for filter
   const typesInData = [...new Set(reports.map((r) => r.report_type))];
 
+  const handleNewAiReport = async () => {
+    if (!newReportUrl.trim() || !orgId) return;
+    setAiSubmitting(true);
+    try {
+      const supabase = createClient();
+      const { data: job } = await supabase.from("audit_jobs").insert({
+        organization_id: orgId,
+        job_type: newReportType,
+        status: "queued",
+        target_url: newReportUrl.trim(),
+        input_payload: { url: newReportUrl.trim() },
+        external_system: "openclaw",
+        started_at: new Date().toISOString(),
+      }).select("id").single();
+
+      if (job?.id) {
+        fetch("/api/openclaw/trigger", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer vos-hooks-token-2026" },
+          body: JSON.stringify({
+            agent_id: newReportType === "seo_audit" ? "seo" : "main",
+            message: `Run a ${newReportType.replace(/_/g, " ")} on ${newReportUrl.trim()}`,
+            organization_id: orgId,
+            job_id: job.id,
+            context: { source: "reports_page", url: newReportUrl.trim(), report_type: newReportType },
+          }),
+        });
+        setShowNewReport(false);
+        setNewReportUrl("");
+        router.push("/jobs");
+      }
+    } catch (err) {
+      console.error("New AI Report error:", err);
+    }
+    setAiSubmitting(false);
+  };
+
   // ─── Loading Skeleton ─────────────────────────────────────────────────────
 
   if (loading) {
@@ -217,7 +269,63 @@ export default function ReportsPage() {
             )}
           </p>
         </div>
+        <button
+          onClick={() => setShowNewReport(!showNewReport)}
+          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+        >
+          <Sparkles className="h-4 w-4" />
+          New AI Report
+          <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showNewReport ? "rotate-180" : ""}`} />
+        </button>
       </div>
+
+      {/* New AI Report Form */}
+      {showNewReport && (
+        <div className="rounded-xl border border-[#222] bg-[#0a0a0a] p-5 space-y-4">
+          <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-[#4FC3F7]" />
+            Generate AI Report
+          </h3>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div>
+              <label className="mb-1 block text-xs text-[#888]">Report Type</label>
+              <select
+                value={newReportType}
+                onChange={(e) => setNewReportType(e.target.value)}
+                className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white focus:border-[#4FC3F7] focus:outline-none"
+              >
+                {AI_REPORT_TYPES.map((t) => (
+                  <option key={t.value} value={t.value}>{t.label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="sm:col-span-2">
+              <label className="mb-1 block text-xs text-[#888]">Target URL</label>
+              <input
+                value={newReportUrl}
+                onChange={(e) => setNewReportUrl(e.target.value)}
+                placeholder="https://example.com"
+                className="w-full rounded-lg border border-[#333] bg-[#111] px-3 py-2 text-sm text-white placeholder:text-[#555] focus:border-[#4FC3F7] focus:outline-none"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={() => setShowNewReport(false)}
+              className="rounded-lg border border-[#333] px-4 py-2 text-xs text-[#888] hover:text-white"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleNewAiReport}
+              disabled={!newReportUrl.trim() || aiSubmitting}
+              className="rounded-lg bg-[#4FC3F7] px-4 py-2 text-xs font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            >
+              {aiSubmitting ? "Starting..." : "Run Report"}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">

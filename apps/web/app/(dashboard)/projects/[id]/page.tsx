@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { ArrowLeft, FolderKanban, Clock, CheckCircle2, Users, FileText, ListTodo } from "lucide-react";
+import { ArrowLeft, FolderKanban, Clock, CheckCircle2, Users, FileText, ListTodo, Sparkles } from "lucide-react";
+import { InlineReportPreview } from "@/components/InlineReportPreview";
 
 type Project = {
   id: string;
@@ -32,6 +33,8 @@ export default function ProjectDetailPage() {
   const [project, setProject] = useState<Project | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+  const [aiJobId, setAiJobId] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -47,6 +50,48 @@ export default function ProjectDetailPage() {
     setTasks(t.data || []);
     setLoading(false);
   }
+
+  const handleAiSuggestTasks = async () => {
+    if (!project) return;
+    setAiLoading(true);
+    try {
+      const supabase = createClient();
+      const orgRes = await supabase.from("organization_members").select("organization_id").limit(1).single();
+      const orgId = orgRes.data?.organization_id || "00000000-0000-0000-0000-000000000001";
+
+      const { data: job } = await supabase.from("audit_jobs").insert({
+        organization_id: orgId,
+        job_type: "custom",
+        status: "queued",
+        input_payload: {
+          message: `Break down project ${project.name} (${project.description || "no description"}) into specific tasks with priorities and estimated hours. Return JSON array of tasks.`,
+          project_id: project.id,
+        },
+        target_entity_id: project.id,
+        target_entity_type: "project",
+        external_system: "openclaw",
+        started_at: new Date().toISOString(),
+      }).select("id").single();
+
+      if (job?.id) {
+        setAiJobId(job.id);
+        fetch("/api/openclaw/trigger", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer vos-hooks-token-2026" },
+          body: JSON.stringify({
+            agent_id: "main",
+            message: `Break down project ${project.name} (${project.description || "no description"}) into specific tasks with priorities and estimated hours. Return JSON array of tasks.`,
+            organization_id: orgId,
+            job_id: job.id,
+            context: { source: "project_detail", project_id: project.id },
+          }),
+        });
+      }
+    } catch (err) {
+      console.error("AI Suggest Tasks error:", err);
+    }
+    setAiLoading(false);
+  };
 
   if (loading) return <div className="flex items-center justify-center py-32"><div className="h-6 w-6 animate-spin rounded-full border-2 border-[#4FC3F7] border-t-transparent" /></div>;
   if (!project) return <div className="py-16 text-center"><p className="text-[#666]">Project not found</p><Link href="/projects" className="mt-2 text-sm text-[#4FC3F7]">Back to projects</Link></div>;
@@ -73,10 +118,20 @@ export default function ProjectDetailPage() {
 
       {/* Header */}
       <div className="mb-6">
-        <div className="flex items-center gap-3">
-          <FolderKanban className="h-6 w-6 text-[#4FC3F7]" />
-          <h1 className="text-2xl font-bold text-white">{project.name}</h1>
-          <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${statusColors[project.status] || statusColors.planning}`}>{project.status}</span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <FolderKanban className="h-6 w-6 text-[#4FC3F7]" />
+            <h1 className="text-2xl font-bold text-white">{project.name}</h1>
+            <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${statusColors[project.status] || statusColors.planning}`}>{project.status}</span>
+          </div>
+          <button
+            onClick={handleAiSuggestTasks}
+            disabled={aiLoading}
+            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#4FC3F7] to-[#F5C542] px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+          >
+            <Sparkles className="h-4 w-4" />
+            {aiLoading ? "Suggesting..." : "Suggest Tasks"}
+          </button>
         </div>
         {project.description && <p className="mt-2 text-sm text-[#888]">{project.description}</p>}
         <div className="mt-3 flex items-center gap-4 text-xs text-[#666]">
@@ -85,6 +140,9 @@ export default function ProjectDetailPage() {
           {project.start_date && <span>Started {new Date(project.start_date).toLocaleDateString()}</span>}
         </div>
       </div>
+
+      {/* AI Report Preview */}
+      {aiJobId && <InlineReportPreview jobId={aiJobId} autoExpand showStatusBar />}
 
       {/* Stats */}
       <div className="mb-6 grid grid-cols-3 gap-4">

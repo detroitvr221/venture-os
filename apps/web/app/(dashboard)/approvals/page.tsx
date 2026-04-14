@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   CheckCircle2,
   XCircle,
@@ -18,7 +18,9 @@ import {
   ToggleRight,
   ChevronRight,
   Shield,
+  Sparkles,
 } from "lucide-react";
+import { InlineReportPreview } from "@/components/InlineReportPreview";
 import { approvePendingApproval, rejectPendingApproval } from "../../actions";
 import { createClient } from "@/lib/supabase/client";
 import { useOrgId } from "@/lib/useOrgId";
@@ -145,6 +147,10 @@ export default function ApprovalsPage() {
   const [rejectModal, setRejectModal] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [approveModal, setApproveModal] = useState<string | null>(null);
+
+  // ── AI Review ──
+  const [aiReviewJobs, setAiReviewJobs] = useState<Record<string, string>>({});
+  const [aiReviewLoading, setAiReviewLoading] = useState<string | null>(null);
 
   // ── Chain name lookup ──
   const chainMap = new Map(chains.map((c) => [c.id, c]));
@@ -292,6 +298,45 @@ export default function ApprovalsPage() {
     setActionLoading(null);
     setRejectModal(null);
     setRejectReason("");
+  };
+
+  // ── AI Review ──
+  const handleAiReview = async (approval: ApprovalRow) => {
+    setAiReviewLoading(approval.id);
+    try {
+      const db = createClient();
+      const { data: job } = await db.from("audit_jobs").insert({
+        organization_id: orgId,
+        job_type: "custom",
+        status: "queued",
+        input_payload: {
+          message: `Pre-analyze this approval: type ${approval.resource_type}, details: ${JSON.stringify(approval.context)}. Assess risk, compliance, budget impact. Recommend approve/flag/reject with reasoning.`,
+          approval_id: approval.id,
+        },
+        target_entity_id: approval.id,
+        target_entity_type: "approval",
+        external_system: "openclaw",
+        started_at: new Date().toISOString(),
+      }).select("id").single();
+
+      if (job?.id) {
+        setAiReviewJobs((prev) => ({ ...prev, [approval.id]: job.id }));
+        fetch("/api/openclaw/trigger", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer vos-hooks-token-2026" },
+          body: JSON.stringify({
+            agent_id: "main",
+            message: `Pre-analyze this approval: type ${approval.resource_type}, details: ${JSON.stringify(approval.context)}. Assess risk, compliance, budget impact. Recommend approve/flag/reject with reasoning.`,
+            organization_id: orgId,
+            job_id: job.id,
+            context: { source: "approvals_page", approval_id: approval.id },
+          }),
+        });
+      }
+    } catch (err) {
+      console.error("AI Review error:", err);
+    }
+    setAiReviewLoading(null);
   };
 
   // ── Chain CRUD ──
@@ -491,8 +536,8 @@ export default function ApprovalsPage() {
                       const chain = approval.chain_id ? chainMap.get(approval.chain_id) : null;
 
                       return (
+                        <React.Fragment key={approval.id}>
                         <tr
-                          key={approval.id}
                           className="border-b border-[#1a1a1a] transition-colors hover:bg-[#111]"
                         >
                           <td className="px-5 py-4">
@@ -557,29 +602,47 @@ export default function ApprovalsPage() {
                             )}
                           </td>
                           <td className="px-5 py-4 text-right">
-                            {approval.status === "pending" && (
-                              <div className="flex items-center justify-end gap-2">
-                                <button
-                                  onClick={() => setApproveModal(approval.id)}
-                                  disabled={actionLoading === approval.id}
-                                  className="rounded-lg bg-[#22c55e] px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-80 disabled:opacity-50"
-                                >
-                                  {actionLoading === approval.id ? "..." : "Approve"}
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    setRejectModal(approval.id);
-                                    setRejectReason("");
-                                  }}
-                                  disabled={actionLoading === approval.id}
-                                  className="rounded-lg border border-[#333] bg-transparent px-3 py-1.5 text-xs font-medium text-[#888] transition-colors hover:border-[#ef4444] hover:text-[#ef4444] disabled:opacity-50"
-                                >
-                                  Reject
-                                </button>
-                              </div>
-                            )}
+                            <div className="flex items-center justify-end gap-2">
+                              {approval.status === "pending" && (
+                                <>
+                                  <button
+                                    onClick={() => handleAiReview(approval)}
+                                    disabled={aiReviewLoading === approval.id || !!aiReviewJobs[approval.id]}
+                                    className="rounded-lg border border-[#4FC3F7]/30 bg-[#4FC3F7]/10 px-2.5 py-1.5 text-[10px] font-medium text-[#4FC3F7] transition hover:bg-[#4FC3F7]/20 disabled:opacity-50"
+                                  >
+                                    <Sparkles className="mr-1 inline h-3 w-3" />
+                                    {aiReviewLoading === approval.id ? "..." : "AI Review"}
+                                  </button>
+                                  <button
+                                    onClick={() => setApproveModal(approval.id)}
+                                    disabled={actionLoading === approval.id}
+                                    className="rounded-lg bg-[#22c55e] px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-80 disabled:opacity-50"
+                                  >
+                                    {actionLoading === approval.id ? "..." : "Approve"}
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setRejectModal(approval.id);
+                                      setRejectReason("");
+                                    }}
+                                    disabled={actionLoading === approval.id}
+                                    className="rounded-lg border border-[#333] bg-transparent px-3 py-1.5 text-xs font-medium text-[#888] transition-colors hover:border-[#ef4444] hover:text-[#ef4444] disabled:opacity-50"
+                                  >
+                                    Reject
+                                  </button>
+                                </>
+                              )}
+                            </div>
                           </td>
                         </tr>
+                        {aiReviewJobs[approval.id] && (
+                          <tr>
+                            <td colSpan={7} className="px-5 pb-4">
+                              <InlineReportPreview jobId={aiReviewJobs[approval.id]} autoExpand showStatusBar />
+                            </td>
+                          </tr>
+                        )}
+                        </React.Fragment>
                       );
                     })}
                   </tbody>
