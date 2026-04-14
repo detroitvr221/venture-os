@@ -130,11 +130,7 @@ export async function GET(request: NextRequest) {
 
   const wordRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>`;
 
-  // Build ZIP (minimal docx is a zip with specific structure)
-  // Using a tiny inline ZIP builder for serverless (no external deps)
-  const { Blob: NodeBlob } = await import("node:buffer");
-
-  // For Vercel Edge/Serverless, we'll use a simpler approach:
+  // For Vercel Serverless, use a flat OPC package (single XML):
   // Generate the OOXML as a flat OPC package (single XML)
   // Most Word processors accept this format
   const flatOpc = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
