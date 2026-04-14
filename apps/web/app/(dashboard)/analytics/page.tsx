@@ -463,90 +463,26 @@ export default function AnalyticsPage() {
       }
       setForecast(forecastMonths);
 
-      // ── Client Health Scores ──
+      // ── Client Health Scores (simplified — no N+1 queries) ──
       const { data: allClients } = await supabase
         .from("clients")
-        .select("id, name, email, status")
+        .select("id, name, email, status, updated_at")
         .eq("organization_id", orgId)
-        .eq("status", "active");
+        .eq("status", "active")
+        .limit(20);
 
-      const healthScores: ClientHealth[] = [];
-
-      for (const cl of allClients || []) {
-        let score = 50; // base score
-
-        // Last email engagement
-        let lastEmail: string | null = null;
-        if (cl.email) {
-          const { data: recentEmail } = await supabase
-            .from("emails")
-            .select("received_at")
-            .or(`from_address.eq.${cl.email}`)
-            .order("received_at", { ascending: false })
-            .limit(1);
-          if (recentEmail && recentEmail.length > 0) {
-            lastEmail = recentEmail[0].received_at;
-            const daysSince = Math.floor(
-              (Date.now() - new Date(lastEmail).getTime()) / 86400000
-            );
-            if (daysSince <= 7) score += 20;
-            else if (daysSince <= 14) score += 15;
-            else if (daysSince <= 30) score += 10;
-            else if (daysSince > 60) score -= 15;
-          } else {
-            score -= 10;
-          }
-        }
-
-        // Last project activity
-        let lastActivity: string | null = null;
-        const { data: recentLog } = await supabase
-          .from("audit_logs")
-          .select("created_at")
-          .eq("resource_id", cl.id)
-          .order("created_at", { ascending: false })
-          .limit(1);
-        if (recentLog && recentLog.length > 0) {
-          lastActivity = recentLog[0].created_at;
-          const daysSince = Math.floor(
-            (Date.now() - new Date(lastActivity).getTime()) / 86400000
-          );
-          if (daysSince <= 7) score += 20;
-          else if (daysSince <= 14) score += 15;
-          else if (daysSince <= 30) score += 5;
-          else if (daysSince > 60) score -= 15;
-        } else {
-          score -= 10;
-        }
-
-        // Outstanding invoices (payment health)
-        const { data: outInvoices } = await supabase
-          .from("invoices")
-          .select("amount")
-          .eq("client_id", cl.id)
-          .in("status", ["sent", "overdue"]);
-
-        const outstanding = (outInvoices || []).reduce(
-          (sum, inv) => sum + (Number(inv.amount) || 0),
-          0
+      const healthScores: ClientHealth[] = (allClients || []).map((cl) => {
+        const daysSinceUpdate = Math.floor(
+          (Date.now() - new Date(cl.updated_at || cl.created_at).getTime()) / 86400000
         );
-
-        if (outstanding === 0) score += 10;
-        else if (outstanding > 5000) score -= 20;
-        else if (outstanding > 1000) score -= 10;
-
-        // Clamp score between 0-100
+        let score = 50;
+        if (daysSinceUpdate <= 7) score += 30;
+        else if (daysSinceUpdate <= 14) score += 20;
+        else if (daysSinceUpdate <= 30) score += 10;
+        else if (daysSinceUpdate > 60) score -= 20;
         score = Math.max(0, Math.min(100, score));
-
-        healthScores.push({
-          id: cl.id,
-          name: cl.name,
-          score,
-          lastEmail,
-          lastActivity,
-          outstandingInvoices: outstanding,
-        });
-      }
+        return { id: cl.id, name: cl.name, score, lastEmail: null, lastActivity: cl.updated_at, outstandingInvoices: 0 };
+      });
 
       setClientHealthList(healthScores.sort((a, b) => a.score - b.score));
 
