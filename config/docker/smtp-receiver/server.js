@@ -3,12 +3,39 @@
 
 const { SMTPServer } = require("smtp-server");
 const { simpleParser } = require("mailparser");
+const { createClient } = require("@supabase/supabase-js");
 
 const WEBHOOK_URL = process.env.WEBHOOK_URL || "http://venture-os-web-1:3000/api/email/inbound";
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || "nbdigital-mail-2026";
 const SMTP_PORT = parseInt(process.env.SMTP_PORT || "25", 10);
 const ALLOWED_DOMAINS = (process.env.ALLOWED_DOMAINS || "thenorthbridgemi.org,thenorthbridgemi.com").split(",");
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
+const SUPABASE_URL = process.env.SUPABASE_URL || "https://lwxhdiximymbpaazhulo.supabase.co";
+const SUPABASE_KEY = process.env.SUPABASE_KEY || "";
+const supabase = SUPABASE_KEY ? createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+async function uploadAttachment(attachment, emailId) {
+  if (!supabase || !attachment.content) return null;
+  const filename = attachment.filename || `attachment-${Date.now()}`;
+  const path = `00000000-0000-0000-0000-000000000001/email-attachments/${emailId}/${filename}`;
+  try {
+    const { error } = await supabase.storage
+      .from("workspace")
+      .upload(path, attachment.content, {
+        contentType: attachment.contentType || "application/octet-stream",
+        upsert: true,
+      });
+    if (error) {
+      console.error(`[SMTP] Attachment upload failed: ${error.message}`);
+      return null;
+    }
+    console.log(`[SMTP] Attachment uploaded: ${path} (${attachment.size} bytes)`);
+    return path;
+  } catch (e) {
+    console.error(`[SMTP] Attachment upload error: ${e.message}`);
+    return null;
+  }
+}
 
 // Forwarding rules: address → gmail
 const FORWARD_RULES = {
@@ -110,11 +137,7 @@ const server = new SMTPServer({
               typeof v === "object" && v?.value ? v.value : String(v || ""),
             ])
           ),
-          attachments: (parsed.attachments || []).map((a) => ({
-            filename: a.filename,
-            contentType: a.contentType,
-            size: a.size,
-          })),
+          attachments: [],  // populated after upload
           envelope: {
             from: session.envelope?.mailFrom?.address || "",
             to: (session.envelope?.rcptTo || []).map((r) => r.address),
@@ -123,6 +146,21 @@ const server = new SMTPServer({
         };
 
         console.log(`[SMTP] Received email from ${payload.from} to ${payload.envelope.to.join(", ")}: "${payload.subject}"`);
+
+        // Upload attachments to Supabase Storage
+        const emailId = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+        for (const att of parsed.attachments || []) {
+          const storagePath = await uploadAttachment(att, emailId);
+          payload.attachments.push({
+            filename: att.filename || "unnamed",
+            contentType: att.contentType || "application/octet-stream",
+            size: att.size || 0,
+            storagePath: storagePath,
+          });
+        }
+        if (payload.attachments.length > 0) {
+          console.log(`[SMTP] ${payload.attachments.length} attachment(s) processed`);
+        }
 
         // POST to webhook
         try {

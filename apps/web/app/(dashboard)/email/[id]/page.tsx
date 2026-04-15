@@ -14,6 +14,7 @@ import {
   User,
   Send,
   Paperclip,
+  Download,
   Mail,
   ExternalLink,
 } from "lucide-react";
@@ -43,7 +44,7 @@ type EmailDetail = {
   received_at: string;
   read_at: string | null;
   message_id: string | null;
-  attachments: { filename: string; contentType: string; size: number }[];
+  attachments: { filename: string; contentType: string; size: number; storagePath?: string }[];
   lead_id: string | null;
   client_id: string | null;
   agent_id: string | null;
@@ -254,9 +255,16 @@ export default function EmailDetailPage() {
             <p className="mb-2 text-xs font-medium text-[#666]">Attachments</p>
             <div className="flex flex-wrap gap-2">
               {email.attachments.map((att, i) => (
-                <div
+                <button
                   key={i}
-                  className="flex items-center gap-2 rounded-lg border border-[#333] bg-[#111] px-3 py-1.5 text-xs text-[#ccc]"
+                  onClick={async () => {
+                    if (att.storagePath) {
+                      const supabase = createClient();
+                      const { data } = await supabase.storage.from("workspace").createSignedUrl(att.storagePath, 3600);
+                      if (data?.signedUrl) window.open(data.signedUrl, "_blank");
+                    }
+                  }}
+                  className={`flex items-center gap-2 rounded-lg border border-[#333] bg-[#111] px-3 py-1.5 text-xs text-[#ccc] ${att.storagePath ? "hover:bg-[#1a1a1a] hover:text-white cursor-pointer" : "opacity-60 cursor-default"}`}
                 >
                   <Paperclip className="h-3 w-3" />
                   {att.filename}
@@ -265,7 +273,8 @@ export default function EmailDetailPage() {
                       ({Math.round(att.size / 1024)}KB)
                     </span>
                   )}
-                </div>
+                  {att.storagePath && <Download className="h-3 w-3 text-[#4FC3F7]" />}
+                </button>
               ))}
             </div>
           </div>

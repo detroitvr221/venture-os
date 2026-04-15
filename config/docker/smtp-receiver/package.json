@@ -5,6 +5,7 @@
   "main": "server.js",
   "dependencies": {
     "smtp-server": "^3.13.6",
-    "mailparser": "^3.7.2"
+    "mailparser": "^3.7.2",
+    "@supabase/supabase-js": "^2.49.0"
   }
 }
