@@ -68,7 +68,7 @@ config["agents"]["defaults"].setdefault("heartbeat", {
 # ── Channels ──
 config.setdefault("channels", {})
 config["channels"]["slack"] = {
-    "mode": "socket", "enabled": True, "requireMention": False,
+    "mode": "socket", "enabled": False, "requireMention": False,
     "groupPolicy": "open", "dmPolicy": "open", "allowFrom": ["*"],
     "streaming": {"mode": "partial", "nativeTransport": True}
 }
