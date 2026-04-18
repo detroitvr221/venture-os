@@ -46,8 +46,8 @@ def check_auth(request: Request) -> bool:
     return token in VALID_TOKENS
 
 
-async def call_hermes(prompt: str) -> str:
-    """Call Hermes using the OpenAI SDK directly (same as run_agent.py does)."""
+def call_hermes(prompt: str) -> str:
+    """Call MiniMax using the OpenAI SDK directly (synchronous for run_in_executor)."""
     try:
         from openai import OpenAI
 
