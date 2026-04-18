@@ -664,19 +664,57 @@ export function LandingClient() {
 
       {/* ── Footer ─────────────────────────────────────────────────────── */}
       <footer aria-label="Site footer" role="contentinfo" className="border-t border-[#1a1a1a]">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 sm:flex-row">
-          <div className="flex items-center gap-3">
-            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-[#4FC3F7] to-[#F5C542]">
-              <span className="text-[10px] font-bold text-white">NB</span>
+        <div className="mx-auto max-w-6xl px-6 py-12">
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
+            <div>
+              <h4 className="text-sm font-semibold text-white mb-3">Services</h4>
+              <ul className="space-y-2">
+                <li><button onClick={() => scrollTo("services")} className="text-sm text-[#737373] hover:text-white">Website Design</button></li>
+                <li><button onClick={() => scrollTo("services")} className="text-sm text-[#737373] hover:text-white">SEO Optimization</button></li>
+                <li><button onClick={() => scrollTo("services")} className="text-sm text-[#737373] hover:text-white">Social Media</button></li>
+                <li><button onClick={() => scrollTo("services")} className="text-sm text-[#737373] hover:text-white">Content Marketing</button></li>
+                <li><button onClick={() => scrollTo("services")} className="text-sm text-[#737373] hover:text-white">Brand Strategy</button></li>
+                <li><button onClick={() => scrollTo("services")} className="text-sm text-[#737373] hover:text-white">Digital Systems</button></li>
+              </ul>
             </div>
-            <span className="text-sm text-[#9ca3af]">
-              Northbridge Digital &copy; 2026. Build. Launch. Grow.
-            </span>
+            <div>
+              <h4 className="text-sm font-semibold text-white mb-3">Company</h4>
+              <ul className="space-y-2">
+                <li><button onClick={() => scrollTo("how-it-works")} className="text-sm text-[#737373] hover:text-white">How It Works</button></li>
+                <li><button onClick={() => scrollTo("pricing")} className="text-sm text-[#737373] hover:text-white">Pricing</button></li>
+                <li><button onClick={() => scrollTo("ventures")} className="text-sm text-[#737373] hover:text-white">Ventures</button></li>
+                <li><Link href="/book" className="text-sm text-[#737373] hover:text-white">Book a Call</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold text-white mb-3">Resources</h4>
+              <ul className="space-y-2">
+                <li><Link href="/signup" className="text-sm text-[#737373] hover:text-white">Get Started</Link></li>
+                <li><Link href="/login" className="text-sm text-[#737373] hover:text-white">Client Login</Link></li>
+                <li><Link href="/book" className="text-sm text-[#737373] hover:text-white">Free Consultation</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold text-white mb-3">Legal</h4>
+              <ul className="space-y-2">
+                <li><Link href="/terms" className="text-sm text-[#737373] hover:text-white">Terms of Service</Link></li>
+                <li><Link href="/privacy" className="text-sm text-[#737373] hover:text-white">Privacy Policy</Link></li>
+              </ul>
+              <h4 className="text-sm font-semibold text-white mb-3 mt-6">Contact</h4>
+              <p className="text-sm text-[#737373]">hello@thenorthbridgemi.org</p>
+              <p className="text-sm text-[#737373]">Michigan, USA</p>
+            </div>
           </div>
-          <div className="flex items-center gap-6">
-            <Link href="/terms" className="text-sm text-[#737373] transition-colors hover:text-white">Terms</Link>
-            <Link href="/privacy" className="text-sm text-[#737373] transition-colors hover:text-white">Privacy</Link>
-            <Link href="/login" className="text-sm text-[#737373] transition-colors hover:text-white">Sign In</Link>
+          <div className="mt-8 border-t border-[#1a1a1a] pt-6 flex flex-col items-center justify-between gap-4 sm:flex-row">
+            <div className="flex items-center gap-3">
+              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-[#4FC3F7] to-[#F5C542]">
+                <span className="text-[10px] font-bold text-white">NB</span>
+              </div>
+              <span className="text-sm text-[#9ca3af]">
+                Northbridge Digital &copy; 2026. Build. Launch. Grow.
+              </span>
+            </div>
+            <p className="text-xs text-[#737373]">Michigan digital agency — websites, SEO, social media &amp; digital growth</p>
           </div>
         </div>
       </footer>
