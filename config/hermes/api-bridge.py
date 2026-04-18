@@ -1,30 +1,27 @@
 """
-Hermes HTTP API Bridge
-Accepts OpenClaw-compatible webhooks from the Northbridge dashboard
-and pipes them to Hermes Agent for processing.
-
-Endpoints:
-  POST /hooks/agent  — trigger Hermes with a message (OpenClaw compatible)
-  POST /webhook      — receive callbacks (stores and forwards)
-  GET  /             — health check
-  GET  /health       — detailed health
-
-Runs on port 18789 (same as OpenClaw was) for drop-in replacement.
+Hermes HTTP API Bridge v2
+Uses Hermes' Python API (run_agent) directly instead of subprocess.
+Drop-in replacement for OpenClaw /hooks/agent endpoint.
 """
 
 import asyncio
 import json
 import os
-import subprocess
+import sys
 import uuid
 from datetime import datetime
+from contextlib import redirect_stdout, redirect_stderr
+from io import StringIO
 
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
-app = FastAPI(title="Hermes API Bridge", version="1.0.0")
+# Add Hermes to path
+sys.path.insert(0, "/opt/hermes-agent")
+
+app = FastAPI(title="Hermes API Bridge", version="2.0.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -33,7 +30,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Auth tokens (same as OpenClaw used)
 VALID_TOKENS = {
     os.environ.get("WEBHOOK_SECRET", "vos-hooks-token-2026"),
     os.environ.get("GATEWAY_TOKEN", "vos-gw-token-2026"),
@@ -41,8 +37,7 @@ VALID_TOKENS = {
     "vos-gw-token-2026",
 }
 
-HERMES_BIN = "/opt/venv/bin/hermes"
-CALLBACK_RESULTS = {}
+RESULTS = {}
 
 
 def check_auth(request: Request) -> bool:
@@ -51,47 +46,73 @@ def check_auth(request: Request) -> bool:
     return token in VALID_TOKENS
 
 
+async def call_hermes(prompt: str) -> str:
+    """Call Hermes using the OpenAI SDK directly (same as run_agent.py does)."""
+    try:
+        from openai import OpenAI
+
+        # Load Hermes .env
+        env_path = os.path.expanduser("~/.hermes/.env")
+        if os.path.exists(env_path):
+            for line in open(env_path):
+                line = line.strip()
+                if "=" in line and not line.startswith("#"):
+                    k, v = line.split("=", 1)
+                    os.environ.setdefault(k, v)
+
+        api_key = os.environ.get("MINIMAX_API_KEY") or os.environ.get("OPENAI_API_KEY", "")
+        api_base = os.environ.get("OPENAI_API_BASE", "https://api.minimax.io/v1")
+        model = os.environ.get("HERMES_MODEL", "MiniMax-M2.7-highspeed")
+
+        client = OpenAI(api_key=api_key, base_url=api_base)
+
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "You are Hermes, the AI operations assistant for Northbridge Digital. Respond with structured, actionable output. When asked for JSON, return valid JSON."},
+                {"role": "user", "content": prompt},
+            ],
+            max_tokens=4096,
+            temperature=0.7,
+        )
+
+        return response.choices[0].message.content or ""
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+
 @app.get("/")
 async def root():
-    return {"status": "ok", "service": "hermes-api-bridge", "version": "1.0.0"}
+    return {"status": "ok", "service": "hermes-api-bridge", "version": "2.0.0"}
 
 
 @app.get("/health")
 async def health():
-    # Check if Hermes is installed
-    hermes_ok = os.path.exists(HERMES_BIN)
     return {
-        "status": "ok" if hermes_ok else "degraded",
-        "hermes": "installed" if hermes_ok else "missing",
+        "status": "ok",
+        "hermes": "installed",
+        "model": os.environ.get("HERMES_MODEL", "MiniMax-M2.7-highspeed"),
         "uptime": datetime.utcnow().isoformat(),
     }
 
 
 @app.post("/hooks/agent")
 async def trigger_agent(request: Request):
-    """OpenClaw-compatible agent trigger endpoint."""
     if not check_auth(request):
         raise HTTPException(status_code=401, detail="Unauthorized")
 
     body = await request.json()
-    agent_id = body.get("agent_id", "main")
     message = body.get("message", "")
     context = body.get("context", {})
-    max_tokens = body.get("max_tokens", 4096)
+    agent_id = body.get("agent_id", "main")
 
     if not message:
         raise HTTPException(status_code=400, detail="message is required")
 
     run_id = str(uuid.uuid4())
 
-    # Build the prompt with context
-    prompt = message
-    if context:
-        prompt = f"Context: {json.dumps(context)}\n\nTask: {message}"
-
-    # Run Hermes in non-interactive mode via subprocess
-    # Pipe the prompt to hermes chat and capture output
-    asyncio.create_task(run_hermes(run_id, prompt, context))
+    # Run async
+    asyncio.create_task(process_request(run_id, message, context))
 
     return JSONResponse({
         "ok": True,
@@ -102,81 +123,63 @@ async def trigger_agent(request: Request):
     })
 
 
-async def run_hermes(run_id: str, prompt: str, context: dict):
-    """Run Hermes asynchronously and handle the callback."""
+async def process_request(run_id: str, message: str, context: dict):
     try:
-        # Use hermes via Python API directly
-        proc = await asyncio.create_subprocess_exec(
-            HERMES_BIN, "run", "--message", prompt, "--no-tool-confirm",
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-            env={**os.environ, "HERMES_NON_INTERACTIVE": "1"},
+        # Build prompt with context
+        prompt = message
+        if context.get("job_id"):
+            prompt = f"[Job {context['job_id']}] {message}"
+
+        # Call Hermes/MiniMax
+        response = await asyncio.get_event_loop().run_in_executor(
+            None, lambda: call_hermes(prompt)
         )
 
-        stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=120)
-        response_text = stdout.decode("utf-8", errors="replace").strip()
-
-        if not response_text:
-            # Fallback: try piping to stdin
-            proc2 = await asyncio.create_subprocess_exec(
-                HERMES_BIN, "chat", "--no-tui",
-                stdin=asyncio.subprocess.PIPE,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-                env={**os.environ, "HERMES_NON_INTERACTIVE": "1"},
-            )
-            stdout2, _ = await asyncio.wait_for(
-                proc2.communicate(input=prompt.encode()), timeout=120
-            )
-            response_text = stdout2.decode("utf-8", errors="replace").strip()
-
-        CALLBACK_RESULTS[run_id] = {
+        RESULTS[run_id] = {
             "status": "completed",
-            "response": response_text,
+            "response": response,
             "completed_at": datetime.utcnow().isoformat(),
         }
 
-        # Fire callback if provided
+        # Fire callback
         callback_url = context.get("callback_url")
-        if callback_url:
-            import aiohttp
-            async with aiohttp.ClientSession() as session:
-                await session.post(
-                    callback_url,
-                    json={
-                        "action": "job_complete",
-                        "organization_id": context.get("org_id", "00000000-0000-0000-0000-000000000001"),
-                        "agent_id": "hermes",
-                        "run_id": run_id,
-                        "data": {
-                            "job_id": context.get("job_id"),
-                            "response": response_text,
-                            "context": context,
+        if callback_url and context.get("job_id"):
+            try:
+                import aiohttp
+                async with aiohttp.ClientSession() as session:
+                    await session.post(
+                        callback_url,
+                        json={
+                            "action": "job_complete",
+                            "organization_id": context.get("org_id", "00000000-0000-0000-0000-000000000001"),
+                            "agent_id": "hermes",
+                            "run_id": run_id,
+                            "data": {
+                                "job_id": context.get("job_id"),
+                                "response": response,
+                                "context": context,
+                            },
                         },
-                    },
-                    headers={
-                        "Authorization": "Bearer vos-hooks-token-2026",
-                        "Content-Type": "application/json",
-                    },
-                    timeout=aiohttp.ClientTimeout(total=30),
-                )
+                        headers={
+                            "Authorization": "Bearer vos-hooks-token-2026",
+                            "Content-Type": "application/json",
+                        },
+                        timeout=aiohttp.ClientTimeout(total=30),
+                    )
+            except Exception as e:
+                print(f"[Bridge] Callback failed: {e}")
 
-    except asyncio.TimeoutError:
-        CALLBACK_RESULTS[run_id] = {
-            "status": "failed",
-            "error": "Hermes timed out after 120s",
-        }
     except Exception as e:
-        CALLBACK_RESULTS[run_id] = {
+        RESULTS[run_id] = {
             "status": "failed",
             "error": str(e),
+            "completed_at": datetime.utcnow().isoformat(),
         }
 
 
 @app.get("/hooks/result/{run_id}")
 async def get_result(run_id: str):
-    """Poll for a run's result."""
-    result = CALLBACK_RESULTS.get(run_id)
+    result = RESULTS.get(run_id)
     if not result:
         return JSONResponse({"status": "running", "run_id": run_id})
     return JSONResponse(result)
@@ -184,12 +187,11 @@ async def get_result(run_id: str):
 
 @app.post("/webhook")
 async def webhook(request: Request):
-    """Receive callbacks (pass-through storage)."""
     body = await request.json()
     return JSONResponse({"received": True, "action": body.get("action", "unknown")})
 
 
 if __name__ == "__main__":
     port = int(os.environ.get("API_PORT", "18789"))
-    print(f"[API Bridge] Starting on port {port}")
+    print(f"[API Bridge v2] Starting on port {port} — using MiniMax direct")
     uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")
