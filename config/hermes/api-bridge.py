@@ -46,8 +46,33 @@ def check_auth(request: Request) -> bool:
     return token in VALID_TOKENS
 
 
-def call_hermes(prompt: str) -> str:
-    """Call MiniMax using the OpenAI SDK directly (synchronous for run_in_executor)."""
+FIRECRAWL_KEY = os.environ.get("FIRECRAWL_API_KEY", "fc-95a5ceb8c562458a97aa4eb84c6a79af")
+
+
+def crawl_url(url: str) -> str:
+    """Fetch a URL via Firecrawl and return markdown content."""
+    try:
+        import requests
+        res = requests.post(
+            "https://api.firecrawl.dev/v1/scrape",
+            json={"url": url, "formats": ["markdown"]},
+            headers={"Authorization": f"Bearer {FIRECRAWL_KEY}", "Content-Type": "application/json"},
+            timeout=30,
+        )
+        if res.ok:
+            data = res.json().get("data", {})
+            md = data.get("markdown", "")
+            meta = data.get("metadata", {})
+            title = meta.get("title", "")
+            desc = meta.get("description", "")
+            return f"Page title: {title}\nMeta description: {desc}\n\nPage content:\n{md[:8000]}"
+        return f"Firecrawl error: {res.status_code}"
+    except Exception as e:
+        return f"Crawl failed: {str(e)}"
+
+
+def call_hermes(prompt: str, context: dict = None) -> str:
+    """Call MiniMax using the OpenAI SDK. Auto-crawls URLs for audits."""
     try:
         from openai import OpenAI
 
@@ -60,6 +85,15 @@ def call_hermes(prompt: str) -> str:
                     k, v = line.split("=", 1)
                     os.environ.setdefault(k, v)
 
+        # Auto-crawl for audit jobs
+        ctx = context or {}
+        target_url = ctx.get("target_url", "")
+        job_type = ctx.get("job_type", "")
+        if target_url and job_type in ("seo_audit", "site_audit", "branding_audit", "competitor_research"):
+            print(f"[Bridge] Crawling {target_url} via Firecrawl...")
+            page_content = crawl_url(target_url)
+            prompt = f"{prompt}\n\n--- CRAWLED PAGE DATA ---\n{page_content}"
+
         api_key = os.environ.get("MINIMAX_API_KEY") or os.environ.get("OPENAI_API_KEY", "")
         api_base = os.environ.get("OPENAI_API_BASE", "https://api.minimax.io/v1")
         model = os.environ.get("HERMES_MODEL", "MiniMax-M2.7-highspeed")
@@ -69,10 +103,10 @@ def call_hermes(prompt: str) -> str:
         response = client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": "You are Hermes, the AI operations assistant for Northbridge Digital. Respond with structured, actionable output. When asked for JSON, return valid JSON."},
+                {"role": "system", "content": "You are Hermes, the AI operations assistant for Northbridge Digital. You have access to crawled web page data. Analyze it thoroughly. Return structured JSON when asked."},
                 {"role": "user", "content": prompt},
             ],
-            max_tokens=4096,
+            max_tokens=8192,
             temperature=0.7,
         )
 
@@ -130,9 +164,9 @@ async def process_request(run_id: str, message: str, context: dict):
         if context.get("job_id"):
             prompt = f"[Job {context['job_id']}] {message}"
 
-        # Call Hermes/MiniMax
+        # Call MiniMax (with auto-crawl for audits)
         response = await asyncio.get_event_loop().run_in_executor(
-            None, lambda: call_hermes(prompt)
+            None, lambda: call_hermes(prompt, context)
         )
 
         RESULTS[run_id] = {
