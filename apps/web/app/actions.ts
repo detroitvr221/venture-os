@@ -854,7 +854,7 @@ export async function runSeoAudit(
   });
 
   // ── Trigger OpenClaw to actually run the SEO audit ──
-  const OPENCLAW_URL = process.env.OPENCLAW_GATEWAY_URL || 'https://claw.thenorthbridgemi.com';
+  const OPENCLAW_URL = process.env.OPENCLAW_GATEWAY_URL || 'http://187.77.207.22:18789';
   const OPENCLAW_TOKEN = process.env.OPENCLAW_API_KEY || 'vos-hooks-token-2026';
   const WEBHOOK_URL = process.env.NEXT_PUBLIC_SITE_URL
     ? `${process.env.NEXT_PUBLIC_SITE_URL}/api/openclaw/webhook`

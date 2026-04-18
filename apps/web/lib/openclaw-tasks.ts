@@ -14,7 +14,7 @@
 import { createClient } from "@/lib/supabase/server";
 
 const OPENCLAW_URL =
-  process.env.OPENCLAW_GATEWAY_URL || "https://claw.thenorthbridgemi.com";
+  process.env.OPENCLAW_GATEWAY_URL || "http://187.77.207.22:18789";
 const OPENCLAW_TOKEN =
   process.env.OPENCLAW_API_KEY || "vos-hooks-token-2026";
 const WEBHOOK_URL =

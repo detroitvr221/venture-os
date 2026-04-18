@@ -22,24 +22,24 @@ export async function GET() {
     checks.supabase = "unreachable";
   }
 
-  // OpenClaw VPS 1
-  try {
-    const res = await fetch("https://claw.thenorthbridgemi.com/", {
-      signal: AbortSignal.timeout(5000),
-    });
-    checks.openclaw_vps1 = res.ok ? "ok" : "error";
-  } catch {
-    checks.openclaw_vps1 = "unreachable";
-  }
-
-  // OpenClaw VPS 2
+  // Hermes API Bridge (VPS 2 — replaced OpenClaw)
   try {
     const res = await fetch("http://187.77.207.22:18789/health", {
       signal: AbortSignal.timeout(5000),
     });
-    checks.openclaw_vps2 = res.ok ? "ok" : "error";
+    checks.hermes = res.ok ? "ok" : "error";
   } catch {
-    checks.openclaw_vps2 = "unreachable";
+    checks.hermes = "unreachable";
+  }
+
+  // SMTP Receiver (VPS 1)
+  try {
+    const res = await fetch("http://145.223.75.46:8080/", {
+      signal: AbortSignal.timeout(5000),
+    });
+    checks.filebrowser = res.ok ? "ok" : "error";
+  } catch {
+    checks.filebrowser = "unreachable";
   }
 
   const allOk = Object.values(checks).every((v) => v === "ok");

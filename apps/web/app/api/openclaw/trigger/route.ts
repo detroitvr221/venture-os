@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
 
   // 4. POST to OpenClaw gateway
   const gatewayUrl =
-    process.env.OPENCLAW_GATEWAY_URL ?? 'https://claw.thenorthbridgemi.com';
+    process.env.OPENCLAW_GATEWAY_URL ?? 'http://187.77.207.22:18789';
   const gatewayApiKey = process.env.OPENCLAW_API_KEY;
 
   if (!gatewayApiKey) {
