@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import Pagination from "@/components/Pagination";
+import EmptyState from "@/components/EmptyState";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -103,6 +105,8 @@ export default function ReportsPage() {
   const [newReportType, setNewReportType] = useState("seo_audit");
   const [newReportUrl, setNewReportUrl] = useState("");
   const [aiSubmitting, setAiSubmitting] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
   // Resolve org ID from the authenticated user
   useEffect(() => {
@@ -132,18 +136,20 @@ export default function ReportsPage() {
 
     let query = supabase
       .from("reports")
-      .select("id, title, report_type, score, target_url, created_at")
+      .select("id, title, report_type, score, target_url, created_at", { count: "exact" })
       .eq("organization_id", orgId)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .range((page - 1) * 25, page * 25 - 1);
 
     if (typeFilter !== "all") {
       query = query.eq("report_type", typeFilter);
     }
 
-    const { data } = await query;
+    const { data, count } = await query;
     setReports((data ?? []) as ReportRow[]);
+    setTotalCount(count || 0);
     setLoading(false);
-  }, [orgId, typeFilter]);
+  }, [orgId, typeFilter, page]);
 
   useEffect(() => {
     if (orgId) {
@@ -396,14 +402,13 @@ export default function ReportsPage() {
       {/* Reports Table */}
       <div className="rounded-xl border border-[#222] bg-[#0a0a0a]">
         {filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16">
-            <FileText className="h-10 w-10 text-[#333]" />
-            <p className="mt-3 text-sm text-[#9ca3af]">
-              {search || typeFilter !== "all"
-                ? "No reports match your filters"
-                : "No reports yet. Reports will appear here as jobs complete."}
-            </p>
-          </div>
+          <EmptyState
+            icon={FileText}
+            title={search || typeFilter !== "all" ? "No reports match your filters" : "No reports yet"}
+            description={search || typeFilter !== "all" ? "Try adjusting your search or filters" : "Reports will appear here as jobs complete"}
+            actionLabel={!(search || typeFilter !== "all") ? "New AI Report" : undefined}
+            onAction={!(search || typeFilter !== "all") ? () => setShowNewReport(true) : undefined}
+          />
         ) : (
           <table className="w-full">
             <thead>
@@ -516,6 +521,8 @@ export default function ReportsPage() {
           </table>
         )}
       </div>
+
+      <Pagination page={page} totalPages={Math.ceil(totalCount / 25)} onPageChange={setPage} />
     </div>
   );
 }

@@ -8,21 +8,32 @@ import {
   Database,
   Zap,
 } from "lucide-react";
-import { createClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
 // ─── Supabase ───────────────────────────────────────────────────────────────
 
-function getDb() {
-  return createClient(
+async function getDb() {
+  const cookieStore = await cookies();
+  return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } },
+    { cookies: { getAll() { return cookieStore.getAll(); }, setAll() {} } }
   );
 }
 
-const ORG_ID =
-  process.env.DEFAULT_ORGANIZATION_ID ??
-  "00000000-0000-0000-0000-000000000001";
+async function getOrgId(db: Awaited<ReturnType<typeof getDb>>) {
+  const { data: { user } } = await db.auth.getUser();
+  if (user) {
+    const { data } = await db
+      .from("organization_members")
+      .select("organization_id")
+      .eq("user_id", user.id)
+      .single();
+    if (data?.organization_id) return data.organization_id as string;
+  }
+  return "00000000-0000-0000-0000-000000000001";
+}
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -39,7 +50,8 @@ interface AgentRow {
 // ─── Data Fetching ──────────────────────────────────────────────────────────
 
 async function getAgentsData() {
-  const db = getDb();
+  const db = await getDb();
+  const ORG_ID = await getOrgId(db);
 
   const { data: agents, error } = await db
     .from("agents")

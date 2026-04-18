@@ -14,6 +14,8 @@ import {
 import { createSubCompany } from "../../actions";
 import { createClient } from "@/lib/supabase/client";
 import { useOrgId } from "@/lib/useOrgId";
+import Pagination from "@/components/Pagination";
+import EmptyState from "@/components/EmptyState";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -42,15 +44,20 @@ export default function CompaniesPage() {
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
   const fetchCompanies = useCallback(async () => {
     const db = createClient();
 
-    const { data: companiesData, error } = await db
+    const { data: companiesData, error, count } = await db
       .from("sub_companies")
-      .select("*")
+      .select("*", { count: "exact" })
       .eq("organization_id", orgId)
-      .order("created_at", { ascending: true });
+      .order("created_at", { ascending: true })
+      .range((page - 1) * 25, page * 25 - 1);
+
+    setTotalCount(count || 0);
 
     if (error) {
       console.error("Failed to fetch companies:", error.message);
@@ -88,7 +95,7 @@ export default function CompaniesPage() {
 
     setCompanies(enriched);
     setLoading(false);
-  }, [orgId]);
+  }, [orgId, page]);
 
   useEffect(() => {
     fetchCompanies();
@@ -173,6 +180,15 @@ export default function CompaniesPage() {
       )}
 
       {/* Company Grid */}
+      {companies.length === 0 ? (
+        <EmptyState
+          icon={Building2}
+          title="No companies yet"
+          description="Create your first company to get started"
+          actionLabel="Create Company"
+          onAction={() => setShowCreate(true)}
+        />
+      ) : (
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
         {companies.map((company, index) => {
           const master = isMaster(company, index);
@@ -275,6 +291,9 @@ export default function CompaniesPage() {
           </p>
         </button>
       </div>
+      )}
+
+      <Pagination page={page} totalPages={Math.ceil(totalCount / 25)} onPageChange={setPage} />
     </div>
   );
 }

@@ -1,13 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useOrgId } from "@/lib/useOrgId";
 import { useCompany } from "@/lib/company-context";
 import { toast } from "sonner";
 import { Users, Plus, Search, Building2, Mail, Phone, ExternalLink, DollarSign } from "lucide-react";
 import { SkeletonGrid } from "@/components/Skeleton";
+import Pagination from "@/components/Pagination";
+import EmptyState from "@/components/EmptyState";
 
 type Client = {
   id: string;
@@ -23,29 +26,34 @@ type Client = {
 
 export default function ClientsPage() {
   const orgId = useOrgId();
+  const router = useRouter();
   const { companyId } = useCompany();
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", phone: "", website: "", industry: "" });
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
-  useEffect(() => {
-    loadClients();
-  }, [orgId, companyId]);
-
-  async function loadClients() {
+  const loadClients = useCallback(async () => {
     const supabase = createClient();
     let query = supabase
       .from("clients")
-      .select("*")
+      .select("*", { count: "exact" })
       .eq("organization_id", orgId)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .range((page - 1) * 25, page * 25 - 1);
     if (companyId) query = query.eq("company_id", companyId);
-    const { data } = await query;
+    const { data, count } = await query;
     setClients(data || []);
+    setTotalCount(count || 0);
     setLoading(false);
-  }
+  }, [orgId, companyId, page]);
+
+  useEffect(() => {
+    loadClients();
+  }, [loadClients]);
 
   async function handleAdd() {
     if (!form.name) return;
@@ -135,9 +143,14 @@ export default function ClientsPage() {
         {loading ? (
           <SkeletonGrid cards={6} />
         ) : filtered.length === 0 ? (
-          <div className="col-span-full flex flex-col items-center py-16">
-            <Users className="mb-3 h-10 w-10 text-[#333]" />
-            <p className="text-sm text-[#666]">No clients yet</p>
+          <div className="col-span-full">
+            <EmptyState
+              icon={Users}
+              title="No clients yet"
+              description="Add your first client to get started"
+              actionLabel="Add Client"
+              onAction={() => setShowAdd(true)}
+            />
           </div>
         ) : (
           filtered.map((client) => (
@@ -183,6 +196,8 @@ export default function ClientsPage() {
           ))
         )}
       </div>
+
+      <Pagination page={page} totalPages={Math.ceil(totalCount / 25)} onPageChange={setPage} />
     </div>
   );
 }

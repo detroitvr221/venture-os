@@ -17,7 +17,8 @@ import {
   Hash,
 } from "lucide-react";
 import { updateInvoiceStatus } from "../../../../actions";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/client";
+import { useOrgId } from "@/lib/useOrgId";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -51,15 +52,8 @@ interface ClientInfo {
 // ─── Supabase ───────────────────────────────────────────────────────────────
 
 function getClientDb() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
+  return createClient();
 }
-
-const ORG_ID =
-  process.env.NEXT_PUBLIC_DEFAULT_ORGANIZATION_ID ??
-  "00000000-0000-0000-0000-000000000001";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -89,6 +83,7 @@ const statusColors: Record<string, { text: string; bg: string }> = {
 export default function InvoiceDetailPage() {
   const params = useParams();
   const invoiceId = params.id as string;
+  const orgId = useOrgId();
 
   const [invoice, setInvoice] = useState<InvoiceDetail | null>(null);
   const [clientInfo, setClientInfo] = useState<ClientInfo | null>(null);
@@ -102,7 +97,7 @@ export default function InvoiceDetailPage() {
       .from("invoices")
       .select("*")
       .eq("id", invoiceId)
-      .eq("organization_id", ORG_ID)
+      .eq("organization_id", orgId)
       .single();
 
     if (invoiceData) {

@@ -20,7 +20,8 @@ import {
   sendProposal,
   acceptProposal,
 } from "../../../actions";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/client";
+import { useOrgId } from "@/lib/useOrgId";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -50,15 +51,8 @@ interface TimelineEntry {
 // ─── Supabase ───────────────────────────────────────────────────────────────
 
 function getClientDb() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  return createClient();
 }
-
-const ORG_ID =
-  process.env.NEXT_PUBLIC_DEFAULT_ORGANIZATION_ID ??
-  "00000000-0000-0000-0000-000000000001";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -96,6 +90,7 @@ export default function ProposalDetailPage() {
   const params = useParams();
   const router = useRouter();
   const proposalId = params.id as string;
+  const orgId = useOrgId();
 
   const [proposal, setProposal] = useState<ProposalDetail | null>(null);
   const [leadName, setLeadName] = useState<string | null>(null);
@@ -113,12 +108,12 @@ export default function ProposalDetailPage() {
         .from("proposals")
         .select("*")
         .eq("id", proposalId)
-        .eq("organization_id", ORG_ID)
+        .eq("organization_id", orgId)
         .single(),
       db
         .from("audit_logs")
         .select("id, action, actor_id, changes, created_at")
-        .eq("organization_id", ORG_ID)
+        .eq("organization_id", orgId)
         .eq("resource_id", proposalId)
         .order("created_at", { ascending: false })
         .limit(20),
@@ -195,7 +190,7 @@ export default function ProposalDetailPage() {
       .from("proposals")
       .update({ status: "rejected" })
       .eq("id", proposalId)
-      .eq("organization_id", ORG_ID);
+      .eq("organization_id", orgId);
     setActing(false);
     showMessage("Proposal rejected");
     fetchData();

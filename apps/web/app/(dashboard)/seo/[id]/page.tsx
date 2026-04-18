@@ -18,7 +18,8 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { runSeoAudit } from "../../../actions";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/client";
+import { useOrgId } from "@/lib/useOrgId";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -54,15 +55,8 @@ type Severity = "critical" | "warning" | "info" | "pass";
 // ─── Supabase ───────────────────────────────────────────────────────────────
 
 function getClientDb() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  return createClient();
 }
-
-const ORG_ID =
-  process.env.NEXT_PUBLIC_DEFAULT_ORGANIZATION_ID ??
-  "00000000-0000-0000-0000-000000000001";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -115,6 +109,7 @@ function scoreColor(score: number | null): string {
 export default function SeoAuditDetailPage() {
   const params = useParams();
   const auditId = params.id as string;
+  const orgId = useOrgId();
 
   const [audit, setAudit] = useState<AuditDetail | null>(null);
   const [website, setWebsite] = useState<WebsiteInfo | null>(null);
@@ -130,14 +125,14 @@ export default function SeoAuditDetailPage() {
         .from("website_audits")
         .select("*")
         .eq("id", auditId)
-        .eq("organization_id", ORG_ID)
+        .eq("organization_id", orgId)
         .single(),
       db
         .from("seo_findings")
         .select(
           "id, category, severity, title, description, recommendation, page_url"
         )
-        .eq("organization_id", ORG_ID)
+        .eq("organization_id", orgId)
         .eq("audit_id", auditId)
         .order("created_at", { ascending: true }),
     ]);

@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/client";
 import { useOrgId } from "@/lib/useOrgId";
 import { toast } from "sonner";
 import { TableSkeleton } from "@/components/PageSkeleton";
+import Pagination from "@/components/Pagination";
+import EmptyState from "@/components/EmptyState";
 import {
   Users,
   Search,
@@ -99,6 +101,8 @@ export default function PeoplePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
   // Profile editor
   const [showEditor, setShowEditor] = useState(false);
@@ -134,10 +138,13 @@ export default function PeoplePage() {
     const supabase = createClient();
 
     // Get org members with roles
-    const { data: members } = await supabase
+    const { data: members, count } = await supabase
       .from("organization_members")
-      .select("user_id, role")
-      .eq("organization_id", orgId);
+      .select("user_id, role", { count: "exact" })
+      .eq("organization_id", orgId)
+      .range((page - 1) * 25, page * 25 - 1);
+
+    setTotalCount(count || 0);
 
     if (!members || members.length === 0) {
       setLoading(false);
@@ -188,7 +195,7 @@ export default function PeoplePage() {
 
     setProfiles(allProfiles);
     setLoading(false);
-  }, [orgId]);
+  }, [orgId, page]);
 
   useEffect(() => {
     loadProfiles();
@@ -509,12 +516,13 @@ export default function PeoplePage() {
       {loading ? (
         <TableSkeleton />
       ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#222] bg-[#0a0a0a] py-16">
-          <Users className="mb-3 h-10 w-10 text-[#333]" />
-          <p className="text-sm text-[#888]">
-            {searchQuery ? "No people match your search" : "No team members yet"}
-          </p>
-        </div>
+        <EmptyState
+          icon={Users}
+          title={searchQuery ? "No people match your search" : "No team members yet"}
+          description={searchQuery ? "Try a different search term" : "Invite team members to get started"}
+          actionLabel={searchQuery ? undefined : "Edit My Profile"}
+          onAction={searchQuery ? undefined : openEditor}
+        />
       ) : viewMode === "grid" ? (
         /* Grid View */
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -707,6 +715,8 @@ export default function PeoplePage() {
           })}
         </div>
       )}
+
+      <Pagination page={page} totalPages={Math.ceil(totalCount / 25)} onPageChange={setPage} />
     </div>
   );
 }

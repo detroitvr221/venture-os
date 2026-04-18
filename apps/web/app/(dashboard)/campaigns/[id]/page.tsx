@@ -24,7 +24,8 @@ import {
 } from "lucide-react";
 import { InlineReportPreview } from "@/components/InlineReportPreview";
 import { pauseCampaign, resumeCampaign } from "../../../actions";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/client";
+import { useOrgId } from "@/lib/useOrgId";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -73,15 +74,8 @@ interface OutreachRow {
 // ─── Supabase ───────────────────────────────────────────────────────────────
 
 function getClientDb() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  return createClient();
 }
-
-const ORG_ID =
-  process.env.NEXT_PUBLIC_DEFAULT_ORGANIZATION_ID ??
-  "00000000-0000-0000-0000-000000000001";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -115,6 +109,7 @@ const statusColors: Record<string, { text: string; bg: string }> = {
 export default function CampaignDetailPage() {
   const params = useParams();
   const campaignId = params.id as string;
+  const orgId = useOrgId();
 
   const [campaign, setCampaign] = useState<CampaignDetail | null>(null);
   const [contacts, setContacts] = useState<ContactRow[]>([]);
@@ -133,12 +128,12 @@ export default function CampaignDetailPage() {
         .from("campaigns")
         .select("*")
         .eq("id", campaignId)
-        .eq("organization_id", ORG_ID)
+        .eq("organization_id", orgId)
         .single(),
       db
         .from("outreach_events")
         .select("id, contact_id, channel, status, content, created_at")
-        .eq("organization_id", ORG_ID)
+        .eq("organization_id", orgId)
         .eq("campaign_id", campaignId)
         .order("created_at", { ascending: false })
         .limit(50),
@@ -206,7 +201,7 @@ export default function CampaignDetailPage() {
       .from("campaigns")
       .update({ status: "cancelled" })
       .eq("id", campaignId)
-      .eq("organization_id", ORG_ID);
+      .eq("organization_id", orgId);
     setActing(false);
     toast.success("Campaign cancelled");
     fetchData();
@@ -218,7 +213,7 @@ export default function CampaignDetailPage() {
     try {
       const db = getClientDb();
       const { data: job } = await db.from("audit_jobs").insert({
-        organization_id: ORG_ID,
+        organization_id: orgId,
         job_type: "custom",
         status: "queued",
         input_payload: {
@@ -239,7 +234,7 @@ export default function CampaignDetailPage() {
           body: JSON.stringify({
             agent_id: "main",
             message: `Write an email for campaign ${campaign.name}, type ${campaign.campaign_type}. Generate: subject line variants, email body, and CTA suggestions.`,
-            organization_id: ORG_ID,
+            organization_id: orgId,
             job_id: job.id,
             context: { source: "campaign_detail", campaign_id: campaign.id },
           }),

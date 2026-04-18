@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useOrgId } from "@/lib/useOrgId";
 import { useCompany } from "@/lib/company-context";
 import { toast } from "sonner";
 import { UserPlus, CheckCircle2, Clock, AlertCircle, ArrowRight, RefreshCw } from "lucide-react";
+import Pagination from "@/components/Pagination";
+import EmptyState from "@/components/EmptyState";
 
 type OnboardingStep = { index: number; title: string; completed: boolean; completed_at: string | null };
 
@@ -34,12 +36,12 @@ export default function OnboardingPage() {
   const [showNew, setShowNew] = useState(false);
   const [newClientId, setNewClientId] = useState("");
   const [newTemplateId, setNewTemplateId] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
-  useEffect(() => { loadData(); }, [companyId]);
-
-  async function loadData() {
+  const loadData = useCallback(async () => {
     const supabase = createClient();
-    let obQuery = supabase.from("onboarding_checklists").select("*, clients(name), service_templates(name, tier, track)").eq("organization_id", orgId).order("created_at", { ascending: false });
+    let obQuery = supabase.from("onboarding_checklists").select("*, clients(name), service_templates(name, tier, track)", { count: "exact" }).eq("organization_id", orgId).order("created_at", { ascending: false }).range((page - 1) * 25, page * 25 - 1);
     if (companyId) obQuery = obQuery.eq("company_id", companyId);
     const [ob, cl, tpl] = await Promise.all([
       obQuery,
@@ -47,10 +49,13 @@ export default function OnboardingPage() {
       supabase.from("service_templates").select("id, name, tier, track, setup_tasks").eq("organization_id", orgId).eq("is_active", true),
     ]);
     setOnboardings(ob.data || []);
+    setTotalCount(ob.count || 0);
     setClients(cl.data || []);
     setTemplates(tpl.data || []);
     setLoading(false);
-  }
+  }, [orgId, companyId, page]);
+
+  useEffect(() => { loadData(); }, [loadData]);
 
   async function handleCreate() {
     if (!newClientId || !newTemplateId) return;
@@ -145,11 +150,13 @@ export default function OnboardingPage() {
       {loading ? (
         <div className="py-16 text-center text-[#666]">Loading...</div>
       ) : onboardings.length === 0 ? (
-        <div className="flex flex-col items-center py-16">
-          <UserPlus className="mb-3 h-10 w-10 text-[#333]" />
-          <p className="text-sm text-[#666]">No onboardings yet</p>
-          <p className="mt-1 text-xs text-[#555]">Start one when a client signs up for a package</p>
-        </div>
+        <EmptyState
+          icon={UserPlus}
+          title="No onboardings yet"
+          description="Start one when a client signs up for a package"
+          actionLabel="New Onboarding"
+          onAction={() => setShowNew(true)}
+        />
       ) : (
         <div className="space-y-4">
           {onboardings.map((ob) => {
@@ -198,6 +205,8 @@ export default function OnboardingPage() {
           })}
         </div>
       )}
+
+      <Pagination page={page} totalPages={Math.ceil(totalCount / 25)} onPageChange={setPage} />
     </div>
   );
 }

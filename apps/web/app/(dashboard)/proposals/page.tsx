@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   FileText,
   ChevronRight,
@@ -16,6 +17,8 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { useOrgId } from "@/lib/useOrgId";
 import { useCompany } from "@/lib/company-context";
+import Pagination from "@/components/Pagination";
+import EmptyState from "@/components/EmptyState";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -65,26 +68,31 @@ const statusConfig: Record<
 
 export default function ProposalsPage() {
   const orgId = useOrgId();
+  const router = useRouter();
   const { companyId } = useCompany();
   const [proposals, setProposals] = useState<ProposalRow[]>([]);
   const [leadNames, setLeadNames] = useState<LeadMap>({});
   const [clientNames, setClientNames] = useState<ClientMap>({});
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<StatusFilter>("all");
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
   const fetchData = useCallback(async () => {
     const db = createClient();
 
     let query = db
       .from("proposals")
-      .select("id, title, status, amount, lead_id, client_id, sent_at, created_at")
+      .select("id, title, status, amount, lead_id, client_id, sent_at, created_at", { count: "exact" })
       .eq("organization_id", orgId)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .range((page - 1) * 25, page * 25 - 1);
     if (companyId) query = query.eq("company_id", companyId);
-    const { data: proposalsData } = await query;
+    const { data: proposalsData, count } = await query;
 
     const rows = (proposalsData ?? []) as ProposalRow[];
     setProposals(rows);
+    setTotalCount(count || 0);
 
     // Fetch lead names
     const leadIds = [
@@ -119,7 +127,7 @@ export default function ProposalsPage() {
     }
 
     setLoading(false);
-  }, [orgId, companyId]);
+  }, [orgId, companyId, page]);
 
   useEffect(() => {
     fetchData();
@@ -218,12 +226,13 @@ export default function ProposalsPage() {
       {/* Proposals Table */}
       <div className="rounded-xl border border-[#222] bg-[#0a0a0a]">
         {filtered.length === 0 ? (
-          <div className="flex items-center justify-center py-16">
-            <div className="text-center">
-              <FileText className="mx-auto h-8 w-8 text-[#333]" />
-              <p className="mt-3 text-sm text-[#666]">No proposals found</p>
-            </div>
-          </div>
+          <EmptyState
+            icon={FileText}
+            title="No proposals yet"
+            description="Create your first proposal to get started"
+            actionLabel="New Proposal"
+            onAction={() => router.push("/proposals/new")}
+          />
         ) : (
           <table className="w-full">
             <thead>
@@ -307,6 +316,8 @@ export default function ProposalsPage() {
           </table>
         )}
       </div>
+
+      <Pagination page={page} totalPages={Math.ceil(totalCount / 25)} onPageChange={setPage} />
     </div>
   );
 }
