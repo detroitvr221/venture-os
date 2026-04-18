@@ -72,10 +72,11 @@ config["channels"]["slack"] = {
     "groupPolicy": "open", "dmPolicy": "open", "allowFrom": ["*"],
     "streaming": {"mode": "partial", "nativeTransport": True}
 }
-# MoChat channel — THE critical config the plugin reads from openclaw.json
+# MoChat — DISABLED (was causing infinite fetch-failed loop killing the gateway)
+# Hermes on VPS2 handles Slack communication now
 mt = env("MOCHAT_TOKEN")
 mb = env("MOCHAT_BOT_USER_ID")
-if mt and mb:
+if False and mt and mb:
     config["channels"]["mochat"] = {
         "baseUrl": "https://mochat.io",
         "socketUrl": "https://mochat.io",
